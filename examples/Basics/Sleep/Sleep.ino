@@ -2,13 +2,13 @@
 
 void setup() {
   M5.begin();
+  M5.Power.begin();
   M5.Lcd.setBrightness(200);
-  M5.Lcd.begin();
-  M5.Lcd.clear();
-  Serial.begin(115200);
 
   M5.Power.setWakeupButton(BUTTON_A_PIN);
-
+  if(!M5.Power.canControl()) {
+    M5.Lcd.printf("IP5306 is not i2c version\n");
+  }
 }
 
 void loop() {
@@ -20,12 +20,22 @@ void loop() {
   M5.Lcd.printf("<<Sleep test>>\n");
   M5.Lcd.printf("power-on triggered at:%s%s\n\n",c?"POWER-SW":"",d?"DeepSleep-end":"");
   
-  M5.Lcd.printf("Go lightSleep (5s or press buttonA)\n");
+  M5.Lcd.printf("Go lightSleep (5s or press buttonA wake up)\n");
   delay(2500);
-  M5.Power.lightSleep(5000000);
+  // call this fun, power btn will Invalid
+  // Restore power btn please call M5.Power.setPowerBoostKeepOn(false)
+  M5.Power.lightSleep(SLEEP_SEC(5));
   
-  M5.Lcd.printf("resume.\n\nGo deepSleep (5s or press buttonA) ");
+  M5.Lcd.printf("Go lightSleep (press buttonA wake up)\n");
   delay(2500);
-  M5.Power.deepSleep(5000000);
+  // call this fun, power btn will Invalid
+  // Restore power btn please call M5.Power.setPowerBoostKeepOn(false)
+  M5.Power.lightSleep(0);
+  
+  M5.Lcd.printf("resume.\n\nGo deepSleep (press buttonA wake up) ");
+  delay(2500);
+  // call this fun, power btn will Invalid
+  // Restore power btn please call M5.Power.setPowerBoostKeepOn(false)
+  M5.Power.deepSleep(0);
   
 }

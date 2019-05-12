@@ -25,6 +25,8 @@ https://github.com/m5stack/M5Stack/tree/master/examples
 
 https://github.com/m5stack/M5Stack/blob/master/src/M5Stack.h#L19
 
+https://docs.m5stack.com/#/en/api
+
 ## 4. H/W Reference
 
 #### Pinout
@@ -61,7 +63,7 @@ https://github.com/m5stack/M5Stack/blob/master/src/M5Stack.h#L19
 ### M-BUS
 ![image](docs/M-BUS.jpg)
 
-## 5. Awesome
+## 5. USER CASES
 
 * [M5Stack-SD-Updater](https://github.com/tobozo/M5Stack-SD-Updater) - Customizable menu system for M5Stack - loads apps from the Micro SD
   card

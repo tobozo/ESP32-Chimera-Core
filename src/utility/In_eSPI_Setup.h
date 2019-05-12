@@ -189,7 +189,7 @@
 #define TFT_CS   14  // Chip select control pin
 #define TFT_DC   27  // Data Command control pin
 #define TFT_RST  33  // Reset pin (could connect to Arduino RESET pin)
-#define TFT_BL   32  // LED back-light
+#define TFT_BL   32  // LED back-light (required for M5Stack)
 #endif
 
 // ######       EDIT THE PINs BELOW TO SUIT YOUR ESP32 PARALLEL TFT SETUP        ######
@@ -244,7 +244,7 @@
 
 // Comment out the #define below to stop the SPIFFS filing system and smooth font code being loaded
 // this will save ~20kbytes of FLASH
-// #define SMOOTH_FONT
+#define SMOOTH_FONT
 
 
 // ##################################################################################

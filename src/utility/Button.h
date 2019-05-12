@@ -32,9 +32,10 @@ class Button {
     uint8_t releasedFor(uint32_t ms);
     uint8_t wasReleasefor(uint32_t ms);
     uint32_t lastChange();
-		uint8_t readAxis();
-		uint8_t isAxisPressed(void);
-		uint8_t wasAxisPressed(void);
+
+    uint8_t readAxis();
+    uint8_t isAxisPressed(void);
+    uint8_t wasAxisPressed(void);
 
   private:
     uint8_t _pin;           //arduino pin number
@@ -49,8 +50,7 @@ class Button {
     uint32_t _dbTime;       //debounce time
     uint32_t _pressTime;    //press time
     uint32_t _hold_time;    //hold time call wasreleasefor
-    
-    uint8_t _axis;			//state changed since last read
-    
+
+    uint8_t _axis;          //state changed since last read
 };
 #endif

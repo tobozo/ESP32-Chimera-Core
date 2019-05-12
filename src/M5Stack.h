@@ -111,10 +111,9 @@
     #include "utility/Speaker.h"
     #include "utility/Power.h"
     #include "utility/CommUtil.h"
-    #ifdef ARDUINO_ODROID_ESP32
+#ifdef ARDUINO_ODROID_ESP32
     #include "utility/battery.h"
-    #endif
-
+#endif
     class M5Stack
     {
       public:
@@ -128,7 +127,7 @@
         Button BtnB = Button(BUTTON_B_PIN, true, DEBOUNCE_MS);
         Button BtnC = Button(BUTTON_C_PIN, true, DEBOUNCE_MS);
 
-        #ifdef ARDUINO_ODROID_ESP32	
+#ifdef ARDUINO_ODROID_ESP32
         #define DEBOUNCE_MS_XY 5
         Button JOY_Y = Button(BUTTON_JOY_Y_PIN, true, DEBOUNCE_MS_XY);
         Button JOY_X = Button(BUTTON_JOY_X_PIN, true, DEBOUNCE_MS_XY);
@@ -136,14 +135,12 @@
         Button BtnVolume = Button(BUTTON_VOLUME_PIN, true, DEBOUNCE_MS);
         Button BtnSelect = Button(BUTTON_SELECT_PIN, true, DEBOUNCE_MS);
         Button BtnStart = Button(BUTTON_START_PIN, true, DEBOUNCE_MS);	
-        #endif
-        
+
+        Battery battery;
+#endif
+
         // SPEAKER
         SPEAKER Speaker;
-        
-        #ifdef ARDUINO_ODROID_ESP32	
-            Battery battery;
-        #endif
 
         // LCD
         M5Display Lcd = M5Display();
