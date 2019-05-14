@@ -133,71 +133,64 @@ uint32_t Button::lastChange(void) {
 
 
 
-
 uint8_t Button::readAxis()
 {
-    static uint32_t ms;
-    static uint8_t pinVal;
-    static uint16_t val;
+  static uint32_t ms;
+  static uint8_t pinVal;
+  static uint16_t val;
 
-	extern uint16_t xxval;
+  extern uint16_t xxval;
 
-    ms = millis();
-    val = analogRead(_pin);
+  ms = millis();
+  val = analogRead(_pin);
 //	xxval = val;
 
-    if (val > 3900) {
-        pinVal = 1;
-        _axis = DPAD_V_FULL;
-    } else if (val > 1500 && val < 2000) {
-        pinVal = 1;
-        _axis = DPAD_V_HALF;
-    } else {
-        pinVal = 0;
-        _axis = DPAD_V_NONE;
-    }
+  if (val > 3900) {
+    pinVal = 1;
+    _axis = DPAD_V_FULL;
+  } else if (val > 1500 && val < 2000) {
+    pinVal = 1;
+    _axis = DPAD_V_HALF;
+  } else {
+    pinVal = 0;
+    _axis = DPAD_V_NONE;
+  }
 
-    if (_invert == 0) pinVal = !pinVal;
-    if (ms - _lastChange < _dbTime) {
-        _lastTime = _time;
-        _time = ms;
-        _changed = 0;
-        return _state;
+  if (_invert == 0) pinVal = !pinVal;
+  if (ms - _lastChange < _dbTime) {
+    _lastTime = _time;
+    _time = ms;
+    _changed = 0;
+    return _state;
+  }
+  else {
+    _lastTime = _time;
+    _lastState = _state;
+    _state = pinVal;
+    _time = ms;
+    if (_state != _lastState)   {
+      _lastChange = ms;
+      _changed = 1;
     }
     else {
-        _lastTime = _time;
-        _lastState = _state;
-        _state = pinVal;
-        _time = ms;
-        if (_state != _lastState)   {
-            _lastChange = ms;
-            _changed = 1;
-        }
-        else {
-            _changed = 0;
-        }
-        return _state;
+      _changed = 0;
     }
-    return _state && _changed;
+    return _state;
+  }
+  return _state && _changed;
 }
 
 
 
 uint8_t Button::isAxisPressed(void)
 {
-    if (_state)
-        return _axis;
-    else
-        return 0;
+  return (_state) ? _axis : 0;
 }
 
 
 
 uint8_t Button::wasAxisPressed(void)
 {
-    if (_state && _changed)
-        return _axis;
-    else
-        return 0;
+  return (_state && _changed) ? _axis : 0;
 }
 

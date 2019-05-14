@@ -34,15 +34,15 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   // TONE
   // Speaker.begin();
-  
-  #ifdef ARDUINO_ODROID_ESP32
-      pinMode(BUTTON_MENU_PIN, INPUT_PULLUP);
-      pinMode(BUTTON_VOLUME_PIN, INPUT_PULLUP);
-      pinMode(BUTTON_SELECT_PIN, INPUT_PULLUP);
-      pinMode(BUTTON_START_PIN, INPUT_PULLUP);
-      pinMode(BUTTON_JOY_Y_PIN, INPUT_PULLDOWN);
-      pinMode(BUTTON_JOY_X_PIN, INPUT_PULLDOWN);
-  #endif	
+
+#ifdef ARDUINO_ODROID_ESP32
+  pinMode(BUTTON_MENU_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_VOLUME_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_SELECT_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_START_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_JOY_Y_PIN, INPUT_PULLDOWN);
+  pinMode(BUTTON_JOY_X_PIN, INPUT_PULLDOWN);
+#endif
 
   // Set wakeup button
   Power.setWakeupButton(BUTTON_A_PIN);
@@ -65,15 +65,15 @@ void M5Stack::update() {
 
   //Speaker update
   Speaker.update();
-  #ifdef ARDUINO_ODROID_ESP32
-    BtnMenu.read();
-    BtnVolume.read();
-    BtnSelect.read();
-    BtnStart.read();
-	JOY_Y.readAxis();
-	JOY_X.readAxis();
-    battery.update();
-  #endif	
+#ifdef ARDUINO_ODROID_ESP32
+  BtnMenu.read();
+  BtnVolume.read();
+  BtnSelect.read();
+  BtnStart.read();
+  JOY_Y.readAxis();
+  JOY_X.readAxis();
+  battery.update();
+#endif
 }
 
 /**

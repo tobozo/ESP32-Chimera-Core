@@ -70,12 +70,12 @@
 
   writecommand(ILI9341_DFUNCTR);    // Display Function Control
 #ifdef ARDUINO_ODROID_ESP32
-    writedata(0x0A);
-    writedata(0xA2);
+  writedata(0x0A);
+  writedata(0xA2);
 #else
-    writedata(0x08);
-    writedata(0x82);
-#endif	
+  writedata(0x08);
+  writedata(0x82);
+#endif
   writedata(0x27);
 
   writecommand(0xF2);    // 3Gamma Function Disable
