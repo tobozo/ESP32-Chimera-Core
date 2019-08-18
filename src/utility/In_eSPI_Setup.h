@@ -175,21 +175,29 @@
 
 // For the M5Stack module use these #define lines
 #ifdef ARDUINO_ODROID_ESP32
-#define TFT_MISO 19
-#define TFT_MOSI 23
-#define TFT_SCLK 18
-#define TFT_CS   5  // Chip select control pin
-#define TFT_DC   21  // Data Command control pin
-#define TFT_RST  -1  // Reset pin (could connect to Arduino RESET pin)
-#define TFT_BL   14  // LED back-light
+  #define TFT_MISO 19
+  #define TFT_MOSI 23
+  #define TFT_SCLK 18
+  #define TFT_CS   5  // Chip select control pin
+  #define TFT_DC   21  // Data Command control pin
+  #define TFT_RST  -1  // Reset pin (could connect to Arduino RESET pin)
+  #define TFT_BL   14  // LED back-light
+#elif defined(ARDUINO_TTGO_T1)
+  #define TFT_MISO -1
+  #define TFT_MOSI 23
+  #define TFT_SCLK  5
+  #define TFT_CS   16
+  #define TFT_DC   17
+  #define TFT_RST   9
+  #define TFT_BL   27
 #else
-#define TFT_MISO 19
-#define TFT_MOSI 23
-#define TFT_SCLK 18
-#define TFT_CS   14  // Chip select control pin
-#define TFT_DC   27  // Data Command control pin
-#define TFT_RST  33  // Reset pin (could connect to Arduino RESET pin)
-#define TFT_BL   32  // LED back-light (required for M5Stack)
+  #define TFT_MISO 19
+  #define TFT_MOSI 23
+  #define TFT_SCLK 18
+  #define TFT_CS   14  // Chip select control pin
+  #define TFT_DC   27  // Data Command control pin
+  #define TFT_RST  33  // Reset pin (could connect to Arduino RESET pin)
+  #define TFT_BL   32  // LED back-light (required for M5Stack)
 #endif
 
 // ######       EDIT THE PINs BELOW TO SUIT YOUR ESP32 PARALLEL TFT SETUP        ######

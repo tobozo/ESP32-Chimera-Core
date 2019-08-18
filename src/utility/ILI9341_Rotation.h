@@ -80,3 +80,10 @@
       break;
 
   }
+
+  
+#ifdef ARDUINO_TTGO_T1
+  #define SWAP(a, b) do { typeof(a) temp = a; a = b; b = temp; } while (0)
+  SWAP( _width, _height );
+  #undef SWAP
+#endif

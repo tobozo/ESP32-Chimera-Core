@@ -6,6 +6,11 @@
 // See ST7735_Setup.h file for an alternative format
 
 {
+#ifdef ARDUINO_TTGO_T1
+  colstart = CGRAM_colstart; // see ILI99341_Defines to fine-tune this
+  rowstart = CGRAM_rowstart; // see ILI99341_Defines to fine-tune this
+#endif
+
   writecommand(0xEF);
   writedata(0x03);
   writedata(0x80);
@@ -13,14 +18,14 @@
 
   writecommand(0xCF);
   writedata(0x00);
-  writedata(0XC1);
-  writedata(0X30);
+  writedata(0xC1);
+  writedata(0x30);
 
   writecommand(0xED);
   writedata(0x64);
   writedata(0x03);
-  writedata(0X12);
-  writedata(0X81);
+  writedata(0x12);
+  writedata(0x81);
 
   writecommand(0xE8);
   writedata(0x85);

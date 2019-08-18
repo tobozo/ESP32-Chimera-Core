@@ -1,5 +1,9 @@
 #ifndef _CONFIG_H_
   #define _CONFIG_H_
+  
+  
+  
+#define TTGO
 
   // Screen
 #ifdef ARDUINO_ODROID_ESP32
@@ -13,7 +17,20 @@
 
   // SD card
   #define TFCARD_CS_PIN 22
+#elif defined(ARDUINO_TTGO_T1)
+  // TFT/OLED display
+  #define TFT_CS_PIN   16
+  #define TFT_RST_PIN   9  // you can also connect this to the Arduino reset
+  #define TFT_DC_PIN   17
+  #define TFT_CLK_PIN   5   // set these to be whatever pins you like!
+  #define TFT_MOSI_PIN 23   // set these to be whatever pins you like!
+  #define TFT_LED_PIN  27
+  #define TFT_MISO_PIN -1
+  // if (!SD.begin(13, 15, 2, 14)) {            //T1:13,15,2,14  T2: 23,5,19,18
+  // boolean begin(uint8_t csPin = SD_CHIP_SELECT_PIN, int8_t mosi = -1, int8_t miso = -1, int8_t sck = -1);
+  #define TFCARD_CS_PIN 13
 #else
+
   #define TFT_LED_PIN 32
   #define TFT_DC_PIN 27
   #define TFT_CS_PIN 14
@@ -24,6 +41,7 @@
 
   // SD card
   #define TFCARD_CS_PIN 4
+
 #endif
 
   // Buttons

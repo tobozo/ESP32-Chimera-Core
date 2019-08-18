@@ -3,6 +3,12 @@
 #ifdef ARDUINO_ODROID_ESP32
   #define TFT_WIDTH  320
   #define TFT_HEIGHT 240
+#elif defined(ARDUINO_TTGO_T1)
+  #define TFT_WIDTH  128
+  #define TFT_HEIGHT 160
+  #define CGRAM_OFFSET
+  #define CGRAM_colstart 0x02 // h pixels offset (change this if pix has offset)
+  #define CGRAM_rowstart 0x03 // v pixels offset (change this if pix has offset)
 #else
   #define TFT_WIDTH  240
   #define TFT_HEIGHT 320
