@@ -274,7 +274,7 @@
 // #define SPI_FREQUENCY  20000000
 // #define SPI_FREQUENCY  27000000 // Actually sets it to 26.67MHz = 80/3
 #if defined(ARDUINO_TTGO_T1)
-  #define SPI_FREQUENCY  27000000
+  #define SPI_FREQUENCY  32000000
 #else
   #define SPI_FREQUENCY  40000000 // Maximum to use SPIFFS
 #endif
