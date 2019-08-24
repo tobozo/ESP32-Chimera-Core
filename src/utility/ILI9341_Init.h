@@ -130,4 +130,9 @@
   spi_begin();
 
   writecommand(ILI9341_DISPON);    // Display on
+  
+  if(lcd_version) {
+    writecommand(0x21); // BGR/RGB for IPS
+  }
+
 }
