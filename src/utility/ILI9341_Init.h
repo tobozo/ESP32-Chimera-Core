@@ -130,9 +130,11 @@
   spi_begin();
 
   writecommand(ILI9341_DISPON);    // Display on
-  
+
+#ifdef M5STACK
   if(lcd_version) {
     writecommand(0x21); // BGR/RGB for IPS
   }
+#endif
 
 }
