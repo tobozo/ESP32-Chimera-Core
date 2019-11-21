@@ -118,7 +118,7 @@
     {
       public:
         M5Stack();
-        void begin(bool LCDEnable = true, bool SDEnable = true, bool SerialEnable = true, bool I2CEnable = false);
+        void begin(bool LCDEnable = true, bool SDEnable = SD_ENABLE, bool SerialEnable = true, bool I2CEnable = false);
         void update();
 
         // Button API
