@@ -133,7 +133,7 @@
 
 #ifdef M5STACK
   if(lcd_version) {
-    writecommand(0x21); // BGR/RGB for IPS
+    writecommand(TFT_INVON); // color invert for IPS
   }
 #endif
 

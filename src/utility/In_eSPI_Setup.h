@@ -285,7 +285,8 @@
 // #define SPI_FREQUENCY  20000000
 // #define SPI_FREQUENCY  27000000 // Actually sets it to 26.67MHz = 80/3  #define 
 #if defined ( ARDUINO_ESP32_DEV )
-  #define SPI_FREQUENCY  80000000
+//  #define SPI_FREQUENCY  80000000 // Maximum to use ST7789 
+  #define SPI_FREQUENCY  40000000 // Maximum to use ILI9341 
 #elif defined(ARDUINO_TTGO_T1)
   #define SPI_FREQUENCY  32000000
 #else
