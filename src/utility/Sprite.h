@@ -11,10 +11,8 @@ class TFT_eSprite : public TFT_eSPI {
  public:
 
   TFT_eSprite(TFT_eSPI *tft); // Constructor
+  virtual ~TFT_eSprite();
 
-  ~TFT_eSprite() { // Destructor
-    deleteSprite();
-  }
 
            // Create a sprite of width x height pixels, return a pointer to the RAM area
            // Sketch can cast returned value to (uint16_t*) for 16 bit depth if needed

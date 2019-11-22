@@ -1,5 +1,7 @@
-  // This is the command sequence that rotates the ST7789 driver coordinate frame
 
+
+if( _id > 0 ){
+  log_d("ST7789 rotate : %d", m);
   writecommand(TFT_MADCTL);
   rotation = m % 4;
   switch (rotation) {
@@ -46,3 +48,28 @@
       _height = _init_width;
       break;
   }
+
+} else {
+  log_d("ILI9341 rotate : %d", m);
+  // ILI9341 rotations
+  typedef struct {
+    uint8_t madctl;
+    uint8_t bmpctl;
+    uint16_t width;
+    uint16_t height;
+  } rotation_data_t;
+  const rotation_data_t ili9341_rotations[4] = {
+    {(TFT_MAD_MX|TFT_MAD_COLOR_ORDER),(TFT_MAD_MX|TFT_MAD_MY|TFT_MAD_COLOR_ORDER),TFT_WIDTH,TFT_HEIGHT},
+    {(TFT_MAD_MV|TFT_MAD_COLOR_ORDER),(TFT_MAD_MV|TFT_MAD_MX|TFT_MAD_COLOR_ORDER),TFT_HEIGHT,TFT_WIDTH},
+    {(TFT_MAD_MY|TFT_MAD_COLOR_ORDER),(TFT_MAD_COLOR_ORDER),TFT_WIDTH,TFT_HEIGHT},
+    {(TFT_MAD_MX|TFT_MAD_MY|TFT_MAD_MV|TFT_MAD_COLOR_ORDER),(TFT_MAD_MY|TFT_MAD_MV|TFT_MAD_COLOR_ORDER),TFT_HEIGHT,TFT_WIDTH}
+  };
+  rotation = m % 4; // can't be higher than 3
+  m = ili9341_rotations[rotation].madctl;
+  _width  = ili9341_rotations[rotation].width;
+  _height = ili9341_rotations[rotation].height;
+
+  writecommand(TFT_MADCTL);
+  writedata(m);
+
+}
