@@ -15,25 +15,27 @@
 //
 // ##################################################################################
 
-// Only define one driver, the other ones must be commented out
-#define ILI9341_DRIVER
-//#define ST7735_DRIVER      // Define additional parameters below for this display
-//#define ILI9163_DRIVER     // Define additional parameters below for this display
-//#define S6D02A1_DRIVER
-//#define RPI_ILI9486_DRIVER // 20MHz maximum SPI
-//#define HX8357D_DRIVER
-//#define ILI9481_DRIVER
-//#define ILI9486_DRIVER
-//#define ILI9488_DRIVER     // WARNING: Do not connect ILI9488 display SDO to MISO if other devices share the SPI bus (TFT SDO does NOT tristate when CS is high)
-//#define ST7789_DRIVER      // Define additional parameters below for this display
-//#define R61581_DRIVER
-#include "ILI9341_Defines.h"
-#define  TFT_DRIVER 0x9341
+#if defined ( ARDUINO_ESP32_DEV )
+
+  #define WROVER_KIT_LCD_DRIVER     // Configure all registers
+  #define TFT_WIDTH 240
+  #define TFT_HEIGHT 320
+  #include "TFT_Drivers/ST7789_WROVER_KIT_LCD_Defines.h"
+  #define  TFT_DRIVER 0x7789
+
+#else
+
+  //#warning loading ILI9341 DRIVER
+  #define ILI9341_DRIVER
+  #include "ILI9341_Defines.h"
+  #define  TFT_DRIVER 0x9341
+
+#endif
 
 // Some displays support SPI reads via the MISO pin, other displays have a single
 // bi-directional SDA pin and the library will try to read this via the MOSI line.
 // To use the SDA line for reading data from the TFT uncomment the following line:
-#ifdef ARDUINO_ODROID_ESP32
+#if defined( ARDUINO_ODROID_ESP32 ) || defined ( ARDUINO_ESP32_DEV )
  #define TFT_SDA_READ      // This option if for ESP32 ONLY, tested with ST7789 display only
 #endif
 
@@ -175,7 +177,15 @@
 //#define TFT_WR 22    // Write strobe for modified Raspberry Pi TFT only
 
 // For the M5Stack module use these #define lines
-#ifdef ARDUINO_ODROID_ESP32
+#if defined ( ARDUINO_ESP32_DEV )
+  #define TFT_MISO 25
+  #define TFT_MOSI 23
+  #define TFT_SCLK 19
+  #define TFT_CS 22
+  #define TFT_DC 21
+  #define TFT_RST 18
+  #define TFT_BL 5
+#elif defined(ARDUINO_ODROID_ESP32)
   #define TFT_MISO 19
   #define TFT_MOSI 23
   #define TFT_SCLK 18
@@ -191,7 +201,7 @@
   #define TFT_DC   17
   #define TFT_RST   9
   #define TFT_BL   27
-#else
+#else // M5Stack (default)
   #define TFT_MISO 19
   #define TFT_MOSI 23
   #define TFT_SCLK 18
@@ -273,8 +283,11 @@
 // #define SPI_FREQUENCY   5000000
 // #define SPI_FREQUENCY  10000000
 // #define SPI_FREQUENCY  20000000
-// #define SPI_FREQUENCY  27000000 // Actually sets it to 26.67MHz = 80/3
-#if defined(ARDUINO_TTGO_T1)
+// #define SPI_FREQUENCY  27000000 // Actually sets it to 26.67MHz = 80/3  #define 
+#if defined ( ARDUINO_ESP32_DEV )
+//  #define SPI_FREQUENCY  80000000 // Maximum to use ST7789 
+  #define SPI_FREQUENCY  40000000 // Maximum to use ILI9341 
+#elif defined(ARDUINO_TTGO_T1)
   #define SPI_FREQUENCY  32000000
 #else
   #define SPI_FREQUENCY  40000000 // Maximum to use SPIFFS
@@ -282,7 +295,7 @@
 // #define SPI_FREQUENCY  80000000
 
 // Optional reduced SPI frequency for reading TFT
-#ifdef ARDUINO_ODROID_ESP32
+#if defined(ARDUINO_ODROID_ESP32) || defined ( ARDUINO_ESP32_DEV )
   #define SPI_READ_FREQUENCY  20000000
 #endif
 

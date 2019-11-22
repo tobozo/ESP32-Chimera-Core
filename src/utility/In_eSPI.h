@@ -878,6 +878,7 @@ class TFT_eSPI : public Print {
 
   uint32_t lastColor = 0xFFFF;
 
+  uint32_t _id; // used by WROVER_KIT_LCD to store RDDID command response
 
  protected:
 

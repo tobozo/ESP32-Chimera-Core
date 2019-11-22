@@ -131,7 +131,7 @@ uint32_t Button::lastChange(void) {
   return _lastChange;
 }
 
-
+#ifdef ARDUINO_ODROID_ESP32
 
 uint8_t Button::readAxis()
 {
@@ -194,3 +194,4 @@ uint8_t Button::wasAxisPressed(void)
   return (_state && _changed) ? _axis : 0;
 }
 
+#endif

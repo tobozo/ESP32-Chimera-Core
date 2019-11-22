@@ -61,9 +61,9 @@
 
   writecommand(ILI9341_MADCTL);    // Memory Access Control
 #ifdef M5STACK
-  writedata(0xA8); // Rotation 0 (portrait mode)
+  writedata(0xA8); // Rotation 0
 #else
-  writedata(0x48); // Rotation 0 (portrait mode)
+  writedata(0x48); // Rotation 1
 #endif
 
   writecommand(ILI9341_PIXFMT);
@@ -133,7 +133,7 @@
 
 #ifdef M5STACK
   if(lcd_version) {
-    writecommand(0x21); // BGR/RGB for IPS
+    writecommand(TFT_INVON); // color invert for IPS
   }
 #endif
 

@@ -1,7 +1,7 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
   
-#ifdef ARDUINO_ODROID_ESP32
+#if defined(ARDUINO_ODROID_ESP32)
   #define TFT_LED_PIN 14
   #define TFT_DC_PIN 21
   #define TFT_CS_PIN 5
@@ -43,7 +43,15 @@
 #define BUTTON_B 1
 #define BUTTON_C 2
 
-#ifdef ARDUINO_ODROID_ESP32
+#define SD_ENABLE 1
+
+#if defined ( ARDUINO_ESP32_DEV )
+  #define BUTTON_A_PIN -1
+  #define BUTTON_B_PIN -1
+  #define BUTTON_C_PIN -1  // BUTTON_MENU
+  #undef SD_ENABLE // WROVER_KIT uses SD_MMC
+  #define SD_ENABLE 0
+#elif defined( ARDUINO_ODROID_ESP32 )
   #define BUTTON_A_PIN 32
   #define BUTTON_B_PIN 33
   #define BUTTON_C_PIN 13  // BUTTON_MENU
@@ -72,7 +80,9 @@
 #define BUTTON_JOY_X_PIN 34
 
   // BEEP PIN
-#ifdef ARDUINO_ODROID_ESP32
+#if defined ( ARDUINO_ESP32_DEV )
+  #define SPEAKER_PIN -1
+#elif defined( ARDUINO_ODROID_ESP32 )
   #define SPEAKER_PIN 26
 #else
   #define SPEAKER_PIN 25
