@@ -103,7 +103,15 @@
     #include <Wire.h>
     #include <SPI.h>
     #include "FS.h"
-    #include "SD.h"
+
+    #if defined ( ARDUINO_ESP32_DEV )
+      #include "SD_MMC.h"
+      #define M5STACK_SD SD_MMC
+    #else
+      #include "SD.h"
+      #define M5STACK_SD SD
+      #define USE_TFCARD_CS_PIN
+    #endif
 
     #include "M5Display.h"
     #include "utility/Config.h"
@@ -111,6 +119,7 @@
     #include "utility/Speaker.h"
     #include "utility/Power.h"
     #include "utility/CommUtil.h"
+    #include "utility/ScreenShot.h"
 #ifdef ARDUINO_ODROID_ESP32
     #include "utility/battery.h"
 #endif
@@ -118,7 +127,7 @@
     {
       public:
         M5Stack();
-        void begin(bool LCDEnable = true, bool SDEnable = SD_ENABLE, bool SerialEnable = true, bool I2CEnable = false);
+        void begin(bool LCDEnable = true, bool SDEnable = SD_ENABLE, bool SerialEnable = true, bool I2CEnable = false, bool ScreenShotEnable = false);
         void update();
 
         // Button API
@@ -144,6 +153,8 @@
 
         // LCD
         M5Display Lcd = M5Display();
+
+        ScreenShotService ScreenShot;
 
         //Power
         POWER Power;

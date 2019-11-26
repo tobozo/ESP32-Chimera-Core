@@ -6,9 +6,10 @@
 M5Stack::M5Stack() : isInited(0) {
 }
 
-void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEnable) {
+void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEnable, bool ScreenShotEnable) {
   // Correct init once
   if (isInited == true) {
+    log_d("M5 Already inited");
     return;
   } else {
     isInited = true;
@@ -24,12 +25,23 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   // LCD INIT
   if (LCDEnable == true) {
+    log_d("Enabling LCD");
     Lcd.begin();
+    ScreenShot.init( &Lcd, M5STACK_SD );
+    if( ScreenShotEnable == true ) {
+       ScreenShot.begin();
+    }
   }
 
   // TF Card
   if (SDEnable == true) {
-    SD.begin(TFCARD_CS_PIN, SPI, 40000000);
+    #ifdef USE_TFCARD_CS_PIN
+      log_d("Enabling SD from TFCARD_CS_PIN");
+      M5STACK_SD.begin(TFCARD_CS_PIN, SPI, 40000000);
+    #else
+      log_d("Enabling SD_MMC");
+      M5STACK_SD.begin();
+    #endif
   }
 
   // TONE
@@ -49,6 +61,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   // I2C init
   if (I2CEnable == true) {
+    log_d("Enabling I2C");
     Wire.begin(21, 22);
   }
 
