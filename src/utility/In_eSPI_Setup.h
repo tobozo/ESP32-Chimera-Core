@@ -35,8 +35,9 @@
 // Some displays support SPI reads via the MISO pin, other displays have a single
 // bi-directional SDA pin and the library will try to read this via the MOSI line.
 // To use the SDA line for reading data from the TFT uncomment the following line:
-#define TFT_SDA_READ // This option if for ESP32 ONLY, tested with ST7789 display only
-
+#ifndef ARDUINO_ESP32_DEV // WROVER KIT doesn't need this
+  #define TFT_SDA_READ      // This option if for ESP32 ONLY, tested with ST7789 display only
+#endif
 
 // For ST7789 ONLY, define the colour order IF the blue and red are swapped on your display
 // Try ONE option at a time to find the correct colour order for your display
