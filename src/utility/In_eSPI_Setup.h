@@ -35,8 +35,8 @@
 // Some displays support SPI reads via the MISO pin, other displays have a single
 // bi-directional SDA pin and the library will try to read this via the MOSI line.
 // To use the SDA line for reading data from the TFT uncomment the following line:
-#if defined( ARDUINO_ODROID_ESP32 ) || defined ( ARDUINO_ESP32_DEV )
- #define TFT_SDA_READ      // This option if for ESP32 ONLY, tested with ST7789 display only
+#ifndef ARDUINO_ESP32_DEV // WROVER KIT doesn't need this
+  #define TFT_SDA_READ      // This option if for ESP32 ONLY, tested with ST7789 display only
 #endif
 
 // For ST7789 ONLY, define the colour order IF the blue and red are swapped on your display
@@ -295,8 +295,10 @@
 // #define SPI_FREQUENCY  80000000
 
 // Optional reduced SPI frequency for reading TFT
-#if defined(ARDUINO_ODROID_ESP32) || defined ( ARDUINO_ESP32_DEV )
+#if defined( ARDUINO_ODROID_ESP32 ) || defined ( ARDUINO_ESP32_DEV )
   #define SPI_READ_FREQUENCY  20000000
+#else
+  #define SPI_READ_FREQUENCY  16000000
 #endif
 
 // The XPT2046 requires a lower SPI clock rate of 2.5MHz so we define that here:

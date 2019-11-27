@@ -854,6 +854,7 @@ class TFT_eSPI : public Print {
 
   uint8_t  decoderState = 0;   // UTF8 decoder state
   uint16_t decoderBuffer;      // Unicode code-point buffer
+  uint32_t _id; // used by WROVER_KIT_LCD to store RDDID command response
 
  private:
 
@@ -877,8 +878,6 @@ class TFT_eSPI : public Print {
 #endif
 
   uint32_t lastColor = 0xFFFF;
-
-  uint32_t _id; // used by WROVER_KIT_LCD to store RDDID command response
 
  protected:
 
