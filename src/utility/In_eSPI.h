@@ -663,6 +663,14 @@ const PROGMEM fontinfo fontdata [] = {
 };
 
 
+typedef enum {
+  JPEG_DIV_NONE,
+  JPEG_DIV_2,
+  JPEG_DIV_4,
+  JPEG_DIV_8,
+  JPEG_DIV_MAX
+} jpeg_div_t;
+
 // Class functions and variables
 class TFT_eSPI : public Print {
 

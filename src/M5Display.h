@@ -7,14 +7,6 @@
   #include "utility/In_eSPI.h"
   #include "utility/Sprite.h"
 
-  typedef enum {
-    JPEG_DIV_NONE,
-    JPEG_DIV_2,
-    JPEG_DIV_4,
-    JPEG_DIV_8,
-    JPEG_DIV_MAX
-  } jpeg_div_t;
-
   class M5Display : public TFT_eSPI {
     public:
       M5Display();
