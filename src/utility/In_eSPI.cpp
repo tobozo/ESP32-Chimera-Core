@@ -53,6 +53,8 @@ uint8_t readByte(void);
 // GPIO parallel input/output control
 void busDir(uint32_t mask, uint8_t mode);
 
+void gpioMode(uint8_t gpio, uint8_t mode);
+
 inline void TFT_eSPI::spi_begin(void){
 #if defined (SPI_HAS_TRANSACTION) && defined (SUPPORT_TRANSACTIONS) && !defined(ESP32_PARALLEL)
   if (locked) {locked = false; spi.beginTransaction(SPISettings(SPI_FREQUENCY, MSBFIRST, TFT_SPI_MODE)); CS_L;}
@@ -71,7 +73,7 @@ inline void TFT_eSPI::spi_end(void){
     SPI1U = SPI1U_READ;
   #endif
 #else
-  if(!inTransaction) CS_H;
+    if(!inTransaction) {CS_H;}
 #endif
 }
 
@@ -96,7 +98,7 @@ inline void TFT_eSPI::spi_end_read(void){
   #if !defined(ESP32_PARALLEL)
     spi.setFrequency(SPI_FREQUENCY);
   #endif
-   if(!inTransaction) CS_H;
+     if(!inTransaction) {CS_H;}
 #endif
 #ifdef ESP8266
   SPI1U = SPI1U_WRITE;
@@ -389,6 +391,8 @@ void TFT_eSPI::init(uint8_t tc)
 
   spi_begin();
   
+  tc = tc; // Supress warning
+
   // This loads the driver specific initialisation code  <<<<<<<<<<<<<<<<<<<<< ADD NEW DRIVERS TO THE LIST HERE <<<<<<<<<<<<<<<<<<<<<<<
 #if   defined (ILI9341_DRIVER)
     #include "ILI9341_Init.h"
@@ -727,6 +731,9 @@ uint16_t TFT_eSPI::readPixel(int32_t x0, int32_t y0)
 
 #else // Not ESP32_PARALLEL
 
+  bool wasInTransaction = inTransaction;
+  if (inTransaction) { inTransaction= false; spi_end();}
+
   spi_begin_read();
 
   readAddrWindow(x0, y0, 1, 1); // Sets CS low
@@ -764,10 +771,20 @@ uint16_t TFT_eSPI::readPixel(int32_t x0, int32_t y0)
 
   spi_end_read();
 
+  if(wasInTransaction) { spi_begin(); inTransaction = true; }
+
   return color565(r, g, b);
 
 #endif
 }
+
+
+void TFT_eSPI::setCallback(getColorCallback getCol)
+{
+  getColor = getCol;
+}
+
+
 
 /***************************************************************************************
 ** Function name:           read byte  - supports class functions
@@ -804,25 +821,41 @@ uint8_t readByte(void)
 ** Function name:           masked GPIO direction control  - supports class functions
 ** Description:             Set masked ESP32 GPIO pins to input or output
 ***************************************************************************************/
-void busDir(uint32_t mask, uint8_t mode)
-{
 #ifdef ESP32_PARALLEL
+void busDir(uint32_t mask, uint8_t mode)
+{//*
+  gpioMode(TFT_D0, mode);
+  gpioMode(TFT_D1, mode);
+  gpioMode(TFT_D2, mode);
+  gpioMode(TFT_D3, mode);
+  gpioMode(TFT_D4, mode);
+  gpioMode(TFT_D5, mode);
+  gpioMode(TFT_D6, mode);
+  gpioMode(TFT_D7, mode);
+  return; //*/
 
-  // Supports GPIO 0 - 31 on ESP32 only
-  gpio_config_t gpio;
-
-  gpio.pin_bit_mask = mask;
-  gpio.mode         = GPIO_MODE_INPUT;
-  gpio.pull_up_en   = GPIO_PULLUP_ENABLE;
-  gpio.pull_down_en = GPIO_PULLDOWN_DISABLE;
-  gpio.intr_type    = GPIO_INTR_DISABLE;
-
-  if (mode == OUTPUT) gpio.mode = GPIO_MODE_OUTPUT;
-
-  gpio_config(&gpio);
-
-#endif
+  /*
+  // Arduino generic native function, but slower
+  pinMode(TFT_D0, mode);
+  pinMode(TFT_D1, mode);
+  pinMode(TFT_D2, mode);
+  pinMode(TFT_D3, mode);
+  pinMode(TFT_D4, mode);
+  pinMode(TFT_D5, mode);
+  pinMode(TFT_D6, mode);
+  pinMode(TFT_D7, mode);
+  return; //*/
 }
+
+// Set ESP32 GPIO pin to input or output
+void gpioMode(uint8_t gpio, uint8_t mode) {
+  if(mode == INPUT) GPIO.enable_w1tc = ((uint32_t)1 << gpio);
+  else GPIO.enable_w1ts = ((uint32_t)1 << gpio);
+  ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioMux[gpio].reg) = ((uint32_t)2 << FUN_DRV_S) | (FUN_IE) | ((uint32_t)2 << MCU_SEL_S);
+  GPIO.pin[gpio].val = 0;
+}
+#endif
+
 
 /***************************************************************************************
 ** Function name:           read rectangle (for SPI Interface II i.e. IM [3:0] = "1101")
@@ -1015,8 +1048,8 @@ void TFT_eSPI::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t *d
   if (x < 0) { dw += x; dx = -x; x = 0; }
   if (y < 0) { dh += y; dy = -y; y = 0; }
 
-  if ((x + w) > _width ) dw = _width  - x;
-  if ((y + h) > _height) dh = _height - y;
+  if ((x + dw) > _width ) dw = _width  - x;
+  if ((y + dh) > _height) dh = _height - y;
 
   if (dw < 1 || dh < 1) return;
 
@@ -1054,8 +1087,8 @@ void TFT_eSPI::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t *d
   if (x < 0) { dw += x; dx = -x; x = 0; }
   if (y < 0) { dh += y; dy = -y; y = 0; }
   
-  if ((x + w) > _width ) dw = _width  - x;
-  if ((y + h) > _height) dh = _height - y;
+  if ((x + dw) > _width ) dw = _width  - x;
+  if ((y + dh) > _height) dh = _height - y;
 
   if (dw < 1 || dh < 1) return;
 
@@ -1129,8 +1162,8 @@ void TFT_eSPI::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, const uint1
   if (x < 0) { dw += x; dx = -x; x = 0; }
   if (y < 0) { dh += y; dy = -y; y = 0; }
   
-  if ((x + w) > _width ) dw = _width  - x;
-  if ((y + h) > _height) dh = _height - y;
+  if ((x + dw) > _width ) dw = _width  - x;
+  if ((y + dh) > _height) dh = _height - y;
 
   if (dw < 1 || dh < 1) return;
 
@@ -1193,8 +1226,8 @@ void TFT_eSPI::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, const uint1
   if (x < 0) { dw += x; dx = -x; x = 0; }
   if (y < 0) { dh += y; dy = -y; y = 0; }
   
-  if ((x + w) > _width ) dw = _width  - x;
-  if ((y + h) > _height) dh = _height - y;
+  if ((x + dw) > _width ) dw = _width  - x;
+  if ((y + dh) > _height) dh = _height - y;
 
   if (dw < 1 || dh < 1) return;
 
@@ -3953,6 +3986,7 @@ void TFT_eSPI::setAttribute(uint8_t attr_id, uint8_t param) {
             break;
         case 2:
             _utf8  = param;
+            decoderState = 0;
             break;
         //case 3: // TBD future feature control
         //    _tbd = param;
@@ -4013,7 +4047,7 @@ uint16_t TFT_eSPI::decodeUTF8(uint8_t c)
       return 0;
     }
     // 21 bit Unicode  Code Point not supported so fall-back to extended ASCII
-    if ((c & 0xF8) == 0xF0) return (uint16_t)c;
+    //if ((c & 0xF8) == 0xF0) return (uint16_t)c;
   }
   else
   {

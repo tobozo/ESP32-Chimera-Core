@@ -15,7 +15,7 @@
 #ifndef _In_eSPIH_
 #define _In_eSPIH_
 
-#define TFT_ESPI_VERSION "1.4.5"
+#define TFT_ESPI_VERSION "1.4.21"
 
 //#define ESP32 //Just used to test ESP32 options
 
@@ -663,6 +663,8 @@ const PROGMEM fontinfo fontdata [] = {
 };
 
 
+typedef uint16_t (*getColorCallback)(uint16_t x, uint16_t y);
+
 typedef enum {
   JPEG_DIV_NONE,
   JPEG_DIV_2,
@@ -768,6 +770,7 @@ class TFT_eSPI : public Print {
 
            // Read the colour of a pixel at x,y and return value in 565 format 
   uint16_t readPixel(int32_t x0, int32_t y0);
+  void     setCallback(getColorCallback getCol);
 
            // The next functions can be used as a pair to copy screen blocks (or horizontal/vertical lines) to another location
            // Read a block of pixels to a data buffer, buffer is 16 bit and the array size must be at least w * h
@@ -900,6 +903,8 @@ class TFT_eSPI : public Print {
 #endif
 
   uint32_t lastColor = 0xFFFF;
+
+  getColorCallback getColor = nullptr;
 
  protected:
 
