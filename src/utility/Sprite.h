@@ -60,7 +60,13 @@ class TFT_eSprite : public TFT_eSPI {
            drawFastVLine(int32_t x, int32_t y, int32_t h, uint32_t color),
            drawFastHLine(int32_t x, int32_t y, int32_t w, uint32_t color),
 
+           drawGradientLine(int32_t x0, int32_t y0, int32_t x1, int32_t y1, RGBColor colorstart, RGBColor colorend),
+           drawGradientHLine(int32_t x, int32_t y, int32_t w, RGBColor colorstart, RGBColor colorend),
+           drawGradientVLine( int32_t x, int32_t y, int32_t h, RGBColor colorstart, RGBColor colorend),
+
            fillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color);
+
+  RGBColor colorAt( int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, RGBColor colorstart, RGBColor colorend );
 
            // Set the sprite text cursor position for print class (does not change the TFT screen cursor)
            //setCursor(int16_t x, int16_t y);

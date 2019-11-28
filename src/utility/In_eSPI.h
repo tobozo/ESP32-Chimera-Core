@@ -671,6 +671,20 @@ typedef enum {
   JPEG_DIV_MAX
 } jpeg_div_t;
 
+
+struct RGBColor {
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+  void set( uint8_t r_, uint8_t g_, uint8_t b_ ) {
+    r = r_; g = g_;  b = b_;
+  }
+  bool operator==(const RGBColor& color) {
+    return color.r == r && color.g == g && color.b == b;
+  }
+};
+
+
 // Class functions and variables
 class TFT_eSPI : public Print {
 

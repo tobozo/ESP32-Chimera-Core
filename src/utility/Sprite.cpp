@@ -2012,6 +2012,159 @@ int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
 }
 
 
+
+
+
+
+/* line gradients
+ *
+ */
+
+
+RGBColor TFT_eSprite::colorAt( int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, RGBColor colorstart, RGBColor colorend ) {
+  float linedistance;
+  float pixeldistance;
+  if( x0 == x1 && x1 == x2 ) { // vertical
+    linedistance = abs( y1 - y0 );
+    pixeldistance = abs( y2 - y0 );
+  } else if( y0 == y1 && y1 == y2 ) { // horizontal
+    linedistance = abs( x1 - x0 );
+    pixeldistance = abs( x2 - x0 );
+  } else { // oblique
+    linedistance = sqrt( ( x0 - x1 ) * ( x0 - x1 ) + ( y0 - y1 ) * ( y0 - y1 ) );
+    pixeldistance = sqrt( ( x2 - x0 ) * ( x2 - x0 ) + ( y2 - y0 ) * ( y2 - y0 ) );
+  }
+  if( linedistance <= 0 ) return colorend;
+  if( pixeldistance <= 0 )  return colorstart;
+  if( pixeldistance > linedistance ) return colorend; // bad input data
+
+  uint8_t r = map( (int)pixeldistance, 0, (int)linedistance, colorstart.r, colorend.r );
+  uint8_t g = map( (int)pixeldistance, 0, (int)linedistance, colorstart.g, colorend.g );
+  uint8_t b = map( (int)pixeldistance, 0, (int)linedistance, colorstart.b, colorend.b );
+
+  return RGBColor{r,g,b};
+}
+
+
+void TFT_eSprite::drawGradientLine( int32_t x0, int32_t y0, int32_t x1, int32_t y1, RGBColor colorstart, RGBColor colorend ) {
+
+  if( colorstart == colorend ) {
+    // be lazy
+    drawLine( x0, y0, x1, y1, _tft->color565(colorstart.r, colorstart.g, colorstart.b) );
+    return;
+  }
+
+  boolean steep = abs(y1 - y0) > abs(x1 - x0);
+  RGBColor _color, _colorstart, _colorend;
+  int32_t _x0 = x0, _x1 = x1, _y0 = y0, _y1 = y1; // freeze values
+
+  if (steep) {
+    swap_coord(x0, y0);
+    swap_coord(x1, y1);
+  }
+
+  if (x0 > x1) {
+    swap_coord(x0, x1);
+    swap_coord(y0, y1);
+  }
+
+  int32_t dx = x1 - x0, dy = abs(y1 - y0);;
+  int32_t err = dx >> 1, ystep = -1, xs = x0, dlen = 0;
+  if (y0 < y1) ystep = 1;
+
+  // Split into steep and not steep for H/V separation
+  if (steep) {
+    for (; x0 <= x1; x0++) {
+      dlen++;
+      err -= dy;
+      if (err < 0) {
+        err += dx;
+        if (dlen == 1) {
+          _color = colorAt( _y0, _x0, _y1, _x1, y0, xs, colorstart, colorend );
+          drawPixel(y0, xs, _tft->color565( _color.r, _color.g, _color.b ) );
+        } else {
+          _colorstart = colorAt( _y0, _x0, _y1, _x1, y0, xs, colorstart, colorend );
+          _colorend   = colorAt( _y0, _x0, _y1, _x1, y0, xs+dlen, colorstart, colorend );
+          drawGradientVLine(y0, xs, dlen, _colorstart, _colorend );
+        }
+        dlen = 0; y0 += ystep; xs = x0 + 1;
+      }
+    }
+    if (dlen) {
+       _colorstart = colorAt( _y0, _x0, _y1, _x1, y0, xs, colorstart, colorend );
+       _colorend   = colorAt( _y0, _x0, _y1, _x1, y0, xs+dlen, colorstart, colorend );
+       drawGradientVLine(y0, xs, dlen, _colorstart, _colorend );
+    }
+  } else {
+    for (; x0 <= x1; x0++) {
+      dlen++;
+      err -= dy;
+      if (err < 0) {
+        err += dx;
+        if (dlen == 1) {
+          _color = colorAt( _x0, _y0, _x1, _y1, xs, y0, colorstart, colorend );
+          drawPixel(xs, y0, _tft->color565( _color.r, _color.g, _color.b ) );
+        } else {
+          _colorstart = colorAt( _x0, _y0, _x1, _y1, xs, _y0, colorstart, colorend );
+          _colorend   = colorAt( _x0, _y0, _x1, _y1, xs+dlen, _y0, colorstart, colorend );
+          drawGradientHLine(xs, y0, dlen, _colorstart, _colorend );
+        }
+        dlen = 0; y0 += ystep; xs = x0 + 1;
+      }
+    }
+    if (dlen) {
+      _colorstart = colorAt( _x0, _y0, _x1, _y1, xs, y0, colorstart, colorend );
+      _colorend   = colorAt( _x0, _y0, _x1, _y1, xs+dlen, y0, colorstart, colorend );
+      drawGradientHLine(xs, y0, dlen, _colorstart, _colorend );
+    }
+  }
+}
+
+
+void TFT_eSprite::drawGradientHLine( int32_t x, int32_t y, int32_t w, RGBColor colorstart, RGBColor colorend ) {
+  if ((y < 0) || (x >= width()) || (y >= height())) return;
+  if (x < 0) { w += x; x = 0; }
+  if ((x + w) > width())  w = width()  - x;
+  if (w < 1) return;
+  for( int32_t i = x; i < x+w; i++ ) {
+    uint8_t r = map( i, x, x+w, colorstart.r, colorend.r );
+    uint8_t g = map( i, x, x+w, colorstart.g, colorend.g );
+    uint8_t b = map( i, x, x+w, colorstart.b, colorend.b );
+    drawPixel( i, y, _tft->color565( r, g, b ) );
+  }
+}
+
+
+void TFT_eSprite::drawGradientVLine( int32_t x, int32_t y, int32_t h, RGBColor colorstart, RGBColor colorend ) {
+  if ( ( x < 0 ) || ( x >= width() ) || ( y >= height() ) ) return;
+  if ( y < 0 ) { h += y; y = 0; }
+  if ( (y + h) > height() ) h = height() - y;
+  if ( h < 1 ) return;
+  for( int32_t i = y; i < y+h; i++ ) {
+    uint8_t r = map( i, y, y+h, colorstart.r, colorend.r );
+    uint8_t g = map( i, y, y+h, colorstart.g, colorend.g );
+    uint8_t b = map( i, y, y+h, colorstart.b, colorend.b );
+    drawPixel( x, i, _tft->color565( r, g, b ) );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
  * JPEG
  */
