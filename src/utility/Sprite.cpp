@@ -474,7 +474,13 @@ void TFT_eSprite::pushSprite(int32_t x, int32_t y)
 {
   if (!_created) return;
 
-  if (_bpp == 16) _tft->pushImage(x, y, _iwidth, _iheight, _img );
+  if (_bpp == 16)
+  {
+    bool oldSwapBytes = _tft->getSwapBytes();
+    _tft->setSwapBytes(false);
+    _tft->pushImage(x, y, _iwidth, _iheight, _img );
+    _tft->setSwapBytes(oldSwapBytes);
+  }
 
   else _tft->pushImage(x, y, _dwidth, _dheight, _img8, (bool)(_bpp == 8));
 }
@@ -488,7 +494,13 @@ void TFT_eSprite::pushSprite(int32_t x, int32_t y, uint16_t transp)
 {
   if (!_created) return;
 
-  if (_bpp == 16) _tft->pushImage(x, y, _iwidth, _iheight, _img, transp );
+  if (_bpp == 16)
+  {
+    bool oldSwapBytes = _tft->getSwapBytes();
+    _tft->setSwapBytes(false);
+    _tft->pushImage(x, y, _iwidth, _iheight, _img, transp );
+    _tft->setSwapBytes(oldSwapBytes);
+  }
   else if (_bpp == 8)
   {
     transp = (uint8_t)((transp & 0xE000)>>8 | (transp & 0x0700)>>6 | (transp & 0x0018)>>3);
@@ -564,18 +576,18 @@ void  TFT_eSprite::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, uint16_
   int32_t  xs = x;
   int32_t  ys = y;
 
-  uint32_t ws = w;
-  uint32_t hs = h;
+  int32_t ws = w;
+  int32_t hs = h;
 
-  if (x < 0) { xo = -x; xs = 0; }
-  if (y < 0) { yo = -y; ys = 0; }
+  if (x < 0) { xo = -x; ws += x; xs = 0; }
+  if (y < 0) { yo = -y; hs += y; ys = 0; }
 
-  if (xs + w >= _iwidth)  ws = _iwidth  - xs;
-  if (ys + h >= _iheight) hs = _iheight - ys;
+  if (xs + ws >= (int32_t)_iwidth)  ws = _iwidth  - xs;
+  if (ys + hs >= (int32_t)_iheight) hs = _iheight - ys;
 
   if (_bpp == 16) // Plot a 16 bpp image into a 16 bpp Sprite
   {
-    for (uint32_t yp = yo; yp < yo + hs; yp++)
+    for (int32_t yp = yo; yp < yo + hs; yp++)
     {
       x = xs;
       for (uint32_t xp = xo; xp < xo + ws; xp++)
@@ -590,10 +602,10 @@ void  TFT_eSprite::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, uint16_
   }
   else if (_bpp == 8) // Plot a 16 bpp image into a 8 bpp Sprite
   {
-    for (uint32_t yp = yo; yp < yo + hs; yp++)
+    for (int32_t yp = yo; yp < yo + hs; yp++)
     {
       x = xs;
-      for (uint32_t xp = xo; xp < xo + ws; xp++)
+      for (int32_t xp = xo; xp < xo + ws; xp++)
       {
         uint16_t color = data[xp + yp * w];
         if(_iswapBytes) color = color<<8 | color>>8;
@@ -660,21 +672,21 @@ void  TFT_eSprite::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, const u
   int32_t  xs = x;
   int32_t  ys = y;
 
-  uint32_t ws = w;
-  uint32_t hs = h;
+  int32_t ws = w;
+  int32_t hs = h;
 
-  if (x < 0) { xo = -x; xs = 0; }
-  if (y < 0) { yo = -y; ys = 0; }
+  if (x < 0) { xo = -x; ws += x; xs = 0; }
+  if (y < 0) { yo = -y; hs += y; ys = 0; }
 
-  if (xs + w >= _iwidth)  ws = _iwidth  - xs;
-  if (ys + h >= _iheight) hs = _iheight - ys;
+  if (xs + ws >= (int32_t)_iwidth)  ws = _iwidth  - xs;
+  if (ys + hs >= (int32_t)_iheight) hs = _iheight - ys;
 
   if (_bpp == 16) // Plot a 16 bpp image into a 16 bpp Sprite
   {
-    for (uint32_t yp = yo; yp < yo + hs; yp++)
+    for (int32_t yp = yo; yp < yo + hs; yp++)
     {
       x = xs;
-      for (uint32_t xp = xo; xp < xo + ws; xp++)
+      for (int32_t xp = xo; xp < xo + ws; xp++)
       {
         uint16_t color = pgm_read_word(data + xp + yp * w);
         if(!_iswapBytes) color = color<<8 | color>>8;
@@ -687,10 +699,10 @@ void  TFT_eSprite::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, const u
 
   else if (_bpp == 8) // Plot a 16 bpp image into a 8 bpp Sprite
   {
-    for (uint32_t yp = yo; yp < yo + hs; yp++)
+    for (int32_t yp = yo; yp < yo + hs; yp++)
     {
       x = xs;
-      for (uint32_t xp = xo; xp < xo + ws; xp++)
+      for (int32_t xp = xo; xp < xo + ws; xp++)
       {
         uint16_t color = pgm_read_word(data + xp + yp * w);
         if(_iswapBytes) color = color<<8 | color>>8;
@@ -731,7 +743,7 @@ void  TFT_eSprite::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, const u
         uint8_t pbyte = pgm_read_byte(pdata++);
         for (uint8_t xc = 0; xc < 8; xc++)
         {
-          if (xp+xc<w) drawPixel(x+xp+xc, y+yp, (pbyte<<xc) & 0x80);
+          if (xp+xc<(uint32_t)w) drawPixel(x+xp+xc, y+yp, (pbyte<<xc) & 0x80);
         }
       }
     }
@@ -766,22 +778,8 @@ bool TFT_eSprite::getSwapBytes(void)
 *************************************************************************************x*/
 void TFT_eSprite::setWindow(int32_t x0, int32_t y0, int32_t x1, int32_t y1)
 {
-  bool duff_coord = false;
 
-  if (x0 > x1) swap_coord(x0, x1);
-  if (y0 > y1) swap_coord(y0, y1);
-
-  if (x0 < 0) x0 = 0;
-  if (x0 >= _iwidth) duff_coord = true;
-  if (x1 < 0) x1 = 0;
-  if (x1 >= _iwidth) x1 = _iwidth - 1;
-
-  if (y0 < 0) y0 = 0;
-  if (y0 >= _iheight) duff_coord = true;
-  if (y1 < 0) y1 = 0;
-  if (y1 >= _iheight) y1 = _iheight - 1;
-
-  if (duff_coord)
+  if ((x0 >= _iwidth) || (x1 < 0) || (y0 >= _iheight) || (y1 < 0))
   { // Point to that extra "off screen" pixel
     _xs = 0;
     _ys = _iheight;
@@ -790,6 +788,10 @@ void TFT_eSprite::setWindow(int32_t x0, int32_t y0, int32_t x1, int32_t y1)
   }
   else
   {
+    if (x0 < 0) x0 = 0;
+    if (x1 >= _iwidth) x1 = _iwidth - 1;
+    if (y0 < 0) y0 = 0;
+    if (y1 >= _iheight) y1 = _iheight - 1;
     _xs = x0;
     _ys = y0;
     _xe = x1;
@@ -891,8 +893,8 @@ void TFT_eSprite::setScrollRect(int32_t x, int32_t y, int32_t w, int32_t h, uint
 {
   if ((x >= _iwidth) || (y >= _iheight) || !_created ) return;
 
-  if (x < 0) x = 0;
-  if (y < 0) y = 0;
+  if (x < 0) { w += x; x = 0; }
+  if (y < 0) { h += y; y = 0; }
 
   if ((x + w) > _iwidth ) w = _iwidth  - x;
   if ((y + h) > _iheight) h = _iheight - y;
@@ -1098,21 +1100,19 @@ void TFT_eSprite::drawPixel(int32_t x, int32_t y, uint32_t color)
 {
   // Range checking
   if ((x < 0) || (y < 0) || !_created) return;
+  if ((x >= _iwidth) || (y >= _iheight)) return;
 
   if (_bpp == 16)
   {
-    if ((x >= _iwidth) || (y >= _iheight)) return;
     color = (color >> 8) | (color << 8);
     _img[x+y*_iwidth] = (uint16_t) color;
   }
   else if (_bpp == 8)
   {
-    if ((x >= _iwidth) || (y >= _iheight)) return;
     _img8[x+y*_iwidth] = (uint8_t)((color & 0xE000)>>8 | (color & 0x0700)>>6 | (color & 0x0018)>>3);
   }
   else // 1 bpp
   {
-    if ((x >= _dwidth) || (y >= _dheight)) return;
     if (_rotation == 1)
     {
       uint16_t tx = x;
@@ -2010,4 +2010,406 @@ int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
 
   return this->gxAdvance[index];
 }
+
+
+
+
+
+
+/* line gradients
+ *
+ */
+
+
+RGBColor TFT_eSprite::colorAt( int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, RGBColor colorstart, RGBColor colorend ) {
+  float linedistance;
+  float pixeldistance;
+  if( x0 == x1 && x1 == x2 ) { // vertical
+    linedistance = abs( y1 - y0 );
+    pixeldistance = abs( y2 - y0 );
+  } else if( y0 == y1 && y1 == y2 ) { // horizontal
+    linedistance = abs( x1 - x0 );
+    pixeldistance = abs( x2 - x0 );
+  } else { // oblique
+    linedistance = sqrt( ( x0 - x1 ) * ( x0 - x1 ) + ( y0 - y1 ) * ( y0 - y1 ) );
+    pixeldistance = sqrt( ( x2 - x0 ) * ( x2 - x0 ) + ( y2 - y0 ) * ( y2 - y0 ) );
+  }
+  if( linedistance <= 0 ) return colorend;
+  if( pixeldistance <= 0 )  return colorstart;
+  if( pixeldistance > linedistance ) return colorend; // bad input data
+
+  uint8_t r = map( (int)pixeldistance, 0, (int)linedistance, colorstart.r, colorend.r );
+  uint8_t g = map( (int)pixeldistance, 0, (int)linedistance, colorstart.g, colorend.g );
+  uint8_t b = map( (int)pixeldistance, 0, (int)linedistance, colorstart.b, colorend.b );
+
+  return RGBColor{r,g,b};
+}
+
+
+void TFT_eSprite::drawGradientLine( int32_t x0, int32_t y0, int32_t x1, int32_t y1, RGBColor colorstart, RGBColor colorend ) {
+
+  if( colorstart == colorend ) {
+    // be lazy
+    drawLine( x0, y0, x1, y1, _tft->color565(colorstart.r, colorstart.g, colorstart.b) );
+    return;
+  }
+
+  boolean steep = abs(y1 - y0) > abs(x1 - x0);
+  RGBColor _color, _colorstart, _colorend;
+  int32_t _x0 = x0, _x1 = x1, _y0 = y0, _y1 = y1; // freeze values
+
+  if (steep) {
+    swap_coord(x0, y0);
+    swap_coord(x1, y1);
+  }
+
+  if (x0 > x1) {
+    swap_coord(x0, x1);
+    swap_coord(y0, y1);
+  }
+
+  int32_t dx = x1 - x0, dy = abs(y1 - y0);;
+  int32_t err = dx >> 1, ystep = -1, xs = x0, dlen = 0;
+  if (y0 < y1) ystep = 1;
+
+  // Split into steep and not steep for H/V separation
+  if (steep) {
+    for (; x0 <= x1; x0++) {
+      dlen++;
+      err -= dy;
+      if (err < 0) {
+        err += dx;
+        if (dlen == 1) {
+          _color = colorAt( _y0, _x0, _y1, _x1, y0, xs, colorstart, colorend );
+          drawPixel(y0, xs, _tft->color565( _color.r, _color.g, _color.b ) );
+        } else {
+          _colorstart = colorAt( _y0, _x0, _y1, _x1, y0, xs, colorstart, colorend );
+          _colorend   = colorAt( _y0, _x0, _y1, _x1, y0, xs+dlen, colorstart, colorend );
+          drawGradientVLine(y0, xs, dlen, _colorstart, _colorend );
+        }
+        dlen = 0; y0 += ystep; xs = x0 + 1;
+      }
+    }
+    if (dlen) {
+       _colorstart = colorAt( _y0, _x0, _y1, _x1, y0, xs, colorstart, colorend );
+       _colorend   = colorAt( _y0, _x0, _y1, _x1, y0, xs+dlen, colorstart, colorend );
+       drawGradientVLine(y0, xs, dlen, _colorstart, _colorend );
+    }
+  } else {
+    for (; x0 <= x1; x0++) {
+      dlen++;
+      err -= dy;
+      if (err < 0) {
+        err += dx;
+        if (dlen == 1) {
+          _color = colorAt( _x0, _y0, _x1, _y1, xs, y0, colorstart, colorend );
+          drawPixel(xs, y0, _tft->color565( _color.r, _color.g, _color.b ) );
+        } else {
+          _colorstart = colorAt( _x0, _y0, _x1, _y1, xs, _y0, colorstart, colorend );
+          _colorend   = colorAt( _x0, _y0, _x1, _y1, xs+dlen, _y0, colorstart, colorend );
+          drawGradientHLine(xs, y0, dlen, _colorstart, _colorend );
+        }
+        dlen = 0; y0 += ystep; xs = x0 + 1;
+      }
+    }
+    if (dlen) {
+      _colorstart = colorAt( _x0, _y0, _x1, _y1, xs, y0, colorstart, colorend );
+      _colorend   = colorAt( _x0, _y0, _x1, _y1, xs+dlen, y0, colorstart, colorend );
+      drawGradientHLine(xs, y0, dlen, _colorstart, _colorend );
+    }
+  }
+}
+
+
+void TFT_eSprite::drawGradientHLine( int32_t x, int32_t y, int32_t w, RGBColor colorstart, RGBColor colorend ) {
+  if ((y < 0) || (x >= width()) || (y >= height())) return;
+  if (x < 0) { w += x; x = 0; }
+  if ((x + w) > width())  w = width()  - x;
+  if (w < 1) return;
+  for( int32_t i = x; i < x+w; i++ ) {
+    uint8_t r = map( i, x, x+w, colorstart.r, colorend.r );
+    uint8_t g = map( i, x, x+w, colorstart.g, colorend.g );
+    uint8_t b = map( i, x, x+w, colorstart.b, colorend.b );
+    drawPixel( i, y, _tft->color565( r, g, b ) );
+  }
+}
+
+
+void TFT_eSprite::drawGradientVLine( int32_t x, int32_t y, int32_t h, RGBColor colorstart, RGBColor colorend ) {
+  if ( ( x < 0 ) || ( x >= width() ) || ( y >= height() ) ) return;
+  if ( y < 0 ) { h += y; y = 0; }
+  if ( (y + h) > height() ) h = height() - y;
+  if ( h < 1 ) return;
+  for( int32_t i = y; i < y+h; i++ ) {
+    uint8_t r = map( i, y, y+h, colorstart.r, colorend.r );
+    uint8_t g = map( i, y, y+h, colorstart.g, colorend.g );
+    uint8_t b = map( i, y, y+h, colorstart.b, colorend.b );
+    drawPixel( x, i, _tft->color565( r, g, b ) );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * JPEG
+ */
+
+
+#include "rom/tjpgd.h"
+
+#define jpgColor(c)                                                            \
+  (((uint16_t)(((uint8_t *)(c))[0] & 0xF8) << 8) |                             \
+   ((uint16_t)(((uint8_t *)(c))[1] & 0xFC) << 3) |                             \
+   ((((uint8_t *)(c))[2] & 0xF8) >> 3))
+
+#if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_ERROR
+const char *jd_errors[] = {"Succeeded",
+                           "Interrupted by output function",
+                           "Device error or wrong termination of input stream",
+                           "Insufficient memory pool for the image",
+                           "Insufficient stream input buffer",
+                           "Parameter error",
+                           "Data format error",
+                           "Right format but not supported",
+                           "Not supported JPEG standard"};
+#endif
+
+typedef struct {
+  uint16_t x;
+  uint16_t y;
+  uint16_t maxWidth;
+  uint16_t maxHeight;
+  uint16_t offX;
+  uint16_t offY;
+  jpeg_div_t scale;
+  const void *src;
+  size_t len;
+  size_t index;
+  TFT_eSprite *tft;
+  uint16_t outWidth;
+  uint16_t outHeight;
+} jpg_file_decoder_t;
+
+static uint32_t jpgReadFile(JDEC *decoder, uint8_t *buf, uint32_t len) {
+  jpg_file_decoder_t *jpeg = (jpg_file_decoder_t *)decoder->device;
+  File *file = (File *)jpeg->src;
+  if (buf) {
+    return file->read(buf, len);
+  } else {
+    file->seek(len, SeekCur);
+  }
+  return len;
+}
+
+static uint32_t jpgRead(JDEC *decoder, uint8_t *buf, uint32_t len) {
+  jpg_file_decoder_t *jpeg = (jpg_file_decoder_t *)decoder->device;
+  if (buf) {
+    memcpy(buf, (const uint8_t *)jpeg->src + jpeg->index, len);
+  }
+  jpeg->index += len;
+  return len;
+}
+
+static uint32_t jpgWrite(JDEC *decoder, void *bitmap, JRECT *rect) {
+  jpg_file_decoder_t *jpeg = (jpg_file_decoder_t *)decoder->device;
+  uint16_t x = rect->left;
+  uint16_t y = rect->top;
+  uint16_t w = rect->right + 1 - x;
+  uint16_t h = rect->bottom + 1 - y;
+  uint16_t oL = 0, oR = 0;
+  uint8_t *data = (uint8_t *)bitmap;
+
+  if (rect->right < jpeg->offX) {
+    return 1;
+  }
+  if (rect->left >= (jpeg->offX + jpeg->outWidth)) {
+    return 1;
+  }
+  if (rect->bottom < jpeg->offY) {
+    return 1;
+  }
+  if (rect->top >= (jpeg->offY + jpeg->outHeight)) {
+    return 1;
+  }
+  if (rect->top < jpeg->offY) {
+    uint16_t linesToSkip = jpeg->offY - rect->top;
+    data += linesToSkip * w * 3;
+    h -= linesToSkip;
+    y += linesToSkip;
+  }
+  if (rect->bottom >= (jpeg->offY + jpeg->outHeight)) {
+    uint16_t linesToSkip = (rect->bottom + 1) - (jpeg->offY + jpeg->outHeight);
+    h -= linesToSkip;
+  }
+  if (rect->left < jpeg->offX) {
+    oL = jpeg->offX - rect->left;
+  }
+  if (rect->right >= (jpeg->offX + jpeg->outWidth)) {
+    oR = (rect->right + 1) - (jpeg->offX + jpeg->outWidth);
+  }
+
+  uint16_t pixBuf[32];
+  uint8_t pixIndex = 0;
+  uint16_t line;
+
+  //jpeg->tft->startWrite();
+  // jpeg->tft->setAddrWindow(x - jpeg->offX + jpeg->x + oL, y - jpeg->offY +
+  // jpeg->y, w - (oL + oR), h);
+  jpeg->tft->setWindow(x - jpeg->offX + jpeg->x + oL,
+                       y - jpeg->offY + jpeg->y,
+                       x - jpeg->offX + jpeg->x + oL + w - (oL + oR) - 1,
+                       y - jpeg->offY + jpeg->y + h - 1);
+
+  while (h--) {
+    data += 3 * oL;
+    line = w - (oL + oR);
+    while (line--) {
+      pixBuf[pixIndex++] = jpgColor(data);
+      data += 3;
+      if (pixIndex == 32) {
+        while( pixIndex > 0 ) {
+          pixIndex--;
+          jpeg->tft->pushColor( pixBuf[pixIndex] );
+        }
+      }
+    }
+    data += 3 * oR;
+  }
+  if (pixIndex) {
+    while( pixIndex > 0 ) {
+      pixIndex--;
+      jpeg->tft->pushColor( pixBuf[pixIndex] );
+    }
+  }
+  return 1;
+}
+
+static bool jpgDecode(jpg_file_decoder_t *jpeg,
+                      uint32_t (*reader)(JDEC *, uint8_t *, uint32_t)) {
+  static uint8_t work[3100];
+  JDEC decoder;
+
+  JRESULT jres = jd_prepare(&decoder, reader, work, 3100, jpeg);
+  if (jres != JDR_OK) {
+    log_e("jd_prepare failed! %s", jd_errors[jres]);
+    return false;
+  }
+
+  uint16_t jpgWidth = decoder.width / (1 << (uint8_t)(jpeg->scale));
+  uint16_t jpgHeight = decoder.height / (1 << (uint8_t)(jpeg->scale));
+
+  if (jpeg->offX >= jpgWidth || jpeg->offY >= jpgHeight) {
+    log_e("Offset Outside of JPEG size");
+    return false;
+  }
+
+  size_t jpgMaxWidth = jpgWidth - jpeg->offX;
+  size_t jpgMaxHeight = jpgHeight - jpeg->offY;
+
+  jpeg->outWidth =
+      (jpgMaxWidth > jpeg->maxWidth) ? jpeg->maxWidth : jpgMaxWidth;
+  jpeg->outHeight =
+      (jpgMaxHeight > jpeg->maxHeight) ? jpeg->maxHeight : jpgMaxHeight;
+
+  jres = jd_decomp(&decoder, jpgWrite, (uint8_t)jpeg->scale);
+  if (jres != JDR_OK) {
+    log_e("jd_decomp failed! %s", jd_errors[jres]);
+    return false;
+  }
+
+  return true;
+}
+
+void TFT_eSprite::drawJpg(const uint8_t *jpg_data, size_t jpg_len, uint16_t x,
+                        uint16_t y, uint16_t maxWidth, uint16_t maxHeight,
+                        uint16_t offX, uint16_t offY, jpeg_div_t scale) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) {
+    log_e("Bad dimensions given");
+    return;
+  }
+  if( getColorDepth() != 16 ) {
+    log_e("This sprite isn't using 16bit colors, aborting");
+    return;
+  }
+
+  jpg_file_decoder_t jpeg;
+
+  if (!maxWidth) {
+    maxWidth = width() - x;
+  }
+  if (!maxHeight) {
+    maxHeight = height() - y;
+  }
+
+  jpeg.src = jpg_data;
+  jpeg.len = jpg_len;
+  jpeg.index = 0;
+  jpeg.x = x;
+  jpeg.y = y;
+  jpeg.maxWidth = maxWidth;
+  jpeg.maxHeight = maxHeight;
+  jpeg.offX = offX;
+  jpeg.offY = offY;
+  jpeg.scale = scale;
+  jpeg.tft = this;
+
+  jpgDecode(&jpeg, jpgRead);
+}
+
+void TFT_eSprite::drawJpgFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y,
+                            uint16_t maxWidth, uint16_t maxHeight, uint16_t offX,
+                            uint16_t offY, jpeg_div_t scale) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) {
+    log_e("Bad dimensions given");
+    return;
+  }
+
+  File file = fs.open(path);
+  if (!file) {
+    log_e("Failed to open file for reading");
+    return;
+  }
+
+  jpg_file_decoder_t jpeg;
+
+  if (!maxWidth) {
+    maxWidth = width() - x;
+  }
+  if (!maxHeight) {
+    maxHeight = height() - y;
+  }
+
+  jpeg.src = &file;
+  jpeg.len = file.size();
+  jpeg.index = 0;
+  jpeg.x = x;
+  jpeg.y = y;
+  jpeg.maxWidth = maxWidth;
+  jpeg.maxHeight = maxHeight;
+  jpeg.offX = offX;
+  jpeg.offY = offY;
+  jpeg.scale = scale;
+  jpeg.tft = this;
+
+  jpgDecode(&jpeg, jpgReadFile);
+
+  file.close();
+}
+
+
 #endif

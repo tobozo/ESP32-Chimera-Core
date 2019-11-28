@@ -4,6 +4,8 @@
 // from the TFT_eSPI class. Some functions are overridden by this class so that the
 // graphics are written to the Sprite rather than the TFT.
 ***************************************************************************************/
+#include <FS.h>
+#include <SPI.h>
 #include "In_eSPI.h"
 
 class TFT_eSprite : public TFT_eSPI {
@@ -58,7 +60,13 @@ class TFT_eSprite : public TFT_eSPI {
            drawFastVLine(int32_t x, int32_t y, int32_t h, uint32_t color),
            drawFastHLine(int32_t x, int32_t y, int32_t w, uint32_t color),
 
+           drawGradientLine(int32_t x0, int32_t y0, int32_t x1, int32_t y1, RGBColor colorstart, RGBColor colorend),
+           drawGradientHLine(int32_t x, int32_t y, int32_t w, RGBColor colorstart, RGBColor colorend),
+           drawGradientVLine( int32_t x, int32_t y, int32_t h, RGBColor colorstart, RGBColor colorend),
+
            fillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color);
+
+  RGBColor colorAt( int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, RGBColor colorstart, RGBColor colorend );
 
            // Set the sprite text cursor position for print class (does not change the TFT screen cursor)
            //setCursor(int16_t x, int16_t y);
@@ -87,6 +95,23 @@ class TFT_eSprite : public TFT_eSPI {
   void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t *data);
   void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, const uint16_t *data);
 
+  
+  void drawJpg(const uint8_t *jpg_data, size_t jpg_len, uint16_t x = 0,
+              uint16_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0,
+              uint16_t offX = 0, uint16_t offY = 0,
+              jpeg_div_t scale = JPEG_DIV_NONE);
+
+  void drawJpg(fs::FS &fs, const char *path, uint16_t x = 0, uint16_t y = 0,
+                uint16_t maxWidth = 0, uint16_t maxHeight = 0,
+                uint16_t offX = 0, uint16_t offY = 0,
+                jpeg_div_t scale = JPEG_DIV_NONE);
+
+  void drawJpgFile(fs::FS &fs, const char *path, uint16_t x = 0, uint16_t y = 0,
+                uint16_t maxWidth = 0, uint16_t maxHeight = 0,
+                uint16_t offX = 0, uint16_t offY = 0,
+                jpeg_div_t scale = JPEG_DIV_NONE);
+
+  
            // Swap the byte order for pushImage() - corrects different image endianness
   void     setSwapBytes(bool swap);
   bool     getSwapBytes(void);

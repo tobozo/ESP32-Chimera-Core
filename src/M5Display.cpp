@@ -187,13 +187,7 @@ void M5Display::drawBmpFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y
 // void M5Display::drawBmp(fs::FS &fs, const char *path, uint16_t x, uint16_t y) {
 //   drawBmpFile(fs, path, x, y);
 // }
-/***************************************************
-  This library is written to be compatible with Adafruit's ILI9341
-  library and automatically detects the display type on ESP_WROVER_KITs
-  Earlier WROVERs had ILI9341, while newer releases have ST7789V
 
-  MIT license, all text above must be included in any redistribution
- ****************************************************/
 
 /*
  * JPEG
@@ -230,6 +224,7 @@ typedef struct {
   size_t len;
   size_t index;
   M5Display *tft;
+  TFT_eSprite *sprite;
   uint16_t outWidth;
   uint16_t outHeight;
 } jpg_file_decoder_t;

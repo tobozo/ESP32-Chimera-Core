@@ -295,7 +295,7 @@
 // #define SPI_FREQUENCY  80000000
 
 // Optional reduced SPI frequency for reading TFT
-#if defined( ARDUINO_ODROID_ESP32 ) || defined ( ARDUINO_ESP32_DEV )
+#if defined( ARDUINO_ODROID_ESP32 ) // || defined ( ARDUINO_ESP32_DEV )
   #define SPI_READ_FREQUENCY  20000000
 #else
   #define SPI_READ_FREQUENCY  16000000
