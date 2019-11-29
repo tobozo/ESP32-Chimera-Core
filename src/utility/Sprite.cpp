@@ -2177,8 +2177,10 @@ void TFT_eSprite::drawGradientVLine( int32_t x, int32_t y, int32_t h, RGBColor c
    ((uint16_t)(((uint8_t *)(c))[1] & 0xFC) << 3) |                             \
    ((((uint8_t *)(c))[2] & 0xF8) >> 3))
 
+
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_ERROR
-const char *jd_errors[] = {"Succeeded",
+
+  const char *jd_sprite_errors[] = {"Succeeded",
                            "Interrupted by output function",
                            "Device error or wrong termination of input stream",
                            "Insufficient memory pool for the image",
@@ -2306,7 +2308,7 @@ static bool jpgDecode(jpg_file_decoder_t *jpeg,
 
   JRESULT jres = jd_prepare(&decoder, reader, work, 3100, jpeg);
   if (jres != JDR_OK) {
-    log_e("jd_prepare failed! %s", jd_errors[jres]);
+    log_e("jd_prepare failed! %s", jd_sprite_errors[jres]);
     return false;
   }
 
@@ -2328,7 +2330,7 @@ static bool jpgDecode(jpg_file_decoder_t *jpeg,
 
   jres = jd_decomp(&decoder, jpgWrite, (uint8_t)jpeg->scale);
   if (jres != JDR_OK) {
-    log_e("jd_decomp failed! %s", jd_errors[jres]);
+    log_e("jd_decomp failed! %s", jd_sprite_errors[jres]);
     return false;
   }
 
