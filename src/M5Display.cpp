@@ -201,7 +201,7 @@ void M5Display::drawBmpFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y
    ((((uint8_t *)(c))[2] & 0xF8) >> 3))
 
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_ERROR
-const char *jd_errors[] = {"Succeeded",
+static const char *jd_errors[] = {"Succeeded",
                            "Interrupted by output function",
                            "Device error or wrong termination of input stream",
                            "Insufficient memory pool for the image",

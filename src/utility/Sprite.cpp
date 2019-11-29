@@ -2055,21 +2055,28 @@ void TFT_eSprite::drawGradientLine( int32_t x0, int32_t y0, int32_t x1, int32_t 
   }
 
   boolean steep = abs(y1 - y0) > abs(x1 - x0);
+  
   RGBColor _color, _colorstart, _colorend;
   int32_t _x0 = x0, _x1 = x1, _y0 = y0, _y1 = y1; // freeze values
 
-  if (steep) {
+  if (steep) { // swap axis
     swap_coord(x0, y0);
     swap_coord(x1, y1);
+    swap_coord(_x0, _y0);
+    swap_coord(_x1, _y1);
   }
 
-  if (x0 > x1) {
+  if (x0 > x1) { // swap points
     swap_coord(x0, x1);
     swap_coord(y0, y1);
+    swap_coord(_x0, _x1);
+    swap_coord(_y0, _y1);
+    swap_coord(colorstart, colorend);
   }
 
   int32_t dx = x1 - x0, dy = abs(y1 - y0);;
   int32_t err = dx >> 1, ystep = -1, xs = x0, dlen = 0;
+  
   if (y0 < y1) ystep = 1;
 
   // Split into steep and not steep for H/V separation
@@ -2180,7 +2187,7 @@ void TFT_eSprite::drawGradientVLine( int32_t x, int32_t y, int32_t h, RGBColor c
 
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_ERROR
 
-  const char *jd_sprite_errors[] = {"Succeeded",
+  static const char *jd_errors[] = {"Succeeded",
                            "Interrupted by output function",
                            "Device error or wrong termination of input stream",
                            "Insufficient memory pool for the image",
@@ -2308,7 +2315,7 @@ static bool jpgDecode(jpg_file_decoder_t *jpeg,
 
   JRESULT jres = jd_prepare(&decoder, reader, work, 3100, jpeg);
   if (jres != JDR_OK) {
-    log_e("jd_prepare failed! %s", jd_sprite_errors[jres]);
+    log_e("jd_prepare failed! %s", jd_errors[jres]);
     return false;
   }
 
@@ -2330,7 +2337,7 @@ static bool jpgDecode(jpg_file_decoder_t *jpeg,
 
   jres = jd_decomp(&decoder, jpgWrite, (uint8_t)jpeg->scale);
   if (jres != JDR_OK) {
-    log_e("jd_decomp failed! %s", jd_sprite_errors[jres]);
+    log_e("jd_decomp failed! %s", jd_errors[jres]);
     return false;
   }
 
