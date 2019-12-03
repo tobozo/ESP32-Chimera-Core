@@ -188,8 +188,8 @@ void JPEG_Encoder::init( fs::FS &fileSystem ) {
 }
 
 
-void JPEG_Encoder::begin() {
-  if( psramInit() ) {
+void JPEG_Encoder::begin( bool ifPsram ) {
+  if( ifPsram && psramInit() ) {
     huffsize = (uint8_t**)ps_calloc(4*257, sizeof(uint8_t));
     for(byte i=0; i<4; i++) {
       huffsize[i] = (uint8_t*)ps_calloc(257, sizeof(uint8_t) );
