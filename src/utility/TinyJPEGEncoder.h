@@ -195,7 +195,7 @@ class JPEG_Encoder {
     uint16_t** huffcode = NULL;
 
     void       init( fs::FS &fileSystem );
-    void       begin();
+    void       begin( bool ifPsram = true );
     int        encodeToFile( const char* dest_path, const int width, const int height, const int numComponents, const unsigned char* src_data );
     int        encodeWithFunc( writeFunc* func, fs::File jpegFile, const int quality, const int width, const int height, const int numComponents, const unsigned char* src_data );
 

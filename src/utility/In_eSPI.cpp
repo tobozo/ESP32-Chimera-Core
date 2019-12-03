@@ -744,6 +744,9 @@ uint16_t TFT_eSPI::readPixel(int32_t x0, int32_t y0)
 
   // Dummy read to throw away don't care value
   tft_Read_8();
+  #if defined (WROVER_KIT_LCD_DRIVER)
+    tft_Read_8(); // Extra dummy read for WROVER_KIT_LCD_DRIVER (and possibly other ST7789)
+  #endif
   
   //#if !defined (ILI9488_DRIVER)
 
@@ -917,6 +920,9 @@ void TFT_eSPI::readRect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t *da
 
   // Dummy read to throw away don't care value
   tft_Read_8();
+  #if defined (WROVER_KIT_LCD_DRIVER)
+    tft_Read_8(); // Extra dummy read for WROVER_KIT_LCD_DRIVER (and possibly other ST7789)
+  #endif
 
   // Read window pixel 24 bit RGB values
   uint32_t len = w * h;
@@ -940,8 +946,13 @@ void TFT_eSPI::readRect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t *da
 
   #endif
 
-    // Swapped colour byte order for compatibility with pushRect()
-    *data++ = (r & 0xF8) | (g & 0xE0) >> 5 | (b & 0xF8) << 5 | (g & 0x1C) << 11;
+    #if defined (WROVER_KIT_LCD_DRIVER)
+      // pushRect() is deprecated so don't care
+      *data++ = color565(r, g, b);
+    #else
+      // Swapped colour byte order for compatibility with pushRect()
+      *data++ = (r & 0xF8) | (g & 0xE0) >> 5 | (b & 0xF8) << 5 | (g & 0x1C) << 11;
+    #endif
   }
 
   CS_H;
@@ -1578,10 +1589,12 @@ void  TFT_eSPI::readRectRGB(int32_t x0, int32_t y0, int32_t w, int32_t h, uint8_
 
   // Dummy read to throw away don't care value
   tft_Read_8();
-
+  #if defined (WROVER_KIT_LCD_DRIVER)
+    tft_Read_8(); // Extra dummy read for WROVER_KIT_LCD_DRIVER (and possibly other ST7789)
+  #endif
   // Read window pixel 24 bit RGB values, buffer must be set in sketch to 3 * w * h
   uint32_t len = w * h;
-  while (len--) {
+  while (len-->0) {
 
   #if !defined (ILI9488_DRIVER)
 
