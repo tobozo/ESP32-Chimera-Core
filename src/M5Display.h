@@ -79,6 +79,10 @@
                     uint16_t maxWidth = 0, uint16_t maxHeight = 0,
                     uint16_t offX = 0, uint16_t offY = 0,
                     double scale = 1.0, uint8_t alphaThreshold = 127);
+      // using Stream is compatible with fs::FS, HTTPCLient, UPD, Serial, etc
+      void drawPngFile(Stream &readSource, uint16_t x, uint16_t y,
+                            uint16_t maxWidth, uint16_t maxHeight, uint16_t offX,
+                            uint16_t offY, double scale, uint8_t alphaThreshold);
 
       void drawPngUrl(const char *url, uint16_t x = 0, uint16_t y = 0,
                     uint16_t maxWidth = 0, uint16_t maxHeight = 0,

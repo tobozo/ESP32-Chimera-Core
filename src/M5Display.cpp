@@ -487,6 +487,7 @@ static void pngle_draw_callback(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t
   }
 }
 
+
 void M5Display::drawPngFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y,
                             uint16_t maxWidth, uint16_t maxHeight, uint16_t offX,
                             uint16_t offY, double scale, uint8_t alphaThreshold)
@@ -496,49 +497,10 @@ void M5Display::drawPngFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y
     log_e("Failed to open file for reading");
     return ;
   }
-
-  pngle_t *pngle = pngle_new();
-
-  png_file_decoder_t png;
-
-  if (!maxWidth) {
-    maxWidth = width() - x;
-  }
-  if (!maxHeight) {
-    maxHeight = height() - y;
-  }
-
-  png.x = x;
-  png.y = y;
-  png.maxWidth = maxWidth;
-  png.maxHeight = maxHeight;
-  png.offX = offX;
-  png.offY = offY;
-  png.scale = scale;
-  png.alphaThreshold = alphaThreshold;
-  png.tft = this;
-
-  pngle_set_user_data(pngle, &png);
-  pngle_set_draw_callback(pngle, pngle_draw_callback);
-
-  // Feed data to pngle
-  uint8_t buf[1024];
-  int remain = 0;
-  int len;
-  while ((len = file.read(buf + remain, sizeof(buf) - remain)) > 0) {
-    int fed = pngle_feed(pngle, buf, remain + len);
-    if (fed < 0) {
-      log_e("[pngle error] %s", pngle_error(pngle));
-      break;
-    }
-
-    remain = remain + len - fed;
-    if (remain > 0) memmove(buf, buf + fed, remain);
-  }
-
-  pngle_destroy(pngle);
+  drawPngFile( file, x, y, maxWidth, maxHeight,  offX, offY,  scale, alphaThreshold);
   file.close();
 }
+
 
 void M5Display::drawPngUrl(const char *url, uint16_t x, uint16_t y,
                             uint16_t maxWidth, uint16_t maxHeight, uint16_t offX,
@@ -560,7 +522,28 @@ void M5Display::drawPngUrl(const char *url, uint16_t x, uint16_t y,
     return ;
   }
 
-  WiFiClient *stream = http.getStreamPtr();
+  if( !http.connected()) {
+    http.end();
+    return;
+  }
+
+  WiFiClient stream = http.getStream();
+  size_t size = stream.available();
+
+  while ( !size ) {
+    size = stream.available();
+    delay(1);
+  }
+
+  drawPngFile( stream, x, y, maxWidth, maxHeight,  offX, offY,  scale, alphaThreshold);
+  http.end();
+}
+
+
+void M5Display::drawPngFile(Stream &readSource, uint16_t x, uint16_t y,
+                            uint16_t maxWidth, uint16_t maxHeight, uint16_t offX,
+                            uint16_t offY, double scale, uint8_t alphaThreshold)
+{
 
   pngle_t *pngle = pngle_new();
 
@@ -572,7 +555,6 @@ void M5Display::drawPngUrl(const char *url, uint16_t x, uint16_t y,
   if (!maxHeight) {
     maxHeight = height() - y;
   }
-
 
   png.x = x;
   png.y = y;
@@ -591,23 +573,17 @@ void M5Display::drawPngUrl(const char *url, uint16_t x, uint16_t y,
   uint8_t buf[1024];
   int remain = 0;
   int len;
-  while (http.connected()) {
-    size_t size = stream->available();
-    if (!size) { delay(1); continue; }
-
-    if (size > sizeof(buf) - remain) size = sizeof(buf) - remain;
-    if ((len = stream->readBytes(buf + remain, size)) > 0) {
-      int fed = pngle_feed(pngle, buf, remain + len);
-      if (fed < 0) {
-        log_e("[pngle error] %s", pngle_error(pngle));
-        break;
-      }
-
-      remain = remain + len - fed;
-      if (remain > 0) memmove(buf, buf + fed, remain);
+  while ((len = readSource.readBytes(buf + remain, sizeof(buf) - remain)) > 0) {
+    int fed = pngle_feed(pngle, buf, remain + len);
+    if (fed < 0) {
+      log_e("[pngle error] %s", pngle_error(pngle));
+      break;
     }
+
+    remain = remain + len - fed;
+    if (remain > 0) memmove(buf, buf + fed, remain);
   }
 
   pngle_destroy(pngle);
-  http.end();
+
 }
