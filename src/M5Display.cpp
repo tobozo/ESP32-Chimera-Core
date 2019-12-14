@@ -32,6 +32,10 @@ void M5Display::wakeup() {
 }
 
 void M5Display::setBrightness(uint8_t brightness) {
+  #ifdef ARDUINO_ESP32_DEV 
+    // WROVER_KIT Lcd has inverted brightness values
+    brightness = 255 - brightness;
+  #endif
   ledcWrite(BLK_PWM_CHANNEL, brightness);
 }
 
