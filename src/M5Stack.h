@@ -167,10 +167,10 @@
         #ifdef MPU9250_INSDE
           MPU9250 IMU = MPU9250();
         #endif
-          
+
         // I2C
         CommUtil I2C = CommUtil();
-          
+
         /**
         * Function has been move to Power class.(for compatibility)
         * This name will be removed in a future release.
@@ -178,11 +178,11 @@
         void setPowerBoostKeepOn(bool en);
         void setWakeupButton(uint8_t button);
         void powerOFF();
-        
+
       private:
           bool isInited;
     };
-    
+
     extern M5Stack M5;
     #define m5 M5
     #define lcd Lcd
