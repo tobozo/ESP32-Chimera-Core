@@ -104,7 +104,7 @@
     #include <SPI.h>
     #include "FS.h"
 
-    #if defined ( ARDUINO_ESP32_DEV )
+    #if defined ( ARDUINO_ESP32_DEV ) || defined( ARDUINO_DDUINO32_XS )
       #include "SD_MMC.h"
       #define M5STACK_SD SD_MMC
     #else

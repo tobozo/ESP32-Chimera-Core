@@ -12,11 +12,12 @@ void M5Display::begin() {
   setRotation(1);
 #endif
   fillScreen(0);
-
+#ifdef TFT_BL
   // Init the back-light LED PWM
   ledcSetup(BLK_PWM_CHANNEL, 44100, 8);
   ledcAttachPin(TFT_BL, BLK_PWM_CHANNEL);
   ledcWrite(BLK_PWM_CHANNEL, 80);
+#endif
 }
 
 void M5Display::sleep() {

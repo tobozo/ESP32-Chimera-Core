@@ -27,8 +27,8 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   if (LCDEnable == true) {
     log_d("Enabling LCD");
     Lcd.begin();
-    ScreenShot.init( &Lcd, M5STACK_SD );
     if( ScreenShotEnable == true ) {
+       ScreenShot.init( &Lcd, M5STACK_SD );
        ScreenShot.begin();
     }
   }
@@ -46,7 +46,11 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   // TONE
   // Speaker.begin();
-
+#ifdef ARDUINO_DDUINO32_XS
+  pinMode(BUTTON_A_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_B_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_C_PIN, INPUT_PULLUP);
+#endif
 #ifdef ARDUINO_ODROID_ESP32
   pinMode(BUTTON_MENU_PIN, INPUT_PULLUP);
   pinMode(BUTTON_VOLUME_PIN, INPUT_PULLUP);
