@@ -15,7 +15,7 @@
   #define TFT_HEIGHT    240
   #define TFT_DRIVER 0x7789
   #define SPI_FREQUENCY 40000000
-  //#define SPI_READ_FREQUENCY 2000000
+  #define SPI_READ_FREQUENCY 2000000
   #include "TFT_Drivers/ST7789_DDUINO32-XS_Defines.h"
   #define DDUINO32_XS_LCD_DRIVER
 #elif defined ( ARDUINO_ESP32_DEV )
