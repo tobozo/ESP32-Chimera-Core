@@ -27,8 +27,8 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   if (LCDEnable == true) {
     log_d("Enabling LCD");
     Lcd.begin();
-    ScreenShot.init( &Lcd, M5STACK_SD );
     if( ScreenShotEnable == true ) {
+       ScreenShot.init( &Lcd, M5STACK_SD );
        ScreenShot.begin();
     }
   }
