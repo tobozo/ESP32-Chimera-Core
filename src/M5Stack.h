@@ -94,7 +94,13 @@
 
 #ifndef _M5STACK_H_
   #define _M5STACK_H_
-  
+  // create marker to ease core (legacy or chimera) detection
+  // e.g.:
+  // #ifdef _CHIMERA_CORE_
+  //    M5.ScreenShot.snap();
+  // #endif
+  #define _CHIMERA_CORE_
+
   #if defined(ESP32)
 
     // #define MPU9250_INSDE
