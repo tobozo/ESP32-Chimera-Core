@@ -1296,6 +1296,14 @@ void TFT_eSprite::fillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t 
     color = (color >> 8) | (color << 8);
     uint32_t iw = w;
     int32_t ys = yp;
+    if( h==1 ) { while( iw-- ) { _img[yp++] = (uint16_t) color; } return; }
+    uint8_t buf[iw*2];
+    while( iw-- ) { *((uint16_t*)&buf[iw*2]) = (uint16_t) color; }
+    while( h-- ) {
+      memcpy( _img+yp, buf, w<<1);
+      yp += _iwidth;
+    }
+    /*
     if(h--)  {while (iw--) _img[yp++] = (uint16_t) color;}
     yp = ys;
     while (h--)
@@ -1303,6 +1311,7 @@ void TFT_eSprite::fillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t 
       yp += _iwidth;
       memcpy( _img+yp, _img+ys, w<<1);
     }
+    */
   }
   else if (_bpp == 8)
   {
@@ -2288,7 +2297,11 @@ static uint32_t jpgWrite(JDEC *decoder, void *bitmap, JRECT *rect) {
                        y - jpeg->offY + jpeg->y,
                        x - jpeg->offX + jpeg->x + oL + w - (oL + oR) - 1,
                        y - jpeg->offY + jpeg->y + h - 1);
-
+  log_w("setWindow( %d, %d, %d, %d)",
+                       x - jpeg->offX + jpeg->x + oL,
+                       y - jpeg->offY + jpeg->y,
+                       x - jpeg->offX + jpeg->x + oL + w - (oL + oR) - 1,
+                       y - jpeg->offY + jpeg->y + h - 1);
   while (h--) {
     data += 3 * oL;
     line = w - (oL + oR);
@@ -2353,7 +2366,7 @@ void TFT_eSprite::drawJpg(const uint8_t *jpg_data, size_t jpg_len, uint16_t x,
                         uint16_t y, uint16_t maxWidth, uint16_t maxHeight,
                         uint16_t offX, uint16_t offY, jpeg_div_t scale) {
   if ((x + maxWidth) > width() || (y + maxHeight) > height()) {
-    log_e("Bad dimensions given");
+    log_e("Bad dimensions given ([%d,%d] exceeds [%d,%d]", x + maxWidth, y + maxHeight, width(), height() );
     return;
   }
   if( getColorDepth() != 16 ) {
