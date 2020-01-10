@@ -1,5 +1,3 @@
-
-
 if( _id > 0 ){
   log_d("ST7789 rotate : %d", m);
   writecommand(TFT_MADCTL);

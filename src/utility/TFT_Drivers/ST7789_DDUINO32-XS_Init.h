@@ -1,4 +1,3 @@
-
 log_d("D-Duino32-XS driver init");
 
 static uint8_t PROGMEM

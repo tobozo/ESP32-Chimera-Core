@@ -1,5 +1,8 @@
 # ESP32-Chimera-Core Library
 
+![Illustration By Jacopo Ligozzi](https://user-images.githubusercontent.com/1893754/71980273-ed9bb100-321f-11ea-8982-49702af29c9f.png)
+
+
 This library is a *substitute* of the original [M5Stack](https://github.com/m5stack/M5Stack/) library, with added support for the following devices:
 
   - M5Stack Classic
@@ -64,4 +67,4 @@ Sketch compilation can eventually be tuned-up to a specific device by using macr
   - [紅樹　タカオ (Takao Akaki)](https://github.com/mongonta0716)
   - [Nochi](https://github.com/shikarunochi)
   - [こばさん](https://github.com/wakwak-koba)
-
+  - [Illustration By Jacopo Ligozzi](https://commons.wikimedia.org/w/index.php?curid=53514521)

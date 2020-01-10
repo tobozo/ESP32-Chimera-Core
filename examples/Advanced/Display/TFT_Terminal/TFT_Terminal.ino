@@ -1,9 +1,8 @@
-
 /*************************************************************
   This sketch implements a simple serial receive terminal
   program for monitoring serial debug messages from another
   board.
-  
+
   Connect GND to target board GND
   Connect RX line to TX line of target board
   Make sure the target and terminal have the same baud rate
@@ -11,14 +10,14 @@
 
   The sketch works with the ILI9341 TFT 240x320 display and
   the called up libraries.
-  
+
   The sketch uses the hardware scrolling feature of the
   display. Modification of this sketch may lead to problems
   unless the ILI9341 data sheet has been understood!
 
   Updated by Bodmer 21/12/16 for TFT_eSPI library:
   https://github.com/Bodmer/TFT_eSPI
-  
+
   BSD license applies, all text above must be included in any
   redistribution
  *************************************************************/
@@ -59,10 +58,10 @@ void setup() {
   M5.begin();
   // M5.Lcd.setRotation(5); // Must be setRotation(0) for this sketch to work correctly
   M5.Lcd.fillScreen(TFT_BLACK);
-  
+
   // Setup baud rate and draw top banner
   // Serial.begin(115200);
-  
+
   M5.Lcd.setTextColor(TFT_WHITE, TFT_BLUE);
   M5.Lcd.fillRect(0,0,320,TEXT_HEIGHT, TFT_BLUE);
   M5.Lcd.drawCentreString(" Serial Terminal - 115200 baud ",320/2,0,2);

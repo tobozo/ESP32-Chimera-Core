@@ -1,4 +1,3 @@
-
 // This is the command sequence that initialises the WROVER_KIT_LCD driver
 
 // Configure WROVER_KIT_LCD display

@@ -180,9 +180,9 @@ void CommUtil::scan() {
     if (deviceStatus == 0) {
       Serial.printf(" %02x", addr);
     } else if (deviceStatus == 4) {
-      Serial.printf(" %02s", "??");
+      Serial.printf(" %2s", "??");
     } else {
-      Serial.printf(" %02s", "--");
+      Serial.printf(" %2s", "--");
     }
     if (!((addr+1) % 0x10) ) {
       Serial.println();

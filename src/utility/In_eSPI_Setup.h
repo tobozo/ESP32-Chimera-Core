@@ -1,7 +1,6 @@
-
 #define M5STACK
 
-#if defined( ARDUINO_DDUINO32_XS ) 
+#if defined( ARDUINO_DDUINO32_XS )
   #define TFT_BL         22  // LED back-light
   #define TFT_DC         23
   #define TFT_RST        32
@@ -15,7 +14,7 @@
   #define TFT_HEIGHT    240
   #define TFT_DRIVER 0x7789
   #define SPI_FREQUENCY 40000000
-  #define SPI_READ_FREQUENCY 2000000
+  #define SPI_READ_FREQUENCY 20000000
   #define TFT_SDA_READ      // This option if for ESP32 ONLY, tested with ST7789 display only
   #include "TFT_Drivers/ST7789_DDUINO32-XS_Defines.h"
   #define DDUINO32_XS_LCD_DRIVER

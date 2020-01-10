@@ -1,4 +1,4 @@
-  // This is the command sequence that rotates the ST7789 driver coordinate frame
+// This is the command sequence that rotates the ST7789 driver coordinate frame
 
   writecommand(TFT_MADCTL);
   rotation = m % 4;
