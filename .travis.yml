@@ -62,7 +62,9 @@ script:
   #- find "$TRAVIS_BUILD_DIR/examples/" -name *ino -exec build_sketch '{}' "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "newest" \;
   #- export -f build_sketch
   #- find "$TRAVIS_BUILD_DIR/examples/" -name *ino -exec bash -c 'build_sketch "$0" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "newest"' {} \;
-  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && find "$TRAVIS_BUILD_DIR/examples/" -name *ino | while read file; do build_sketch "$file" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "newest"; done | echo "Skipping examples build"
+  - if [ "$TRAVIS_BRANCH" != "master" ]; then echo "This commit was made against the $TRAVIS_BRANCH, skipping examples compilation"; exit 0; fi
+  - if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then echo "This is a pull request, skipping examples compilation"; exit 0; fi
+  - find "$TRAVIS_BUILD_DIR/examples/" -name *ino | while read file; do build_sketch "$file" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "newest"; done | echo "Skipping examples build"
   #- build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "newest"
 
 after_script:
