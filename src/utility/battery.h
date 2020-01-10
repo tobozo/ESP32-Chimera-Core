@@ -35,4 +35,3 @@ private:
 };
 
 #endif /* LIBRARIES_ODROID_GO_SRC_UTILITY_BATTERY_H_ */
-
