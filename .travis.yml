@@ -22,7 +22,7 @@ before_install:
   # don't check for tabs
   # - find . -path './.git' -prune -or -type f \( ! -iname ".gitmodules" \) -exec grep --with-filename --line-number --binary-files=without-match --regexp=$'\t' '{}' \; -exec echo 'Tab found.' \; -exec false '{}' +
   # Check for trailing whitespace
-  - find . -path './.git' -prune -or -type f -exec grep --with-filename --line-number --binary-files=without-match --regexp='[[:blank:]]$' '{}' \; -exec echo 'Trailing whitespace found.' \; -exec false '{}' +
+  - find . -type d \( -path './.git' -o -path './examples' -o -path './src/Fonts' \) -prune -or -type f -exec grep --with-filename --line-number --binary-files=without-match --regexp='[[:blank:]]$' '{}' \; -exec echo 'Trailing whitespace found.' \; -exec false '{}' +
   # Check for non-Unix line endings
   - find . -type d \( -path './.git' -o -path './examples' -o -path './src/Fonts' \) -prune -or -type f -exec grep --files-with-matches --binary-files=without-match --regexp=$'\r$' '{}' \; -exec echo 'Non-Unix EOL detected.' \; -exec false '{}' +
   # Check for blank lines at end of files
