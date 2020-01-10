@@ -59,4 +59,3 @@ static const uint8_t ADC2 = 36;
 
 
 #endif /* Pins_Arduino_h */
- 

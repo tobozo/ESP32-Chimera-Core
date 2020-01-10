@@ -57,8 +57,8 @@ POWER::POWER() {
 }
 
 void POWER::begin() {
-  
-  //Initial I2C 
+
+  //Initial I2C
   Wire.begin(21, 22);
 }
 
@@ -303,8 +303,8 @@ void POWER::deepSleep(uint64_t time_in_us){
 }
 
 //note:
-//If the IP5306 I2C communication is not available, 
-//such as the old model, there is a limit to the maximum time for sleep return. 
+//If the IP5306 I2C communication is not available,
+//such as the old model, there is a limit to the maximum time for sleep return.
 //When using this function, pay attention to the constraints.
 void POWER::lightSleep(uint64_t time_in_us) {
 
@@ -336,7 +336,7 @@ void POWER::lightSleep(uint64_t time_in_us) {
 
 //note:
 //To ensure that the power is turned off,
-//reduce the power consumption according to the specifications of the power supply IC. 
+//reduce the power consumption according to the specifications of the power supply IC.
 //Otherwise, the power supply IC will continue to supply power.
 void POWER::powerOFF(){
   uint8_t data;
@@ -348,11 +348,11 @@ void POWER::powerOFF(){
   if (M5.I2C.readByte(IP5306_ADDR, IP5306_REG_SYS_CTL1, &data) == true){
     M5.I2C.writeByte(IP5306_ADDR, IP5306_REG_SYS_CTL1, (data & (~BOOST_ENABLE_BIT)));
   }
-  
+
   //stop wifi
   esp_wifi_disconnect();
   esp_wifi_stop();
-  
+
   //stop bt
   esp_bluedroid_disable();
 
@@ -368,4 +368,5 @@ void POWER::powerOFF(){
 
   //wait shutdown from IP5306 (low-current shutdown)
   esp_deep_sleep_start();
+
 }

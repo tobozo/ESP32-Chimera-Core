@@ -1,4 +1,3 @@
-
 // This is the command sequence that rotates the ILI9341 driver coordinate frame
 
   rotation = m % 8; // Limit the range of values to 0-7
@@ -81,7 +80,7 @@
 
   }
 
-  
+
 #ifdef ARDUINO_TTGO_T1
   #define SWAP(a, b) do { typeof(a) temp = a; a = b; b = temp; } while (0)
   SWAP( _width, _height );

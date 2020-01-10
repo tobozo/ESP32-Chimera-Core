@@ -1,4 +1,3 @@
-
 // This is the command sequence that initialises the ILI9341 driver
 //
 // This setup information uses simple 8 bit SPI writecommand() and writedata() functions

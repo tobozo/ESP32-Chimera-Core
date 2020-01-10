@@ -68,5 +68,3 @@ Sketch compilation can eventually be tuned-up to a specific device by using macr
   - [Nochi](https://github.com/shikarunochi)
   - [こばさん](https://github.com/wakwak-koba)
   - [Illustration By Jacopo Ligozzi](https://commons.wikimedia.org/w/index.php?curid=53514521)
-
-

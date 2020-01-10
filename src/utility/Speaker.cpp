@@ -9,7 +9,7 @@ void SPEAKER::begin() {
   _begun = true;
   ledcSetup(TONE_PIN_CHANNEL, 0, 13);
   ledcAttachPin(SPEAKER_PIN, TONE_PIN_CHANNEL);
-#ifdef ARDUINO_ODROID_ESP32	
+#ifdef ARDUINO_ODROID_ESP32
   pinMode(25, OUTPUT);
   digitalWrite(25, HIGH);
 #endif

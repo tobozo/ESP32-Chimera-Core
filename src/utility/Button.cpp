@@ -143,7 +143,7 @@ uint8_t Button::readAxis()
 
   ms = millis();
   val = analogRead(_pin);
-//	xxval = val;
+//  xxval = val;
 
   if (val > 3900) {
     pinVal = 1;

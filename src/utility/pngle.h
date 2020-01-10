@@ -66,13 +66,13 @@ void *pngle_get_user_data(pngle_t *pngle);
 // ----------------
 
 typedef struct _pngle_ihdr_t {
-	uint32_t width;
-	uint32_t height;
-	uint8_t depth;
-	uint8_t color_type;
-	uint8_t compression;
-	uint8_t filter;
-	uint8_t interlace;
+  uint32_t width;
+  uint32_t height;
+  uint8_t depth;
+  uint8_t color_type;
+  uint8_t compression;
+  uint8_t filter;
+  uint8_t interlace;
 } pngle_ihdr_t;
 
 // Get IHDR information

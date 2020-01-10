@@ -18,14 +18,14 @@ class TFT_eSprite : public TFT_eSPI {
            // Create a sprite of width x height pixels, return a pointer to the RAM area
            // Sketch can cast returned value to (uint16_t*) for 16 bit depth if needed
            // RAM required is 1 byte per pixel for 8 bit colour depth, 2 bytes for 16 bit
-  void*    createSprite(int16_t width, int16_t height, uint8_t frames = 1);  
+  void*    createSprite(int16_t width, int16_t height, uint8_t frames = 1);
 
            // Delete the sprite to free up the RAM
   void     deleteSprite(void);
 
            // Select the frame buffer for graphics
   void*    frameBuffer(int8_t f);
-  
+
            // Set or get the colour depth to 8 or 16 bits. Can be used to change depth an existing
            // sprite, but clears it to black, returns a new pointer if sprite is re-created.
   void*    setColorDepth(int8_t b);
@@ -87,14 +87,14 @@ class TFT_eSprite : public TFT_eSPI {
   void     getRotatedBounds(float sina, float cosa, int16_t w, int16_t h, int16_t xp, int16_t yp,
                                 int16_t *min_x, int16_t *min_y, int16_t *max_x, int16_t *max_y);
 
-           // Read the colour of a pixel at x,y and return value in 565 format 
+           // Read the colour of a pixel at x,y and return value in 565 format
   uint16_t readPixel(int32_t x0, int32_t y0);
 
            // Write an image (colour bitmap) to the sprite
   void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t *data);
   void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, const uint16_t *data);
 
-  
+
   void drawJpg(const uint8_t *jpg_data, size_t jpg_len, uint16_t x = 0,
               uint16_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0,
               uint16_t offX = 0, uint16_t offY = 0,
@@ -110,7 +110,7 @@ class TFT_eSprite : public TFT_eSPI {
                 uint16_t offX = 0, uint16_t offY = 0,
                 jpeg_div_t scale = JPEG_DIV_NONE);
 
-  
+
            // Swap the byte order for pushImage() - corrects different image endianness
   void     setSwapBytes(bool swap);
   bool     getSwapBytes(void);
@@ -156,7 +156,7 @@ class TFT_eSprite : public TFT_eSPI {
   int16_t _ypivot;   // y pivot point coordinate
 
   bool     _created;    // A Sprite has been created and memory reserved
-  bool     _gFont = false; 
+  bool     _gFont = false;
   bool     _usePsram = true; // use Psram if available
 
 //  int32_t  _icursor_x, _icursor_y;

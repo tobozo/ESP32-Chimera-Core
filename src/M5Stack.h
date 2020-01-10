@@ -149,7 +149,7 @@
         Button BtnMenu = Button(BUTTON_MENU_PIN, true, DEBOUNCE_MS);
         Button BtnVolume = Button(BUTTON_VOLUME_PIN, true, DEBOUNCE_MS);
         Button BtnSelect = Button(BUTTON_SELECT_PIN, true, DEBOUNCE_MS);
-        Button BtnStart = Button(BUTTON_START_PIN, true, DEBOUNCE_MS);	
+        Button BtnStart = Button(BUTTON_START_PIN, true, DEBOUNCE_MS);
 
         Battery battery;
 #endif

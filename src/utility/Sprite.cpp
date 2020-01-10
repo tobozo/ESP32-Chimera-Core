@@ -528,7 +528,7 @@ uint16_t TFT_eSprite::readPixel(int32_t x, int32_t y)
     uint16_t color = _img[x + y * _iwidth];
     return (color >> 8) | (color << 8);
   }
-  
+
   if (_bpp == 8)
   {
     uint16_t color = _img8[x + y * _iwidth];
@@ -568,7 +568,7 @@ uint16_t TFT_eSprite::readPixel(int32_t x, int32_t y)
 
 /***************************************************************************************
 ** Function name:           pushImage
-** Description:             push 565 colour image into a defined area of a sprite 
+** Description:             push 565 colour image into a defined area of a sprite
 *************************************************************************************x*/
 void  TFT_eSprite::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t *data)
 {
@@ -822,7 +822,7 @@ void TFT_eSprite::pushColor(uint32_t color)
 
   else  if (_bpp == 8)
     _img8[_xptr + _yptr * _iwidth] = (uint8_t )((color & 0xE000)>>8 | (color & 0x0700)>>6 | (color & 0x0018)>>3);
-  
+
   else drawPixel(_xptr, _yptr, color);
 
   // Increment x
@@ -904,7 +904,7 @@ void TFT_eSprite::setScrollRect(int32_t x, int32_t y, int32_t w, int32_t h, uint
   if ((x + w) > _iwidth ) w = _iwidth  - x;
   if ((y + h) > _iheight) h = _iheight - y;
 
-  if ( w < 1 || h < 1) return;  
+  if ( w < 1 || h < 1) return;
 
   _sx = x;
   _sy = y;
@@ -1280,7 +1280,7 @@ void TFT_eSprite::fillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t 
   if (!_created ) return;
 
   if ((x >= _iwidth) || (y >= _iheight)) return;
-  
+
   if (x < 0) { w += x; x = 0; }
   if (y < 0) { h += y; y = 0; }
 
@@ -1429,7 +1429,7 @@ size_t TFT_eSprite::write(uint8_t utf8)
 
   height = height * textsize;
 
-  if (utf8 == '\n') 
+  if (utf8 == '\n')
   {
     this->cursor_y += height;
     this->cursor_x  = 0;
@@ -1854,15 +1854,15 @@ void TFT_eSprite::drawGlyph(uint16_t code)
 
   uint16_t gNum = 0;
   bool found = this->getUnicodeIndex(code, &gNum);
-  
+
   uint16_t fg = this->textcolor;
   uint16_t bg = this->textbgcolor;
 
   if (found)
   {
-    
+
     bool newSprite = !_created;
-  
+
     if (newSprite)
     {
       createSprite(this->gWidth[gNum], this->gFont.yAdvance);
@@ -1945,7 +1945,7 @@ void TFT_eSprite::printToSprite(String string)
 void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
 {
   if(!this->fontLoaded) return;
-  
+
   //fontFile = SPIFFS.open( this->_gFontFilename, "r" );
 
   if(!this->fontFile)
@@ -1956,7 +1956,7 @@ void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
 
   uint16_t n = 0;
   bool newSprite = !_created;
-  
+
   if (newSprite)
   {
     int16_t sWidth = 0;
@@ -1994,7 +1994,7 @@ void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
     pushSprite(_tft->cursor_x, _tft->cursor_y);
     deleteSprite();
   }
-    
+
   //fontFile.close();
 }
 
@@ -2069,7 +2069,7 @@ void TFT_eSprite::drawGradientLine( int32_t x0, int32_t y0, int32_t x1, int32_t 
   }
 
   boolean steep = abs(y1 - y0) > abs(x1 - x0);
-  
+
   RGBColor _color, _colorstart, _colorend;
   int32_t _x0 = x0, _x1 = x1, _y0 = y0, _y1 = y1; // freeze values
 
@@ -2090,7 +2090,7 @@ void TFT_eSprite::drawGradientLine( int32_t x0, int32_t y0, int32_t x1, int32_t 
 
   int32_t dx = x1 - x0, dy = abs(y1 - y0);;
   int32_t err = dx >> 1, ystep = -1, xs = x0, dlen = 0;
-  
+
   if (y0 < y1) ystep = 1;
 
   // Split into steep and not steep for H/V separation

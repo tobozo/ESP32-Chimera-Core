@@ -17,4 +17,3 @@ if(CONFIG_M5STACK_FIRE)
 endif(CONFIG_M5STACK_FIRE)
 
 target_compile_definitions(${COMPONENT_NAME} PUBLIC ${DEFINITIONS})
-
