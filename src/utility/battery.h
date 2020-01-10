@@ -21,17 +21,17 @@
 
 class Battery {
 public:
-	Battery(void);
+  Battery(void);
 
-	void begin();
-	double getVoltage();
-	int getPercentage();
-	void setProtection(bool enable);
-	void update();
+  void begin();
+  double getVoltage();
+  int getPercentage();
+  void setProtection(bool enable);
+  void update();
 
 private:
-	esp_adc_cal_characteristics_t _adc_chars;
-	bool _enable_protection;
+  esp_adc_cal_characteristics_t _adc_chars;
+  bool _enable_protection;
 };
 
 #endif /* LIBRARIES_ODROID_GO_SRC_UTILITY_BATTERY_H_ */

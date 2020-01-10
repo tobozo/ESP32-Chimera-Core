@@ -14,12 +14,12 @@ static uint8_t PROGMEM
       0x00,                                 // Row addr/col addr, bottom to top refresh
     ST7789_CASET,      4,                   // 5: Column addr set, 4 args
       0x00, ST7789_240x240_XSTART,          // XSTART = 0
-	  (240+ST7789_240x240_XSTART) >> 8,
-	  (240+ST7789_240x240_XSTART) & 0xFF,   // XEND = 240
+    (240+ST7789_240x240_XSTART) >> 8,
+    (240+ST7789_240x240_XSTART) & 0xFF,   // XEND = 240
     ST7789_RASET,      4,                   // 6: Row addr set, 4 args
       0x00, ST7789_240x240_YSTART,          // YSTART = 0
       (240+ST7789_240x240_YSTART) >> 8,
-	  (240+ST7789_240x240_YSTART) & 0xFF,   // YEND = 240
+    (240+ST7789_240x240_YSTART) & 0xFF,   // YEND = 240
     ST7789_INVON,      1,                   // 7: Inversion ON
       10,
     ST7789_NORON,      1,                   // 8: Normal display on, no args
