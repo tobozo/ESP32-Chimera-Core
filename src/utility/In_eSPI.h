@@ -37,7 +37,7 @@
   #define SPI_READ_FREQUENCY SPI_FREQUENCY
 #endif
 
-#if defined(ST7789_DRIVER) || defined(ST7789_2_DRIVER) || defined(DDUINO32_XS_LCD_DRIVER) 
+#if defined(ST7789_DRIVER) || defined(ST7789_2_DRIVER) || defined(DDUINO32_XS_LCD_DRIVER)
   #define TFT_SPI_MODE SPI_MODE3
 #else
   #define TFT_SPI_MODE SPI_MODE0
@@ -313,7 +313,7 @@
 
   // ESP32 low level SPI writes for 8, 16 and 32 bit values
   // to avoid the function call overhead
-  
+
   // Write 8 bits
   #define tft_Write_8(C) \
   WRITE_PERI_REG(SPI_MOSI_DLEN_REG(SPI_PORT), 8-1); \
@@ -386,59 +386,59 @@
   #include <Fonts/GFXFF/FreeMonoOblique12pt7b.h> // FF6 or FMO12
   #include <Fonts/GFXFF/FreeMonoOblique18pt7b.h> // FF7 or FMO18
   #include <Fonts/GFXFF/FreeMonoOblique24pt7b.h> // FF8 or FMO24
-  
+
   #include <Fonts/GFXFF/FreeMonoBold9pt7b.h>  // FF9  or FMB9
   #include <Fonts/GFXFF/FreeMonoBold12pt7b.h> // FF10 or FMB12
   #include <Fonts/GFXFF/FreeMonoBold18pt7b.h> // FF11 or FMB18
   #include <Fonts/GFXFF/FreeMonoBold24pt7b.h> // FF12 or FMB24
-  
+
   #include <Fonts/GFXFF/FreeMonoBoldOblique9pt7b.h>  // FF13 or FMBO9
   #include <Fonts/GFXFF/FreeMonoBoldOblique12pt7b.h> // FF14 or FMBO12
   #include <Fonts/GFXFF/FreeMonoBoldOblique18pt7b.h> // FF15 or FMBO18
   #include <Fonts/GFXFF/FreeMonoBoldOblique24pt7b.h> // FF16 or FMBO24
-  
+
   // Sans serif fonts
   #include <Fonts/GFXFF/FreeSans9pt7b.h>  // FF17 or FSS9
   #include <Fonts/GFXFF/FreeSans12pt7b.h> // FF18 or FSS12
   #include <Fonts/GFXFF/FreeSans18pt7b.h> // FF19 or FSS18
   #include <Fonts/GFXFF/FreeSans24pt7b.h> // FF20 or FSS24
-  
+
   #include <Fonts/GFXFF/FreeSansOblique9pt7b.h>  // FF21 or FSSO9
   #include <Fonts/GFXFF/FreeSansOblique12pt7b.h> // FF22 or FSSO12
   #include <Fonts/GFXFF/FreeSansOblique18pt7b.h> // FF23 or FSSO18
   #include <Fonts/GFXFF/FreeSansOblique24pt7b.h> // FF24 or FSSO24
-  
+
   #include <Fonts/GFXFF/FreeSansBold9pt7b.h>  // FF25 or FSSB9
   #include <Fonts/GFXFF/FreeSansBold12pt7b.h> // FF26 or FSSB12
   #include <Fonts/GFXFF/FreeSansBold18pt7b.h> // FF27 or FSSB18
   #include <Fonts/GFXFF/FreeSansBold24pt7b.h> // FF28 or FSSB24
-  
+
   #include <Fonts/GFXFF/FreeSansBoldOblique9pt7b.h>  // FF29 or FSSBO9
   #include <Fonts/GFXFF/FreeSansBoldOblique12pt7b.h> // FF30 or FSSBO12
   #include <Fonts/GFXFF/FreeSansBoldOblique18pt7b.h> // FF31 or FSSBO18
   #include <Fonts/GFXFF/FreeSansBoldOblique24pt7b.h> // FF32 or FSSBO24
-  
+
   // Serif fonts
   #include <Fonts/GFXFF/FreeSerif9pt7b.h>  // FF33 or FS9
   #include <Fonts/GFXFF/FreeSerif12pt7b.h> // FF34 or FS12
   #include <Fonts/GFXFF/FreeSerif18pt7b.h> // FF35 or FS18
   #include <Fonts/GFXFF/FreeSerif24pt7b.h> // FF36 or FS24
-  
+
   #include <Fonts/GFXFF/FreeSerifItalic9pt7b.h>  // FF37 or FSI9
   #include <Fonts/GFXFF/FreeSerifItalic12pt7b.h> // FF38 or FSI12
   #include <Fonts/GFXFF/FreeSerifItalic18pt7b.h> // FF39 or FSI18
   #include <Fonts/GFXFF/FreeSerifItalic24pt7b.h> // FF40 or FSI24
-  
+
   #include <Fonts/GFXFF/FreeSerifBold9pt7b.h>  // FF41 or FSB9
   #include <Fonts/GFXFF/FreeSerifBold12pt7b.h> // FF42 or FSB12
   #include <Fonts/GFXFF/FreeSerifBold18pt7b.h> // FF43 or FSB18
   #include <Fonts/GFXFF/FreeSerifBold24pt7b.h> // FF44 or FSB24
-  
+
   #include <Fonts/GFXFF/FreeSerifBoldItalic9pt7b.h>  // FF45 or FSBI9
   #include <Fonts/GFXFF/FreeSerifBoldItalic12pt7b.h> // FF46 or FSBI12
   #include <Fonts/GFXFF/FreeSerifBoldItalic18pt7b.h> // FF47 or FSBI18
   #include <Fonts/GFXFF/FreeSerifBoldItalic24pt7b.h> // FF48 or FSBI24
-  
+
 #endif // #ifdef LOAD_GFXFF
 
 //These enumerate the text plotting alignment (reference datum point)
@@ -717,7 +717,7 @@ class TFT_eSPI : public Print {
   uint16_t readcommand16(uint8_t cmd_function, uint8_t index = 0);
   uint32_t readcommand32(uint8_t cmd_function, uint8_t index = 0);
 
-           // Read the colour of a pixel at x,y and return value in 565 format 
+           // Read the colour of a pixel at x,y and return value in 565 format
   uint16_t readPixel(int32_t x0, int32_t y0);
   void     setCallback(getColorCallback getCol);
 

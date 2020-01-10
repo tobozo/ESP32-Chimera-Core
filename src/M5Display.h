@@ -30,7 +30,7 @@
         #if defined (SPI_HAS_TRANSACTION) && defined (SUPPORT_TRANSACTIONS) && !defined(ESP32_PARALLEL)
           if(!inTransaction) {
             if (!locked) {
-              locked = true; 
+              locked = true;
               SPI.endTransaction();
             }
           }

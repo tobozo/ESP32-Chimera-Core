@@ -1,28 +1,28 @@
 /*
- * 
+ *
  * TinyJPEGEncoder
- * 
+ *
  * Copyright 2019 tobozo http://github.com/tobozo
  *
- * Permission is hereby granted, free of charge, to any person 
- * obtaining a copy of this software and associated documentation 
- * files ("TinyBMPEncoder"), to deal in the Software without 
- * restriction, including without limitation the rights to use, 
- * copy, modify, merge, publish, distribute, sublicense, and/or 
- * sell copies of the Software, and to permit persons to whom the 
- * Software is furnished to do so, subject to the following 
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files ("TinyBMPEncoder"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
  * conditions:
- * 
- * The above copyright notice and this permission notice shall be 
+ *
+ * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  * This is a readable and simple single-header JPEG encoder.
@@ -45,7 +45,7 @@
  * modify this file as you see fit.
  *
  * === CHANGES by tobozo Nov. 2019===
- * 
+ *
  *  - uses psram if available
  *  - uses fs::FS
  *  - rewrotecode to in a C++ style
@@ -185,7 +185,7 @@ typedef enum {
 #pragma pack(pop)
 
 
-class JPEG_Encoder { 
+class JPEG_Encoder {
   public:
 
     fs::File jpegFile;
@@ -208,7 +208,7 @@ class JPEG_Encoder {
     void       write_DQT( TJEState* state, const uint8_t* matrix, uint8_t id );
     void       write_DHT( TJEState* state, uint8_t const * matrix_len, uint8_t const * matrix_val, TJEHuffmanTableClass ht_class, uint8_t id );
     void       writeBits( TJEState* state, uint32_t* bitbuffer, uint32_t* location, uint16_t num_bits, uint16_t bits );
-    
+
     uint8_t*   huffGetCodeLengths( uint8_t huffsize[/*256*/], uint8_t const * bits );
     uint16_t*  huffGetCodes( uint16_t codes[], uint8_t* huffsize, int64_t count );
     void       huffGetExtended( uint8_t* out_ehuffsize, uint16_t* out_ehuffcode, uint8_t const * huffval, uint8_t* huffsize, uint16_t* huffcode, int64_t count );
