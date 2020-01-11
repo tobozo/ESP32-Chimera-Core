@@ -10,6 +10,7 @@ This library is a *substitute* of the original [M5Stack](https://github.com/m5st
   - Odroid-Go
   - D-Duino-32-XS
   - ESP32-Wrover-Kit (v4.1, v4.2, v4.3)
+  - Lilygo TTGO-TS
 
 
 It also implements a set of extra features:
@@ -49,6 +50,8 @@ Sketch compilation can eventually be tuned-up to a specific device by using macr
         #warning M5STACK FIRE DETECTED !!
       #elif defined( ARDUINO_ODROID_ESP32 )
         #warning ODROID DETECTED !!
+      #elif defined( ARDUINO_TTGO_T1 )
+        #warning Lilygo TTGO-TS DETECTED !!
       #elif defined ( ARDUINO_ESP32_DEV )
         #warning WROVER DETECTED !!
       #else
