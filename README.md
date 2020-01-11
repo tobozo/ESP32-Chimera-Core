@@ -11,7 +11,7 @@ This library is a *substitute* of the original [M5Stack](https://github.com/m5st
   - [D-Duino-32-XS](https://www.tindie.com/products/lspoplove/dstike-d-duino-32-xs/)
   - [ESP32-Wrover-Kit (v4.1, v4.2, v4.3)](https://www.sparkfun.com/products/14917)
   - [Lilygo TTGO-TS](https://www.banggood.com/LILYGO-TTGO-TS-ESP32-1_44-Inch-TFT-MicroSD-Card-Slot-Speakers-bluetooth-Wifi-Module-p-1273383.html)
-  
+
 Support coming soon:
 
   - [LoLin D32-Pro](https://www.aliexpress.com/item/32883116057.html)
