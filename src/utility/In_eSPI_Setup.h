@@ -61,6 +61,10 @@
   #define TFT_SDA_READ      // This option if for ESP32 ONLY, tested with ST7789 display only
   #include "TFT_Drivers/ILI9341_Defines.h"
   #define ILI9341_DRIVER
+  // turn ILI9341 into hybrid ST7735
+  #define TFT_INVERSION_OFF
+  #undef TFT_MAD_BGR
+  #define TFT_MAD_BGR 0
 #else // M5Stack (default)
   #define TFT_MISO       19
   #define TFT_MOSI       23
