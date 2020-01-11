@@ -11,6 +11,12 @@ This library is a *substitute* of the original [M5Stack](https://github.com/m5st
   - D-Duino-32-XS
   - ESP32-Wrover-Kit (v4.1, v4.2, v4.3)
   - Lilygo TTGO-TS
+  
+Support coming soon:
+
+  - LoLin D32-Pro
+  - M5StickC
+  - M5Atom
 
 
 It also implements a set of extra features:
