@@ -91,7 +91,7 @@ bool CommUtil::readByte(uint8_t address, uint8_t *result) {
 }
 
 bool CommUtil::readByte(uint8_t address, uint8_t subAddress,uint8_t *result) {
-  uint8_t data; // `data` will store the register data
+  __attribute__((unused)) uint8_t data; // `data` will store the register data
 
   #ifdef I2C_DEBUG_TO_SERIAL
     Serial.printf("readByte :read from 0x%02x [0x%02x] requestByte=1 receive=", address, subAddress);
