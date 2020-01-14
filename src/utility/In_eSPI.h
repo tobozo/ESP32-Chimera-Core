@@ -636,12 +636,25 @@ struct RGBColor {
 };
 
 
+typedef bool (*JpegRenderCallBack)(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *data);
+typedef bool (*PngRenderCallBack)(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color);
+
 // Class functions and variables
 class TFT_eSPI : public Print {
 
  public:
 
   TFT_eSPI(int16_t _W = TFT_WIDTH, int16_t _H = TFT_HEIGHT);
+
+  void (*setJpegRenderCallBack)( JpegRenderCallBack jpegRenderCallBack );
+  void (*jpgFlashRenderFunc)( const uint8_t *jpg_data, uint32_t jpg_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY );
+  void (*jpgFSRenderFunc)( fs::FS &fs, const char* pFilename, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY );
+  void (*jpgStreamRenderFunc)( Stream *dataSource, uint32_t data_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY );
+
+  void (*setPngRenderCallBack)( PngRenderCallBack pngRenderCallBack );
+  void (*pngFlashRenderFunc)( const uint8_t *png_data, size_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold );
+  void (*pngFSRenderFunc)( fs::FS &fs, const char* pFilename, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold );
+  void (*pngStreamRenderFunc)( Stream *dataSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold );
 
   void     init(uint8_t tc = TAB_COLOUR), begin(uint8_t tc = TAB_COLOUR); // Same - begin included for backwards compatibility
 

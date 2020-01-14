@@ -6,6 +6,9 @@
   #include <SPI.h>
   #include "utility/In_eSPI.h"
   #include "utility/Sprite.h"
+  #include "utility/In_imgDecoder.h"
+
+  static TFT_eSprite *jpegSprite = nullptr;
 
   class M5Display : public TFT_eSPI {
     public:
@@ -58,23 +61,25 @@
       void drawBitmap(int16_t x0, int16_t y0, int16_t w, int16_t h, uint16_t *data);
       void drawBitmap(int16_t x0, int16_t y0, int16_t w, int16_t h, uint8_t *data);
       void drawBitmap(int16_t x0, int16_t y0, int16_t w, int16_t h, const uint16_t *data, uint16_t transparent);
-
+/*
       void drawJpg(const uint8_t *jpg_data, size_t jpg_len, uint16_t x = 0,
                   uint16_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0,
                   uint16_t offX = 0, uint16_t offY = 0,
-                  jpeg_div_t scale = JPEG_DIV_NONE);
+                  jpeg_div_t scale = JPEG_DIV_NONE) {
+        drawFastJpg(  jpg_data, jpg_len, x, y, maxWidth, maxHeight, offX, offY, scale );
+      };*/
+      void drawJpgFile( fs::FS &fs, const char *path, uint16_t x = 0, uint16_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0, uint16_t offX = 0, uint16_t offY = 0, jpeg_div_t scale = JPEG_DIV_NONE);
+      void drawJpgFile( Stream *dataSource, uint32_t data_len, uint16_t x = 0, uint16_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0, uint16_t offX = 0, uint16_t offY = 0, jpeg_div_t scale = JPEG_DIV_NONE );
+      void drawJpg( const uint8_t *jpg_data, uint32_t jpg_len, int32_t x = 0, int32_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0, uint16_t offX = 0, uint16_t offY = 0, jpeg_div_t scale = JPEG_DIV_NONE  );
 
-      void drawJpg(fs::FS &fs, const char *path, uint16_t x = 0, uint16_t y = 0,
-                    uint16_t maxWidth = 0, uint16_t maxHeight = 0,
-                    uint16_t offX = 0, uint16_t offY = 0,
-                    jpeg_div_t scale = JPEG_DIV_NONE);
-
-      void drawJpgFile(fs::FS &fs, const char *path, uint16_t x = 0, uint16_t y = 0,
-                    uint16_t maxWidth = 0, uint16_t maxHeight = 0,
-                    uint16_t offX = 0, uint16_t offY = 0,
-                    jpeg_div_t scale = JPEG_DIV_NONE);
 
       // PNG implementation by https://github.com/kikuchan
+
+      void drawPng(const uint8_t *png_data, size_t png_len, int32_t x = 0,
+                  int32_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0,
+                  uint16_t offX = 0, uint16_t offY = 0,
+                  double scale = 1.0, uint8_t alphaThreshold = 127 );
+
       void drawPngFile(fs::FS &fs, const char *path, uint16_t x = 0, uint16_t y = 0,
                     uint16_t maxWidth = 0, uint16_t maxHeight = 0,
                     uint16_t offX = 0, uint16_t offY = 0,
@@ -84,10 +89,13 @@
                             uint16_t maxWidth, uint16_t maxHeight, uint16_t offX,
                             uint16_t offY, double scale, uint8_t alphaThreshold);
 
+      // deprecated, this is bloating M5Display.cpp
+      /*
       void drawPngUrl(const char *url, uint16_t x = 0, uint16_t y = 0,
                     uint16_t maxWidth = 0, uint16_t maxHeight = 0,
                     uint16_t offX = 0, uint16_t offY = 0,
-                    double scale = 1.0, uint8_t alphaThreshold = 127);
+                    double scale = 1.0, uint8_t alphaThreshold = 127);*/
+
     private:
   };
 #endif

@@ -129,6 +129,7 @@
 #ifdef ARDUINO_ODROID_ESP32
     #include "utility/battery.h"
 #endif
+
     class M5Stack
     {
       public:
@@ -164,6 +165,8 @@
 
         //Power
         POWER Power;
+
+
 
         // UART
         // HardwareSerial Serial0 = HardwareSerial(0);
