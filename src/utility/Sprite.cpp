@@ -2246,4 +2246,3 @@ void TFT_eSprite::drawPng(const uint8_t *png_data, size_t png_len, int32_t x, in
 
 
 #endif
-
