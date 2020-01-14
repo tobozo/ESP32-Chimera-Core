@@ -14,11 +14,6 @@ https://github.com/Bodmer/JPEGDecoder
 #ifndef JPEGDECODER_H
   #define JPEGDECODER_H
 
-  #ifndef JPEGDECODER_SETUP_LOADED //  Lets PlatformIO users define settings in
-                                   //  platformio.ini
-    #include "User_Config.h"
-  #endif // JPEGDECODER_SETUP_LOADED
-
   #include "Arduino.h"
 
   #ifdef __AVR__
