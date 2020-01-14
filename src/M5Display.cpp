@@ -170,7 +170,7 @@ void M5Display::drawBmpFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y
         uint8_t*  bptr = lineBuffer;
         uint16_t* tptr = (uint16_t*)lineBuffer;
         // Convert 24 to 16 bit colours
-        for (uint16_t col = 0; col < w; col++) {
+        for (col = 0; col < w; col++) {
           b = *bptr++;
           g = *bptr++;
           r = *bptr++;
@@ -197,7 +197,7 @@ void M5Display::drawBmpFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y
 /*
  * JPEG
  */
-static M5Display *jpegDisplay;
+__attribute__((unused)) static M5Display *jpegDisplay;
 static bool fast_jpg_tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
   if ( y >= jpegDisplay->height() ) return 0;
   bool swap = jpegDisplay->getSwapBytes();
@@ -228,7 +228,7 @@ void M5Display::drawJpgFile( Stream *dataSource, uint32_t data_len, uint16_t x, 
 /*
  * PNG
  */
-static M5Display *pngDisplay;
+__attribute__((unused)) static M5Display *pngDisplay;
 static bool fast_png_tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color) {
   if ( y >= pngDisplay->height() ) return 0;
   pngDisplay->fillRect(x, y, w, h, color);

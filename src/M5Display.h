@@ -8,7 +8,7 @@
   #include "utility/Sprite.h"
   #include "utility/In_imgDecoder.h"
 
-  static TFT_eSprite *jpegSprite = nullptr;
+  __attribute__((unused)) static TFT_eSprite *jpegSprite = nullptr;
 
   class M5Display : public TFT_eSPI {
     public:

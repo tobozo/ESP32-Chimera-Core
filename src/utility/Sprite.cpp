@@ -1295,7 +1295,7 @@ void TFT_eSprite::fillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t 
   {
     color = (color >> 8) | (color << 8);
     uint32_t iw = w;
-    int32_t ys = yp;
+    //int32_t ys = yp;
     if( h==1 ) { while( iw-- ) { _img[yp++] = (uint16_t) color; } return; }
     uint8_t buf[iw*2];
     while( iw-- ) { *((uint16_t*)&buf[iw*2]) = (uint16_t) color; }
@@ -2189,7 +2189,7 @@ void TFT_eSprite::drawGradientVLine( int32_t x, int32_t y, int32_t h, RGBColor c
 /*
  * JPEG
  */
-static TFT_eSprite *jpegSprite;
+__attribute__((unused)) static TFT_eSprite *jpegSprite;
 static bool fast_jpg_sprite_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
   if ( y >= jpegSprite->height() ) return 0;
   jpegSprite->pushImage(x, y, w, h, bitmap);
@@ -2218,7 +2218,7 @@ void TFT_eSprite::drawJpgFile( Stream *dataSource, uint32_t data_len, int32_t x,
 /*
  * PNG
  */
-static TFT_eSprite *pngSprite;
+__attribute__((unused)) static TFT_eSprite *pngSprite;
 static bool fast_png_sprite_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color) {
   if ( y >= pngSprite->height() ) return 0;
   pngSprite->fillRect(x, y, w, h, color);

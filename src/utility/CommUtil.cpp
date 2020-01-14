@@ -47,7 +47,7 @@ bool CommUtil::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
 
 // Wire.h read and write protocols
 bool CommUtil::writeBytes(uint8_t address, uint8_t subAddress, uint8_t *data, uint8_t length) {
-  bool function_result = false;
+  __attribute__((unused)) bool function_result = false;
 
   #ifdef I2C_DEBUG_TO_SERIAL
     Serial.printf("writeBytes:send to 0x%02x [0x%02x] data=",address,subAddress);
@@ -71,7 +71,7 @@ bool CommUtil::writeBytes(uint8_t address, uint8_t subAddress, uint8_t *data, ui
 }
 
 bool CommUtil::readByte(uint8_t address, uint8_t *result) {
-  uint8_t data; // `data` will store the register data
+  __attribute__((unused)) uint8_t data; // `data` will store the register data
 
   #ifdef I2C_DEBUG_TO_SERIAL
     Serial.printf("readByte :read from 0x%02x requestByte=1 receive=", address);

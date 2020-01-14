@@ -16,15 +16,15 @@
 
 
 typedef bool (*jpegSketchCallback)(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *data);
-static jpegSketchCallback JpgRenderCallback;
+__attribute__((unused)) static jpegSketchCallback JpgRenderCallback;
 
 
-static void jpgCallBackSetter( jpegSketchCallback sketchCallback ) {
+__attribute__((unused)) static void jpgCallBackSetter( jpegSketchCallback sketchCallback ) {
   JpgRenderCallback = sketchCallback;
 }
 
 
-static uint32_t jpegRender( int xpos, int ypos, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY ) {
+__attribute__((unused)) static uint32_t jpegRender( int xpos, int ypos, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY ) {
 
   uint16_t jpgWidth  = JpegDec.width;// / (1 << (uint8_t)(JpegDec.scale));
   uint16_t jpgHeight = JpegDec.height;// / (1 << (uint8_t)(JpegDec.scale));
@@ -61,7 +61,7 @@ static uint32_t jpegRender( int xpos, int ypos, uint16_t maxWidth, uint16_t maxH
   int rectop    = offY;
   int recright  = offX+JpegDec.outWidth;
   int recbottom = offY+JpegDec.outHeight;
-  uint16_t oL = 0, oR = 0;
+  //uint16_t oL = 0, oR = 0;
   if (recright < offX) {
     return 1;
   }
@@ -118,7 +118,7 @@ static uint32_t jpegRender( int xpos, int ypos, uint16_t maxWidth, uint16_t maxH
       }
     }
     // calculate how many pixels must be drawn
-    uint32_t mcu_pixels = win_w * win_h;
+    //uint32_t mcu_pixels = win_w * win_h;
     // draw image MCU block only if it will fit on the screen
     if ( ( mcu_x/*-offX*/ + win_w ) <= max_x/*maxWidth*/ && ( mcu_y/*-offY*/ + win_h ) <= max_y/*maxHeight*/ ) {
 
@@ -138,7 +138,7 @@ static uint32_t jpegRender( int xpos, int ypos, uint16_t maxWidth, uint16_t maxH
 }
 
 
-static void jpgRenderer( fs::FS &fs, const char* pFilename, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY ) {
+__attribute__((unused)) static void jpgRenderer( fs::FS &fs, const char* pFilename, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY ) {
   boolean decoded = JpegDec.decodeFsFile( fs, pFilename );
   if ( decoded ) {
     jpegRender( x, y, maxWidth, maxHeight, offX, offY );
@@ -147,7 +147,7 @@ static void jpgRenderer( fs::FS &fs, const char* pFilename, int32_t x, int32_t y
   }
 }
 
-static void jpgRenderer( Stream *dataSource, uint32_t data_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY ) {
+__attribute__((unused)) static void jpgRenderer( Stream *dataSource, uint32_t data_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY ) {
   boolean decoded = JpegDec.decodeStream( dataSource, data_len );
   if ( decoded ) {
     jpegRender( x, y, maxWidth, maxHeight, offX, offY );
@@ -157,7 +157,7 @@ static void jpgRenderer( Stream *dataSource, uint32_t data_len, int32_t x, int32
 }
 
 
-static void jpgRenderer( const uint8_t * jpg_data, uint32_t jpg_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY ) {
+__attribute__((unused)) static void jpgRenderer( const uint8_t * jpg_data, uint32_t jpg_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY ) {
   boolean decoded = JpegDec.decodeArray( jpg_data, jpg_len );
   if ( decoded ) {
     jpegRender( x, y, maxWidth, maxHeight, offX, offY );
@@ -175,8 +175,8 @@ static void jpgRenderer( const uint8_t * jpg_data, uint32_t jpg_len, int32_t x, 
 #include "utility/pngle.h" // original version of https://github.com/kikuchan/pngle
 
 typedef bool (*pngSketchCallback)(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color);
-static pngSketchCallback PngRenderCallback;
-static void pngCallBackSetter( pngSketchCallback sketchCallback ) {
+__attribute__((unused)) static pngSketchCallback PngRenderCallback;
+__attribute__((unused)) static void pngCallBackSetter( pngSketchCallback sketchCallback ) {
   PngRenderCallback = sketchCallback;
 }
 
@@ -191,15 +191,15 @@ typedef struct png_draw_params {
   uint8_t alphaThreshold;
 } png_decoder_t;
 
-static pngle_t *pngle = nullptr;
-static png_decoder_t png;//(png_decoder_t*){0,0,0,0,0,0,0.0,0};
+__attribute__((unused)) static pngle_t *pngle = nullptr;
+__attribute__((unused)) static png_decoder_t png;//(png_decoder_t*){0,0,0,0,0,0,0.0,0};
 
 #define pngleColor(c)                                                            \
   (((uint16_t)(((uint8_t *)(c))[0] & 0xF8) << 8) |                             \
    ((uint16_t)(((uint8_t *)(c))[1] & 0xFC) << 3) |                             \
    ((((uint8_t *)(c))[2] & 0xF8) >> 3))
 
-static void pngRender(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint8_t rgba[4]) {
+__attribute__((unused)) static void pngRender(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint8_t rgba[4]) {
   png_decoder_t *p = (png_decoder_t *)pngle_get_user_data(pngle);
   uint16_t color = pngleColor(rgba);
 
@@ -231,14 +231,14 @@ static void pngRender(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t w, uint32
   }
 }
 
-static void pngInitCb(pngle_t *pngle, uint32_t w, uint32_t h){
+__attribute__((unused)) static void pngInitCb(pngle_t *pngle, uint32_t w, uint32_t h){
   (void)(pngle);
   if( png.maxWidth == 0 ) png.maxWidth  = w * png.scale;
   if( png.maxHeight== 0 ) png.maxHeight = h * png.scale;
 }
 
 
-static void pngInit( int x, int y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold ) {
+__attribute__((unused)) static void pngInit( int x, int y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold ) {
   pngle = pngle_new();
   png.x = x;
   png.y = y;
@@ -255,11 +255,11 @@ static void pngInit( int x, int y, uint16_t maxWidth, uint16_t maxHeight, uint16
   //pngle_set_done_callback(pngle, pngRendered);
 }
 
-static void pngRenderer( const uint8_t * png_data, uint32_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold  ) {
+__attribute__((unused)) static void pngRenderer( const uint8_t * png_data, uint32_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold  ) {
   pngInit( x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold );
-  uint8_t buf[1024];
-  int remain = 0;
-  int len;
+  //uint8_t buf[1024];
+  //int remain = 0;
+  //int len;
   int fed = pngle_feed(pngle, png_data, png_len);
   if (fed < 0) {
     log_e("[pngle error] %s", pngle_error(pngle));
@@ -267,7 +267,7 @@ static void pngRenderer( const uint8_t * png_data, uint32_t png_len, int32_t x, 
   pngle_destroy(pngle);
 }
 
-static void pngRenderer( Stream *dataSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold  ) {
+__attribute__((unused)) static void pngRenderer( Stream *dataSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold  ) {
   pngInit( x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold );
   uint8_t buf[1024];
   int remain = 0;
@@ -285,7 +285,7 @@ static void pngRenderer( Stream *dataSource, int32_t x, int32_t y, uint16_t maxW
   pngle_destroy(pngle);
 }
 
-static void pngRenderer( fs::FS &fs, const char* pFilename, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold  ) {
+__attribute__((unused)) static void pngRenderer( fs::FS &fs, const char* pFilename, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold  ) {
   File pFile = fs.open( pFilename );
   if( !pFile ) {
     log_e( "[pngle error] can't open file %s", pFilename );

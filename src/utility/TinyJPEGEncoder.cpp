@@ -893,7 +893,7 @@ int JPEG_Encoder::encodeToFileAtQuality( const char* dest_path, const int qualit
     tje_log( "Could not open file for writing." );
     return 0;
   }
-  int result = encodeWithFunc( writeCallback, jpegFile, quality, width, height, numComponents, src_data );
+  /*int result = */encodeWithFunc( writeCallback, jpegFile, quality, width, height, numComponents, src_data );
   jpegFile.close();
   return _fileSystem->exists( dest_path );
 }
