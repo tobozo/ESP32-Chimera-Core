@@ -2172,77 +2172,97 @@ void TFT_eSprite::drawGradientVLine( int32_t x, int32_t y, int32_t h, RGBColor c
 
 
 
+__attribute__((unused)) static TFT_eSprite *imgDecoderSprite;
+__attribute__((unused)) static TFT_eSPI *imgDecoderDisplay;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-/*
+/*\
  * JPEG
- */
-__attribute__((unused)) static TFT_eSprite *jpegSprite;
+\*/
 static bool fast_jpg_sprite_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
-  if ( y >= jpegSprite->height() ) return 0;
-  jpegSprite->pushImage(x, y, w, h, bitmap);
+  if ( y >= imgDecoderSprite->height() ) return 0;
+  imgDecoderSprite->pushImage(x, y, w, h, bitmap);
   log_v("jpg sprite rendered");
   return 1;
 }
+
 void TFT_eSprite::drawJpg( const uint8_t *jpg_data, uint32_t jpg_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  jpegSprite = this;
-  if( _tft->setJpegRenderCallBack ) _tft->setJpegRenderCallBack( fast_jpg_sprite_output );
-  if( _tft->jpgFlashRenderFunc )    _tft->jpgFlashRenderFunc(jpg_data, jpg_len, x, y, maxWidth, maxHeight, offX, offY);
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  if( _tft->jpgFlashRenderFunc )      _tft->jpgFlashRenderFunc(jpg_data, jpg_len, x, y, maxWidth, maxHeight, offX, offY, scale );
 }
 void TFT_eSprite::drawJpgFile( fs::FS &fs, const char *path, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  jpegSprite = this;
-  if( _tft->setJpegRenderCallBack ) _tft->setJpegRenderCallBack( fast_jpg_sprite_output );
-  if( _tft->jpgFSRenderFunc )       _tft->jpgFSRenderFunc(fs, path, x, y, maxWidth, maxHeight, offX, offY );
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  if( _tft->jpgFSRenderFunc )       _tft->jpgFSRenderFunc(fs, path, x, y, maxWidth, maxHeight, offX, offY, scale );
 }
-void TFT_eSprite::drawJpgFile( Stream *dataSource, uint32_t data_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  jpegSprite = this;
-  if( _tft->setJpegRenderCallBack ) _tft->setJpegRenderCallBack( fast_jpg_sprite_output );
-  if( _tft->jpgStreamRenderFunc )   _tft->jpgStreamRenderFunc( dataSource, data_len, x, y, maxWidth, maxHeight, offX, offY );
+void TFT_eSprite::drawJpgFile( Stream *dataSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  if( _tft->jpgStreamRenderFunc )   _tft->jpgStreamRenderFunc( dataSource, x, y, maxWidth, maxHeight, offX, offY, scale );
 }
 
-/*
+/*\
  * PNG
- */
-__attribute__((unused)) static TFT_eSprite *pngSprite;
+\*/
 static bool fast_png_sprite_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color) {
-  if ( y >= pngSprite->height() ) return 0;
-  pngSprite->fillRect(x, y, w, h, color);
-  log_v("png tft rendered");
+  if ( y >= imgDecoderSprite->height() || x >= imgDecoderSprite->width() ) return 0;
+  imgDecoderSprite->fillRect(x, y, w, h, color);
+  log_v("png sprite rendered");
   return 1;
 }
-void TFT_eSprite::drawPngFile(fs::FS &fs, const char *path, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  pngSprite = this;
-  if( _tft->setPngRenderCallBack ) _tft->setPngRenderCallBack( fast_png_sprite_output );
-  if( _tft->pngFSRenderFunc )      _tft->pngFSRenderFunc(fs, path, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold );
+void TFT_eSprite::drawPngFile(fs::FS &fs, const char *path, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor) {
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  if( _tft->pngFSRenderFunc )      _tft->pngFSRenderFunc(fs, path, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold, bgcolor );
 }
-void TFT_eSprite::drawPngFile(Stream &readSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  pngSprite = this;
-  if( _tft->setPngRenderCallBack ) _tft->setPngRenderCallBack( fast_png_sprite_output );
-  if( _tft->pngStreamRenderFunc )  _tft->pngStreamRenderFunc( &readSource, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold );
+void TFT_eSprite::drawPngFile(Stream &readSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor) {
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  if( _tft->pngStreamRenderFunc )  _tft->pngStreamRenderFunc( &readSource, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold, bgcolor );
 }
-void TFT_eSprite::drawPng(const uint8_t *png_data, size_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold ) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  pngSprite = this;
-  if( _tft->setPngRenderCallBack ) _tft->setPngRenderCallBack( fast_png_sprite_output );
-  if( _tft->pngFlashRenderFunc )   _tft->pngFlashRenderFunc(png_data, png_len, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold );
+void TFT_eSprite::drawPng(const uint8_t *png_data, size_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor ) {
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  if( _tft->pngFlashRenderFunc )   _tft->pngFlashRenderFunc(png_data, png_len, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold, bgcolor );
 }
 
+
+/*\
+ * Image Decoders
+\*/
+
+static int32_t get_sprite_width() {
+  return (int32_t)imgDecoderSprite->width();
+}
+static int32_t get_sprite_height() {
+  return (int32_t)imgDecoderSprite->height();
+}
+static void sprite_push_color_array(uint16_t *buf, uint16_t len) {
+  for( uint16_t i=0; i<len; i++ ) {
+    imgDecoderSprite->pushColor( buf[i], 1 );
+  }
+
+}
+
+static void sprite_set_window(int32_t x0, int32_t y0, int32_t x1, int32_t y1) {
+  imgDecoderSprite->setWindow( x0, y0, x1, y1 );
+}
+
+static uint16_t sprite_color_565( uint8_t r, uint8_t g, uint8_t b ) {
+  return imgDecoderDisplay->color565( r, g, b );
+}
+
+
+bool TFT_eSprite::setupImgDecoder( int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight ) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return false; }
+  imgDecoderSprite = this;
+  imgDecoderDisplay = _tft;
+  if( _tft->setWidthGetter )        _tft->setWidthGetter( get_sprite_width );
+  if( _tft->setHeightGetter )       _tft->setHeightGetter( get_sprite_height );
+  if( _tft->setColorWriterArray )   _tft->setColorWriterArray( nullptr );
+  if( _tft->setWindowSetter )       _tft->setWindowSetter( sprite_set_window );
+  if( _tft->setRgb565Converter )    _tft->setRgb565Converter( sprite_color_565 );
+  if( _tft->setColorWriterArray )   _tft->setColorWriterArray( sprite_push_color_array );
+  if( _tft->setJpegRenderCallBack ) _tft->setJpegRenderCallBack( fast_jpg_sprite_output );
+  if( _tft->setPngRenderCallBack )  _tft->setPngRenderCallBack( fast_png_sprite_output );
+  if( _tft->setTransactionStarter ) imgDecoderDisplay->setTransactionStarter( nullptr );
+  if( _tft->setTransactionEnder )   imgDecoderDisplay->setTransactionEnder( nullptr );
+  return true;
+}
 
 #endif

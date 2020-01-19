@@ -94,16 +94,17 @@ class TFT_eSprite : public TFT_eSPI {
   void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t *data);
   void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, const uint16_t *data);
 
+  bool     setupImgDecoder( int32_t x=0, int32_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0 );
 
-  void drawJpgFile( fs::FS &fs, const char *path, int32_t x = 0, int32_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0, uint16_t offX = 0, uint16_t offY = 0, jpeg_div_t scale = JPEG_DIV_NONE );
-  void drawJpgFile( Stream *dataSource, uint32_t data_len, int32_t x = 0, int32_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0, uint16_t offX = 0, uint16_t offY = 0, jpeg_div_t scale = JPEG_DIV_NONE );
-  void drawJpg( const uint8_t *jpg_data, uint32_t jpg_len, int32_t x = 0, int32_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0, uint16_t offX = 0, uint16_t offY = 0, jpeg_div_t scale = JPEG_DIV_NONE );
+  void drawJpgFile( fs::FS &fs, const char *path, int32_t x=0, int32_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0, uint16_t offX=0, uint16_t offY=0, jpeg_div_t scale=JPEG_DIV_NONE );
+  void drawJpgFile( Stream *dataSource, int32_t x=0, int32_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0, uint16_t offX=0, uint16_t offY=0, jpeg_div_t scale=JPEG_DIV_NONE );
+  void drawJpg( const uint8_t *jpg_data, uint32_t jpg_len, int32_t x=0, int32_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0, uint16_t offX=0, uint16_t offY=0, jpeg_div_t scale=JPEG_DIV_NONE );
 
   // PNG implementation by https://github.com/kikuchan
-  void drawPngFile( fs::FS &fs, const char *path, int32_t x = 0, int32_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0, uint16_t offX = 0, uint16_t offY = 0, double scale = 1.0, uint8_t alphaThreshold = 127 );
-  void drawPngFile( Stream &readSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale = 1.0, uint8_t alphaThreshold = 127 );
-  void drawPng( const uint8_t *png_data, size_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale = 1.0, uint8_t alphaThreshold = 127 );
-  //void drawPngUrl( const char *url, uint16_t x = 0, uint16_t y = 0, uint16_t maxWidth = 0, uint16_t maxHeight = 0, uint16_t offX = 0, uint16_t offY = 0, double scale = 1.0, uint8_t alphaThreshold = 127 );
+  void drawPngFile( fs::FS &fs, const char *path, int32_t x=0, int32_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0, uint16_t offX=0, uint16_t offY=0, double scale=1.0, uint8_t alphaThreshold=127, uint16_t bgcolor=TFT_BLACK  );
+  void drawPngFile( Stream &readSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale=1.0, uint8_t alphaThreshold=127, uint16_t bgcolor=TFT_BLACK  );
+  void drawPng( const uint8_t *png_data, size_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale=1.0, uint8_t alphaThreshold=127, uint16_t bgcolor=TFT_BLACK  );
+  __attribute__((deprecated)) void drawPngUrl( const char *url, uint16_t x=0, uint16_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0, uint16_t offX=0, uint16_t offY=0, double scale=1.0, uint8_t alphaThreshold=127, uint16_t bgcolor=TFT_BLACK  );
 
            // Swap the byte order for pushImage() - corrects different image endianness
   void     setSwapBytes(bool swap);

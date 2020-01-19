@@ -194,61 +194,119 @@ void M5Display::drawBmpFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y
 // }
 
 
-/*
+
+__attribute__((unused)) static M5Display *imgDecoderDisplay;
+
+
+/*\
  * JPEG
- */
-__attribute__((unused)) static M5Display *jpegDisplay;
+\*/
 static bool fast_jpg_tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
-  if ( y >= jpegDisplay->height() ) return 0;
-  bool swap = jpegDisplay->getSwapBytes();
-  jpegDisplay->setSwapBytes(true);
-  jpegDisplay->pushImage(x, y, w, h, bitmap);
-  jpegDisplay->setSwapBytes(swap);
+  if ( y >= imgDecoderDisplay->height() ) return 0;
+  bool swap = imgDecoderDisplay->getSwapBytes();
+  imgDecoderDisplay->setSwapBytes(true);
+  imgDecoderDisplay->pushImage(x, y, w, h, bitmap);
+  imgDecoderDisplay->setSwapBytes(swap);
   return 1;
 }
-void M5Display::drawJpg( const uint8_t * jpg_data, uint32_t jpg_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  jpegDisplay = this;
-  if( setJpegRenderCallBack ) setJpegRenderCallBack( fast_jpg_tft_output );
-  if( jpgFlashRenderFunc )    jpgFlashRenderFunc(jpg_data, jpg_len, x, y, maxWidth, maxHeight, offX, offY );
+void M5Display::drawJpg( const uint8_t * jpg_data, uint32_t jpg_len, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  //startWrite();
+  if( imgDecoderDisplay->jpgFlashRenderFunc ) imgDecoderDisplay->jpgFlashRenderFunc(jpg_data, jpg_len, x, y, maxWidth, maxHeight, offX, offY, scale );
+  //endWrite();
 }
 void M5Display::drawJpgFile( fs::FS &fs, const char *path, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  jpegDisplay = this;
-  if( setJpegRenderCallBack ) setJpegRenderCallBack( fast_jpg_tft_output );
-  if( jpgFSRenderFunc )       jpgFSRenderFunc(fs, path, x, y, maxWidth, maxHeight, offX, offY );
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  startWrite();
+  if( imgDecoderDisplay->jpgFSRenderFunc ) imgDecoderDisplay->jpgFSRenderFunc(fs, path, x, y, maxWidth, maxHeight, offX, offY, scale );
+  endWrite();
 }
-void M5Display::drawJpgFile( Stream *dataSource, uint32_t data_len, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  jpegDisplay = this;
-  if( setJpegRenderCallBack ) setJpegRenderCallBack( fast_jpg_tft_output );
-  if( jpgStreamRenderFunc )   jpgStreamRenderFunc( dataSource, data_len, x, y, maxWidth, maxHeight, offX, offY );
+void M5Display::drawJpgFile( Stream *dataSource, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  startWrite();
+  if( imgDecoderDisplay->jpgStreamRenderFunc ) imgDecoderDisplay->jpgStreamRenderFunc( dataSource, x, y, maxWidth, maxHeight, offX, offY, scale );
+  endWrite();
 }
 
-/*
+/*\
  * PNG
- */
-__attribute__((unused)) static M5Display *pngDisplay;
+\*/
 static bool fast_png_tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color) {
-  if ( y >= pngDisplay->height() ) return 0;
-  pngDisplay->fillRect(x, y, w, h, color);
+  if ( y >= imgDecoderDisplay->height() ) return 0;
+  imgDecoderDisplay->fillRect(x, y, w, h, color);
   return 1;
 }
-void M5Display::drawPngFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  pngDisplay = this;
-  if( setPngRenderCallBack ) setPngRenderCallBack( fast_png_tft_output );
-  if( pngFSRenderFunc )      pngFSRenderFunc(fs, path, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold );
+void M5Display::drawPngFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given: [%d,%d]",x ,y ); return; }
+  imgDecoderDisplay = this;
+  if( imgDecoderDisplay->setPngRenderCallBack ) imgDecoderDisplay->setPngRenderCallBack( fast_png_tft_output );
+  startWrite();
+  if( imgDecoderDisplay->pngFSRenderFunc ) imgDecoderDisplay->pngFSRenderFunc(fs, path, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold, bgcolor );
+  endWrite();
 }
-void M5Display::drawPngFile(Stream &readSource, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  pngDisplay = this;
-  if( setPngRenderCallBack ) setPngRenderCallBack( fast_png_tft_output );
-  if( pngStreamRenderFunc )  pngStreamRenderFunc( &readSource, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold );
+void M5Display::drawPngFile(Stream &readSource, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given: [%d,%d]",x ,y ); return; }
+  imgDecoderDisplay = this;
+  if( imgDecoderDisplay->setPngRenderCallBack ) imgDecoderDisplay->setPngRenderCallBack( fast_png_tft_output );
+  startWrite();
+  if( imgDecoderDisplay->pngStreamRenderFunc ) imgDecoderDisplay->pngStreamRenderFunc( &readSource, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold, bgcolor );
+  endWrite();
 }
-void M5Display::drawPng(const uint8_t *png_data, size_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold ) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return; }
-  pngDisplay = this;
-  if( setPngRenderCallBack ) setPngRenderCallBack( fast_png_tft_output );
-  if( pngFlashRenderFunc )   pngFlashRenderFunc(png_data, png_len, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold );
+void M5Display::drawPng(const uint8_t *png_data, size_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor ) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given: [%d,%d]",x ,y ); return; }
+  imgDecoderDisplay = this;
+  if( imgDecoderDisplay->setPngRenderCallBack ) imgDecoderDisplay->setPngRenderCallBack( fast_png_tft_output );
+  startWrite();
+  if( imgDecoderDisplay->pngFlashRenderFunc ) imgDecoderDisplay->pngFlashRenderFunc(png_data, png_len, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold, bgcolor );
+  endWrite();
+}
+
+
+/*\
+ * Image Decoders
+\*/
+
+static int32_t get_tft_width() {
+  return (int32_t)imgDecoderDisplay->width();
+}
+static int32_t get_tft_height() {
+  return (int32_t)imgDecoderDisplay->height();
+}
+static void tft_set_window(int32_t x0, int32_t y0, int32_t x1, int32_t y1) {
+  imgDecoderDisplay->setWindow( x0, y0, x1, y1 );
+}
+static void tft_start_write() {
+  imgDecoderDisplay->startWrite();
+}
+static void tft_end_write() {
+  imgDecoderDisplay->endWrite();
+}
+
+static void tft_write_color_array(uint16_t* buf, uint16_t len) {
+  if( islegacyJpegDecoder ) {
+    imgDecoderDisplay->writePixels( buf, len );
+  } else {
+    for( uint16_t i=0; i<len; i++ ) {
+      imgDecoderDisplay->pushColor( buf[i], 1 );
+    }
+  }
+}
+
+static uint16_t tft_color_565( uint8_t r, uint8_t g, uint8_t b ) {
+  return imgDecoderDisplay->color565( r, g, b );
+}
+
+
+bool M5Display::setupImgDecoder( int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight ) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return false; }
+  imgDecoderDisplay = this;
+  if( imgDecoderDisplay->setWidthGetter )        imgDecoderDisplay->setWidthGetter( get_tft_width );
+  if( imgDecoderDisplay->setHeightGetter )       imgDecoderDisplay->setHeightGetter( get_tft_height );
+  if( imgDecoderDisplay->setColorWriterArray )   imgDecoderDisplay->setColorWriterArray( tft_write_color_array );
+  if( imgDecoderDisplay->setWindowSetter )       imgDecoderDisplay->setWindowSetter( tft_set_window );
+  if( imgDecoderDisplay->setRgb565Converter )    imgDecoderDisplay->setRgb565Converter( tft_color_565 );
+  if( imgDecoderDisplay->setJpegRenderCallBack ) imgDecoderDisplay->setJpegRenderCallBack( fast_jpg_tft_output );
+  if( imgDecoderDisplay->setTransactionStarter ) imgDecoderDisplay->setTransactionStarter( tft_start_write );
+  if( imgDecoderDisplay->setTransactionEnder )   imgDecoderDisplay->setTransactionEnder( tft_end_write );
+  return true;
 }

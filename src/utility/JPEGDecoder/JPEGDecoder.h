@@ -153,7 +153,7 @@ public:
 
   int decodeFsFile( fs::FS &fs, const char* pFilename );
 
-  int decodeStream( Stream *readSource, uint32_t array_size );
+  int decodeStream( Stream *dataSource, uint32_t array_size );
 
   int decodeArray(const uint8_t array[], uint32_t  array_size);
   void abort(void);

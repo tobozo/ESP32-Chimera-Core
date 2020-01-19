@@ -83,7 +83,11 @@ uint8_t JPEGDecoder::pjpeg_need_bytes_callback(uint8_t* pBuf, uint8_t buf_size, 
 #if defined (LOAD_SD_LIBRARY) || defined (LOAD_SDFAT_LIBRARY)
   if (jpg_source == JPEG_SD_FILE) g_pInFileSd.read(pBuf,n); // else we are handling a file
 #endif
-    if (jpg_source == JPEG_STREAM) g_pStream->readBytes(pBuf,n); // else we are handling a stream
+
+  if (jpg_source == JPEG_STREAM) {
+    size_t len = g_pStream->readBytes(pBuf,n); // else we are handling a stream
+    n = len;
+  }
 
   *pBytes_actually_read = (uint8_t)(n);
   g_nInFileOfs += n;
@@ -393,8 +397,8 @@ int JPEGDecoder::decodeSdFile(File jpgFile) { // This is for the SD library
 #endif
 
 
-int JPEGDecoder::decodeStream( Stream *readSource, uint32_t array_size ) {
-  g_pStream = readSource;
+int JPEGDecoder::decodeStream( Stream *dataSource, uint32_t array_size ) {
+  g_pStream = dataSource;
 
   jpg_source = JPEG_STREAM; // Flag to indicate a SD file
 
