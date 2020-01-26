@@ -74,6 +74,7 @@ typedef struct {
   uint16_t outHeight;
 } jpg_file_decoder_t;
 
+__attribute__((unused))
 static const char *jd_errors/* = {"Succeeded",
                            "Interrupted by output function",
                            "Device error or wrong termination of input stream",
@@ -161,14 +162,14 @@ static uint32_t jpgLegacyColorPush(JDEC *decoder, void *bitmap, JRECT *rect) {
                     (int32_t)y - jpeg->offY + jpeg->y,
                     (int32_t)x - jpeg->offX + jpeg->x + oL + w - (oL + oR) - 1,
                     (int32_t)y - jpeg->offY + jpeg->y + h - 1);
-
+/*
   log_w("Setwindow( [%d,%d], [%d,%d])",
     (int32_t)x - jpeg->offX + jpeg->x + oL,
     (int32_t)y - jpeg->offY + jpeg->y,
     (int32_t)x - jpeg->offX + jpeg->x + oL + w - (oL + oR) - 1,
     (int32_t)y - jpeg->offY + jpeg->y + h - 1
   );
-
+*/
   while (h--) {
     data += 3 * oL;
     line = w - (oL + oR);
@@ -681,5 +682,9 @@ static void pngRenderer( fs::FS &fs, const char* pFilename, int32_t x, int32_t y
   pngRenderer( &pFile, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold, bgcolor  );
 }
 
+
+#undef R
+#undef G
+#undef B
 
 #endif
