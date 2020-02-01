@@ -8,6 +8,8 @@
 #include <SPI.h>
 #include "In_eSPI.h"
 
+#define truncateFP(V,S) ((V + (V < 0 ? -1<<(S-1) : 1<<(S-1)))>>S)
+
 class TFT_eSprite : public TFT_eSPI {
 
  public:
@@ -17,13 +19,17 @@ class TFT_eSprite : public TFT_eSPI {
 
            // Create a sprite of width x height pixels, return a pointer to the RAM area
            // Sketch can cast returned value to (uint16_t*) for 16 bit depth if needed
-           // RAM required is 1 byte per pixel for 8 bit colour depth, 2 bytes for 16 bit
+           // RAM required is:
+           //  - 1 bit per pixel for 1 bit colour depth
+           //  - 1 byte per pixel for 8 bit colour
+           //  - 2 bytes per pixel for 16 bit color depth
   void*    createSprite(int16_t width, int16_t height, uint8_t frames = 1);
 
            // Delete the sprite to free up the RAM
   void     deleteSprite(void);
 
-           // Select the frame buffer for graphics
+           // Select the frame buffer for graphics write (for 2 colour ePaper and DMA toggle buffer)
+           // Returns a pointer to the Sprite frame buffer
   void*    frameBuffer(int8_t f);
 
            // Set or get the colour depth to 8 or 16 bits. Can be used to change depth an existing
@@ -31,16 +37,17 @@ class TFT_eSprite : public TFT_eSPI {
   void*    setColorDepth(int8_t b);
   int8_t   getColorDepth(void);
 
-  void     setBitmapColor(uint16_t c, uint16_t b);
+           // Set foreground and background colours for 1 bit per pixel Sprite
+  void     setBitmapColor(uint16_t fg, uint16_t bg);
 
   void     drawPixel(int32_t x, int32_t y, uint32_t color);
 
-  void     drawChar(int32_t x, int32_t y, uint16_t c, uint32_t color, uint32_t bg, uint8_t size),
+  void     drawChar(int32_t x, int32_t y, uint16_t c, uint32_t color, uint32_t bg, uint8_t font),
 
            fillSprite(uint32_t color),
 
            // Define a window to push 16 bit colour pixels into in a raster order
-           // Colours are converted to 8 bit if depth is set to 8
+            // Colours are converted to the set Sprite colour bit depth
            setWindow(int32_t x0, int32_t y0, int32_t x1, int32_t y1),
            pushColor(uint32_t color),
            pushColor(uint32_t color, uint16_t len),
@@ -74,10 +81,12 @@ class TFT_eSprite : public TFT_eSPI {
   void     setRotation(uint8_t rotation);
   uint8_t  getRotation(void);
 
-           // Push a rotated copy of Sprite to TFT with optional transparent colour
-  bool     pushRotated(int16_t angle, int32_t transp = -1);
-           // Push a rotated copy of Sprite to another different Sprite with optional transparent colour
-  bool     pushRotated(TFT_eSprite *spr, int16_t angle, int32_t transp = -1);
+
+  bool     pushRotated(int16_t angle, int32_t transp = -1);   // Using fixed point maths
+  bool     pushRotatedHP(int16_t angle, int32_t transp = -1); // Using higher precision floating point maths
+  bool     pushRotated(TFT_eSprite *spr, int16_t angle, int32_t transp = -1);   // Using fixed point maths
+  bool     pushRotatedHP(TFT_eSprite *spr, int16_t angle, int32_t transp = -1); // Using  higher precision floating point
+
            // Set and get the pivot point for this Sprite
   void     setPivot(int16_t x, int16_t y);
   int16_t  getPivotX(void),
@@ -91,8 +100,9 @@ class TFT_eSprite : public TFT_eSPI {
   uint16_t readPixel(int32_t x0, int32_t y0);
 
            // Write an image (colour bitmap) to the sprite
-  void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t *data);
-  void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, const uint16_t *data);
+  void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t *data, int32_t transparent=-1);
+  void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, const uint16_t *data, int32_t transparent=-1);
+  //void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t *data, uint16_t transparent);
 
   bool     setupImgDecoder( int32_t x=0, int32_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0 );
 
@@ -102,8 +112,8 @@ class TFT_eSprite : public TFT_eSPI {
 
   // PNG implementation by https://github.com/kikuchan
   void drawPngFile( fs::FS &fs, const char *path, int32_t x=0, int32_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0, uint16_t offX=0, uint16_t offY=0, double scale=1.0, uint8_t alphaThreshold=127, uint16_t bgcolor=TFT_BLACK  );
-  void drawPngFile( Stream &readSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale=1.0, uint8_t alphaThreshold=127, uint16_t bgcolor=TFT_BLACK  );
-  void drawPng( const uint8_t *png_data, size_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale=1.0, uint8_t alphaThreshold=127, uint16_t bgcolor=TFT_BLACK  );
+  void drawPngFile( Stream &readSource, int32_t x=0, int32_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0, uint16_t offX=0, uint16_t offY=0, double scale=1.0, uint8_t alphaThreshold=127, uint16_t bgcolor=TFT_BLACK  );
+  void drawPng( const uint8_t *png_data, size_t png_len, int32_t x=0, int32_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0, uint16_t offX=0, uint16_t offY=0, double scale=1.0, uint8_t alphaThreshold=127, uint16_t bgcolor=TFT_BLACK  );
   __attribute__((deprecated)) void drawPngUrl( const char *url, uint16_t x=0, uint16_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0, uint16_t offX=0, uint16_t offY=0, double scale=1.0, uint8_t alphaThreshold=127, uint16_t bgcolor=TFT_BLACK  );
 
            // Swap the byte order for pushImage() - corrects different image endianness
@@ -161,7 +171,7 @@ class TFT_eSprite : public TFT_eSPI {
   uint32_t _sw, _sh; // w,h for scroll zone
   uint32_t _scolor;  // gap fill colour for scroll zone
 
-  boolean  _iswapBytes; // Swap the byte order for Sprite pushImage()
+  bool     _iswapBytes; // Swap the byte order for Sprite pushImage()
 
   int32_t  _iwidth, _iheight; // Sprite memory image bit width and height (swapped during rotations)
   int32_t  _dwidth, _dheight; // Real display width and height (for <8bpp Sprites)
