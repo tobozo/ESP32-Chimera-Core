@@ -72,7 +72,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   // TF Card
   if (SDEnable == true) {
-    #ifdef USE_TFCARD_CS_PIN
+    #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
       log_d("Enabling SD from TFCARD_CS_PIN");
       M5STACK_SD.begin(TFCARD_CS_PIN, SPI, 40000000);
     #else

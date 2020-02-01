@@ -7,6 +7,9 @@
   #include "utility/In_eSPI.h"
   #include "utility/Sprite.h"
   #include "utility/In_imgDecoder.h"
+  #ifdef TOUCH_CS
+    #include "utility/TouchButton.h"
+  #endif
 
   __attribute__((unused)) static TFT_eSprite *jpegSprite = nullptr;
 
