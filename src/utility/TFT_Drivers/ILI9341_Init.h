@@ -59,7 +59,7 @@
   writedata(0x86);  // --
 
   writecommand(ILI9341_MADCTL);    // Memory Access Control
-#ifdef M5STACK
+#if defined (M5STACK)
   writedata(0xA8); // Rotation 0
 #else
   writedata(0x48); // Rotation 1
@@ -130,7 +130,7 @@
 
   writecommand(ILI9341_DISPON);    // Display on
 
-#ifdef M5STACK
+#if defined ( M5STACK )
   if(lcd_version) {
     writecommand(TFT_INVON); // color invert for IPS
   }

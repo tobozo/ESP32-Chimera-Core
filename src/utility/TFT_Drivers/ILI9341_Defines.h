@@ -1,6 +1,9 @@
 // Change the width and height if required (defined in portrait mode)
 // or use the constructor to over-ride defaults
-#if defined ( ARDUINO_ESP32_DEV )
+#if defined( ARDUINO_LOLIN_D32_PRO )
+  #define TFT_WIDTH 240
+  #define TFT_HEIGHT 320
+#elif defined ( ARDUINO_ESP32_DEV )
   #define TFT_WIDTH 240
   #define TFT_HEIGHT 320
 #elif defined(ARDUINO_ODROID_ESP32)

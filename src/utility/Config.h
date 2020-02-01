@@ -1,7 +1,17 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-#if defined(ARDUINO_ESP32_DEV)
+#if defined( ARDUINO_LOLIN_D32_PRO )
+
+  //#warning "USING LoLin D32 Pro setup with Touch enabled for ESP32Marauder"
+  #define SPEAKER_PIN   -1
+  #define SD_ENABLE     0
+  #define BUTTON_A_PIN  -1
+  #define BUTTON_B_PIN  -1
+  #define BUTTON_C_PIN  -1  // BUTTON_MENU
+
+
+#elif defined(ARDUINO_ESP32_DEV)
 
   #define TFT_LED_PIN   14
   #define TFT_DC_PIN    21
