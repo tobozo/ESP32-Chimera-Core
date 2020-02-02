@@ -2151,33 +2151,37 @@ int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
 
 
 
-/* line gradients
- *
- */
-
+/*\
+ * line gradients
+\*/
 
 RGBColor TFT_eSprite::colorAt( int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, RGBColor colorstart, RGBColor colorend ) {
-  float linedistance;
-  float pixeldistance;
-  if( x0 == x1 && x1 == x2 ) { // vertical
-    linedistance = abs( y1 - y0 );
-    pixeldistance = abs( y2 - y0 );
-  } else if( y0 == y1 && y1 == y2 ) { // horizontal
-    linedistance = abs( x1 - x0 );
-    pixeldistance = abs( x2 - x0 );
-  } else { // oblique
-    linedistance = sqrt( ( x0 - x1 ) * ( x0 - x1 ) + ( y0 - y1 ) * ( y0 - y1 ) );
-    pixeldistance = sqrt( ( x2 - x0 ) * ( x2 - x0 ) + ( y2 - y0 ) * ( y2 - y0 ) );
+
+  uint8_t r, g, b;
+
+  bool useHline  = y0==y1;
+  bool useVline  = x0==x1;
+  bool isoblique = !useHline && !useVline;
+
+  if( isoblique ) {
+    // no need to use Pythagore here
+    if( abs( y1 - y0 ) > abs( x1 - x0 ) ) {
+      useHline = false;
+    } else {
+      useHline = true;
+    }
   }
-  if( linedistance <= 0 ) return colorend;
-  if( pixeldistance <= 0 )  return colorstart;
-  if( pixeldistance > linedistance ) return colorend; // bad input data
-
-  uint8_t r = map( (int)pixeldistance, 0, (int)linedistance, colorstart.r, colorend.r );
-  uint8_t g = map( (int)pixeldistance, 0, (int)linedistance, colorstart.g, colorend.g );
-  uint8_t b = map( (int)pixeldistance, 0, (int)linedistance, colorstart.b, colorend.b );
-
+  if( useHline ) {
+      r = map( x2, x0, x1, colorstart.r, colorend.r );
+      g = map( x2, x0, x1, colorstart.g, colorend.g );
+      b = map( x2, x0, x1, colorstart.b, colorend.b );
+  } else {
+      r = map( y2, y0, y1, colorstart.r, colorend.r );
+      g = map( y2, y0, y1, colorstart.g, colorend.g );
+      b = map( y1, y0, y1, colorstart.b, colorend.b );
+  }
   return RGBColor{r,g,b};
+
 }
 
 
@@ -2381,8 +2385,8 @@ bool TFT_eSprite::setupImgDecoder( int32_t x, int32_t y, uint16_t maxWidth, uint
   if( _tft->setColorWriterArray )   _tft->setColorWriterArray( sprite_push_color_array );
   if( _tft->setJpegRenderCallBack ) _tft->setJpegRenderCallBack( fast_jpg_sprite_output );
   if( _tft->setPngRenderCallBack )  _tft->setPngRenderCallBack( fast_png_sprite_output );
-  if( _tft->setTransactionStarter ) imgDecoderDisplay->setTransactionStarter( nullptr );
-  if( _tft->setTransactionEnder )   imgDecoderDisplay->setTransactionEnder( nullptr );
+  if( _tft->setTransactionStarter ) _tft->setTransactionStarter( nullptr );
+  if( _tft->setTransactionEnder )   _tft->setTransactionEnder( nullptr );
   return true;
 }
 
