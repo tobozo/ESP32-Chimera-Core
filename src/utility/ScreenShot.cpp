@@ -82,7 +82,7 @@ bool ScreenShotService::displayCanReadPixels() {
   uint8_t r = 64, g = 255, b = 128; // scan color
   uint16_t value_in = _tft->color565(r, g, b);
   uint16_t value_out;
-  byte testnum = 0;
+  __attribute__((unused)) byte testnum = 0;
 
   log_w( "Testing display#%04x", TFT_DRIVER );
 

@@ -170,7 +170,7 @@ void M5Display::drawBmpFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y
         uint8_t*  bptr = lineBuffer;
         uint16_t* tptr = (uint16_t*)lineBuffer;
         // Convert 24 to 16 bit colours
-        for (uint16_t col = 0; col < w; col++) {
+        for (col = 0; col < w; col++) {
           b = *bptr++;
           g = *bptr++;
           r = *bptr++;
@@ -194,397 +194,119 @@ void M5Display::drawBmpFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y
 // }
 
 
-/*
+
+__attribute__((unused)) static M5Display *imgDecoderDisplay;
+
+
+/*\
  * JPEG
- */
-
-#include "rom/tjpgd.h"
-
-#define jpgColor(c)                                                            \
-  (((uint16_t)(((uint8_t *)(c))[0] & 0xF8) << 8) |                             \
-   ((uint16_t)(((uint8_t *)(c))[1] & 0xFC) << 3) |                             \
-   ((((uint8_t *)(c))[2] & 0xF8) >> 3))
-
-#if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_ERROR
-static const char *jd_errors[] = {"Succeeded",
-                           "Interrupted by output function",
-                           "Device error or wrong termination of input stream",
-                           "Insufficient memory pool for the image",
-                           "Insufficient stream input buffer",
-                           "Parameter error",
-                           "Data format error",
-                           "Right format but not supported",
-                           "Not supported JPEG standard"};
-#endif
-
-typedef struct {
-  uint16_t x;
-  uint16_t y;
-  uint16_t maxWidth;
-  uint16_t maxHeight;
-  uint16_t offX;
-  uint16_t offY;
-  jpeg_div_t scale;
-  const void *src;
-  size_t len;
-  size_t index;
-  M5Display *tft;
-  TFT_eSprite *sprite;
-  uint16_t outWidth;
-  uint16_t outHeight;
-} jpg_file_decoder_t;
-
-static uint32_t jpgReadFile(JDEC *decoder, uint8_t *buf, uint32_t len) {
-  jpg_file_decoder_t *jpeg = (jpg_file_decoder_t *)decoder->device;
-  File *file = (File *)jpeg->src;
-  if (buf) {
-    return file->read(buf, len);
-  } else {
-    file->seek(len, SeekCur);
-  }
-  return len;
-}
-
-static uint32_t jpgRead(JDEC *decoder, uint8_t *buf, uint32_t len) {
-  jpg_file_decoder_t *jpeg = (jpg_file_decoder_t *)decoder->device;
-  if (buf) {
-    memcpy(buf, (const uint8_t *)jpeg->src + jpeg->index, len);
-  }
-  jpeg->index += len;
-  return len;
-}
-
-static uint32_t jpgWrite(JDEC *decoder, void *bitmap, JRECT *rect) {
-  jpg_file_decoder_t *jpeg = (jpg_file_decoder_t *)decoder->device;
-  uint16_t x = rect->left;
-  uint16_t y = rect->top;
-  uint16_t w = rect->right + 1 - x;
-  uint16_t h = rect->bottom + 1 - y;
-  uint16_t oL = 0, oR = 0;
-  uint8_t *data = (uint8_t *)bitmap;
-
-  if (rect->right < jpeg->offX) {
-    return 1;
-  }
-  if (rect->left >= (jpeg->offX + jpeg->outWidth)) {
-    return 1;
-  }
-  if (rect->bottom < jpeg->offY) {
-    return 1;
-  }
-  if (rect->top >= (jpeg->offY + jpeg->outHeight)) {
-    return 1;
-  }
-  if (rect->top < jpeg->offY) {
-    uint16_t linesToSkip = jpeg->offY - rect->top;
-    data += linesToSkip * w * 3;
-    h -= linesToSkip;
-    y += linesToSkip;
-  }
-  if (rect->bottom >= (jpeg->offY + jpeg->outHeight)) {
-    uint16_t linesToSkip = (rect->bottom + 1) - (jpeg->offY + jpeg->outHeight);
-    h -= linesToSkip;
-  }
-  if (rect->left < jpeg->offX) {
-    oL = jpeg->offX - rect->left;
-  }
-  if (rect->right >= (jpeg->offX + jpeg->outWidth)) {
-    oR = (rect->right + 1) - (jpeg->offX + jpeg->outWidth);
-  }
-
-  uint16_t pixBuf[32];
-  uint8_t pixIndex = 0;
-  uint16_t line;
-
-  jpeg->tft->startWrite();
-  // jpeg->tft->setAddrWindow(x - jpeg->offX + jpeg->x + oL, y - jpeg->offY +
-  // jpeg->y, w - (oL + oR), h);
-  jpeg->tft->setWindow(x - jpeg->offX + jpeg->x + oL,
-                       y - jpeg->offY + jpeg->y,
-                       x - jpeg->offX + jpeg->x + oL + w - (oL + oR) - 1,
-                       y - jpeg->offY + jpeg->y + h - 1);
-
-  while (h--) {
-    data += 3 * oL;
-    line = w - (oL + oR);
-    while (line--) {
-      pixBuf[pixIndex++] = jpgColor(data);
-      data += 3;
-      if (pixIndex == 32) {
-        jpeg->tft->writePixels(pixBuf, 32);
-        // SPI.writePixels((uint8_t *)pixBuf, 64);
-        pixIndex = 0;
-      }
-    }
-    data += 3 * oR;
-  }
-  if (pixIndex) {
-    jpeg->tft->writePixels(pixBuf, pixIndex);
-    // SPI.writePixels((uint8_t *)pixBuf, pixIndex * 2);
-  }
-  jpeg->tft->endWrite();
+\*/
+static bool fast_jpg_tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
+  if ( y >= imgDecoderDisplay->height() ) return 0;
+  bool swap = imgDecoderDisplay->getSwapBytes();
+  imgDecoderDisplay->setSwapBytes(true);
+  imgDecoderDisplay->pushImage(x, y, w, h, bitmap);
+  imgDecoderDisplay->setSwapBytes(swap);
   return 1;
 }
-
-static bool jpgDecode(jpg_file_decoder_t *jpeg,
-                      uint32_t (*reader)(JDEC *, uint8_t *, uint32_t)) {
-  static uint8_t work[3100];
-  JDEC decoder;
-
-  JRESULT jres = jd_prepare(&decoder, reader, work, 3100, jpeg);
-  if (jres != JDR_OK) {
-    log_e("jd_prepare failed! %s", jd_errors[jres]);
-    return false;
-  }
-
-  uint16_t jpgWidth = decoder.width / (1 << (uint8_t)(jpeg->scale));
-  uint16_t jpgHeight = decoder.height / (1 << (uint8_t)(jpeg->scale));
-
-  if (jpeg->offX >= jpgWidth || jpeg->offY >= jpgHeight) {
-    log_e("Offset Outside of JPEG size");
-    return false;
-  }
-
-  size_t jpgMaxWidth = jpgWidth - jpeg->offX;
-  size_t jpgMaxHeight = jpgHeight - jpeg->offY;
-
-  jpeg->outWidth =
-      (jpgMaxWidth > jpeg->maxWidth) ? jpeg->maxWidth : jpgMaxWidth;
-  jpeg->outHeight =
-      (jpgMaxHeight > jpeg->maxHeight) ? jpeg->maxHeight : jpgMaxHeight;
-
-  jres = jd_decomp(&decoder, jpgWrite, (uint8_t)jpeg->scale);
-  if (jres != JDR_OK) {
-    log_e("jd_decomp failed! %s", jd_errors[jres]);
-    return false;
-  }
-
-  return true;
+void M5Display::drawJpg( const uint8_t * jpg_data, uint32_t jpg_len, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  //startWrite();
+  if( imgDecoderDisplay->jpgFlashRenderFunc ) imgDecoderDisplay->jpgFlashRenderFunc(jpg_data, jpg_len, x, y, maxWidth, maxHeight, offX, offY, scale );
+  //endWrite();
+}
+void M5Display::drawJpgFile( fs::FS &fs, const char *path, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  startWrite();
+  if( imgDecoderDisplay->jpgFSRenderFunc ) imgDecoderDisplay->jpgFSRenderFunc(fs, path, x, y, maxWidth, maxHeight, offX, offY, scale );
+  endWrite();
+}
+void M5Display::drawJpgFile( Stream *dataSource, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale ) {
+  if( !setupImgDecoder( x, y, maxWidth, maxHeight ) ) return;
+  startWrite();
+  if( imgDecoderDisplay->jpgStreamRenderFunc ) imgDecoderDisplay->jpgStreamRenderFunc( dataSource, x, y, maxWidth, maxHeight, offX, offY, scale );
+  endWrite();
 }
 
-void M5Display::drawJpg(const uint8_t *jpg_data, size_t jpg_len, uint16_t x,
-                        uint16_t y, uint16_t maxWidth, uint16_t maxHeight,
-                        uint16_t offX, uint16_t offY, jpeg_div_t scale) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) {
-    log_e("Bad dimensions given");
-    return;
-  }
-
-  jpg_file_decoder_t jpeg;
-
-  if (!maxWidth) {
-    maxWidth = width() - x;
-  }
-  if (!maxHeight) {
-    maxHeight = height() - y;
-  }
-
-  jpeg.src = jpg_data;
-  jpeg.len = jpg_len;
-  jpeg.index = 0;
-  jpeg.x = x;
-  jpeg.y = y;
-  jpeg.maxWidth = maxWidth;
-  jpeg.maxHeight = maxHeight;
-  jpeg.offX = offX;
-  jpeg.offY = offY;
-  jpeg.scale = scale;
-  jpeg.tft = this;
-
-  jpgDecode(&jpeg, jpgRead);
+/*\
+ * PNG
+\*/
+static bool fast_png_tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color) {
+  if ( y >= imgDecoderDisplay->height() ) return 0;
+  imgDecoderDisplay->fillRect(x, y, w, h, color);
+  return 1;
 }
-
-void M5Display::drawJpgFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y,
-                            uint16_t maxWidth, uint16_t maxHeight, uint16_t offX,
-                            uint16_t offY, jpeg_div_t scale) {
-  if ((x + maxWidth) > width() || (y + maxHeight) > height()) {
-    log_e("Bad dimensions given");
-    return;
-  }
-
-  File file = fs.open(path);
-  if (!file) {
-    log_e("Failed to open file for reading");
-    return;
-  }
-
-  jpg_file_decoder_t jpeg;
-
-  if (!maxWidth) {
-    maxWidth = width() - x;
-  }
-  if (!maxHeight) {
-    maxHeight = height() - y;
-  }
-
-  jpeg.src = &file;
-  jpeg.len = file.size();
-  jpeg.index = 0;
-  jpeg.x = x;
-  jpeg.y = y;
-  jpeg.maxWidth = maxWidth;
-  jpeg.maxHeight = maxHeight;
-  jpeg.offX = offX;
-  jpeg.offY = offY;
-  jpeg.scale = scale;
-  jpeg.tft = this;
-
-  jpgDecode(&jpeg, jpgReadFile);
-
-  file.close();
+void M5Display::drawPngFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given: [%d,%d]",x ,y ); return; }
+  imgDecoderDisplay = this;
+  if( imgDecoderDisplay->setPngRenderCallBack ) imgDecoderDisplay->setPngRenderCallBack( fast_png_tft_output );
+  startWrite();
+  if( imgDecoderDisplay->pngFSRenderFunc ) imgDecoderDisplay->pngFSRenderFunc(fs, path, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold, bgcolor );
+  endWrite();
+}
+void M5Display::drawPngFile(Stream &readSource, uint16_t x, uint16_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given: [%d,%d]",x ,y ); return; }
+  imgDecoderDisplay = this;
+  if( imgDecoderDisplay->setPngRenderCallBack ) imgDecoderDisplay->setPngRenderCallBack( fast_png_tft_output );
+  startWrite();
+  if( imgDecoderDisplay->pngStreamRenderFunc ) imgDecoderDisplay->pngStreamRenderFunc( &readSource, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold, bgcolor );
+  endWrite();
+}
+void M5Display::drawPng(const uint8_t *png_data, size_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor ) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given: [%d,%d]",x ,y ); return; }
+  imgDecoderDisplay = this;
+  if( imgDecoderDisplay->setPngRenderCallBack ) imgDecoderDisplay->setPngRenderCallBack( fast_png_tft_output );
+  startWrite();
+  if( imgDecoderDisplay->pngFlashRenderFunc ) imgDecoderDisplay->pngFlashRenderFunc(png_data, png_len, x, y, maxWidth, maxHeight, offX, offY, scale, alphaThreshold, bgcolor );
+  endWrite();
 }
 
 
+/*\
+ * Image Decoders
+\*/
 
-/*
- * PNG implementation by https://github.com/kikuchan
- */
-
-#include "utility/pngle.h"
-#include <HTTPClient.h>
-
-typedef struct _png_draw_params {
-  uint16_t x;
-  uint16_t y;
-  uint16_t maxWidth;
-  uint16_t maxHeight;
-  uint16_t offX;
-  uint16_t offY;
-  double scale;
-  uint8_t alphaThreshold;
-
-  M5Display *tft;
-} png_file_decoder_t;
-
-static void pngle_draw_callback(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint8_t rgba[4])
-{
-  png_file_decoder_t *p = (png_file_decoder_t *)pngle_get_user_data(pngle);
-  uint16_t color = jpgColor(rgba); // XXX: It's PNG ;)
-
-  if (x < p->offX || y < p->offY) return ;
-  x -= p->offX;
-  y -= p->offY;
-
-  // An interlaced file with alpha channel causes disaster, so use 1 here for simplicity
-  w = 1;
-  h = 1;
-
-  if (p->scale != 1.0) {
-    x = (uint32_t)ceil(x * p->scale);
-    y = (uint32_t)ceil(y * p->scale);
-    w = (uint32_t)ceil(w * p->scale);
-    h = (uint32_t)ceil(h * p->scale);
-  }
-
-  if (x >= p->maxWidth || y >= p->maxHeight) return ;
-  if (x + w >= p->maxWidth) w = p->maxWidth - x;
-  if (y + h >= p->maxHeight) h = p->maxHeight - y;
-
-  x += p->x;
-  y += p->y;
-
-  if (rgba[3] >= p->alphaThreshold) {
-    p->tft->fillRect(x, y, w, h, color);
-  }
+static int32_t get_tft_width() {
+  return (int32_t)imgDecoderDisplay->width();
+}
+static int32_t get_tft_height() {
+  return (int32_t)imgDecoderDisplay->height();
+}
+static void tft_set_window(int32_t x0, int32_t y0, int32_t x1, int32_t y1) {
+  imgDecoderDisplay->setWindow( x0, y0, x1, y1 );
+}
+static void tft_start_write() {
+  imgDecoderDisplay->startWrite();
+}
+static void tft_end_write() {
+  imgDecoderDisplay->endWrite();
 }
 
-
-void M5Display::drawPngFile(fs::FS &fs, const char *path, uint16_t x, uint16_t y,
-                            uint16_t maxWidth, uint16_t maxHeight, uint16_t offX,
-                            uint16_t offY, double scale, uint8_t alphaThreshold)
-{
-  File file = fs.open(path);
-  if (!file) {
-    log_e("Failed to open file for reading");
-    return ;
-  }
-  drawPngFile( file, x, y, maxWidth, maxHeight,  offX, offY,  scale, alphaThreshold);
-  file.close();
-}
-
-
-void M5Display::drawPngUrl(const char *url, uint16_t x, uint16_t y,
-                            uint16_t maxWidth, uint16_t maxHeight, uint16_t offX,
-                            uint16_t offY, double scale, uint8_t alphaThreshold)
-{
-  HTTPClient http;
-
-  if (WiFi.status() != WL_CONNECTED) {
-    log_e("Not connected");
-    return ;
-  }
-
-  http.begin(url);
-
-  int httpCode = http.GET();
-  if (httpCode != HTTP_CODE_OK) {
-    log_e("HTTP ERROR: %d\n", httpCode);
-    http.end();
-    return ;
-  }
-
-  if( !http.connected()) {
-    http.end();
-    return;
-  }
-
-  WiFiClient stream = http.getStream();
-  size_t size = stream.available();
-
-  while ( !size ) {
-    size = stream.available();
-    delay(1);
-  }
-
-  drawPngFile( stream, x, y, maxWidth, maxHeight,  offX, offY,  scale, alphaThreshold);
-  http.end();
-}
-
-
-void M5Display::drawPngFile(Stream &readSource, uint16_t x, uint16_t y,
-                            uint16_t maxWidth, uint16_t maxHeight, uint16_t offX,
-                            uint16_t offY, double scale, uint8_t alphaThreshold)
-{
-
-  pngle_t *pngle = pngle_new();
-
-  png_file_decoder_t png;
-
-  if (!maxWidth) {
-    maxWidth = width() - x;
-  }
-  if (!maxHeight) {
-    maxHeight = height() - y;
-  }
-
-  png.x = x;
-  png.y = y;
-  png.maxWidth = maxWidth;
-  png.maxHeight = maxHeight;
-  png.offX = offX;
-  png.offY = offY;
-  png.scale = scale;
-  png.alphaThreshold = alphaThreshold;
-  png.tft = this;
-
-  pngle_set_user_data(pngle, &png);
-  pngle_set_draw_callback(pngle, pngle_draw_callback);
-
-  // Feed data to pngle
-  uint8_t buf[1024];
-  int remain = 0;
-  int len;
-  while ((len = readSource.readBytes(buf + remain, sizeof(buf) - remain)) > 0) {
-    int fed = pngle_feed(pngle, buf, remain + len);
-    if (fed < 0) {
-      log_e("[pngle error] %s", pngle_error(pngle));
-      break;
+static void tft_write_color_array(uint16_t* buf, uint16_t len) {
+  if( islegacyJpegDecoder ) {
+    imgDecoderDisplay->writePixels( buf, len );
+  } else {
+    for( uint16_t i=0; i<len; i++ ) {
+      imgDecoderDisplay->pushColor( buf[i], 1 );
     }
-
-    remain = remain + len - fed;
-    if (remain > 0) memmove(buf, buf + fed, remain);
   }
+}
 
-  pngle_destroy(pngle);
+static uint16_t tft_color_565( uint8_t r, uint8_t g, uint8_t b ) {
+  return imgDecoderDisplay->color565( r, g, b );
+}
 
+
+bool M5Display::setupImgDecoder( int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight ) {
+  if ((x + maxWidth) > width() || (y + maxHeight) > height()) { log_e("Bad dimensions given"); return false; }
+  imgDecoderDisplay = this;
+  if( imgDecoderDisplay->setWidthGetter )        imgDecoderDisplay->setWidthGetter( get_tft_width );
+  if( imgDecoderDisplay->setHeightGetter )       imgDecoderDisplay->setHeightGetter( get_tft_height );
+  if( imgDecoderDisplay->setColorWriterArray )   imgDecoderDisplay->setColorWriterArray( tft_write_color_array );
+  if( imgDecoderDisplay->setWindowSetter )       imgDecoderDisplay->setWindowSetter( tft_set_window );
+  if( imgDecoderDisplay->setRgb565Converter )    imgDecoderDisplay->setRgb565Converter( tft_color_565 );
+  if( imgDecoderDisplay->setJpegRenderCallBack ) imgDecoderDisplay->setJpegRenderCallBack( fast_jpg_tft_output );
+  if( imgDecoderDisplay->setTransactionStarter ) imgDecoderDisplay->setTransactionStarter( tft_start_write );
+  if( imgDecoderDisplay->setTransactionEnder )   imgDecoderDisplay->setTransactionEnder( tft_end_write );
+  return true;
 }

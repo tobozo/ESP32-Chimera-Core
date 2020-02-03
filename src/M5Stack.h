@@ -129,6 +129,7 @@
 #ifdef ARDUINO_ODROID_ESP32
     #include "utility/battery.h"
 #endif
+
     class M5Stack
     {
       public:
@@ -159,11 +160,14 @@
 
         // LCD
         M5Display Lcd = M5Display();
+        void setJpgRenderer( bool legacy = true );
 
         ScreenShotService ScreenShot;
 
         //Power
         POWER Power;
+
+
 
         // UART
         // HardwareSerial Serial0 = HardwareSerial(0);

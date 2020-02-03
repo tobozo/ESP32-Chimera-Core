@@ -1,13 +1,16 @@
 // Change the width and height if required (defined in portrait mode)
 // or use the constructor to over-ride defaults
-#if defined ( ARDUINO_ESP32_DEV )
+#if defined( ARDUINO_LOLIN_D32_PRO )
+  #define TFT_WIDTH 240
+  #define TFT_HEIGHT 320
+#elif defined ( ARDUINO_ESP32_DEV )
   #define TFT_WIDTH 240
   #define TFT_HEIGHT 320
 #elif defined(ARDUINO_ODROID_ESP32)
   #define TFT_WIDTH  320
   #define TFT_HEIGHT 240
 #elif defined(ARDUINO_TTGO_T1)
-  #define TFT_WIDTH  128
+  #define TFT_WIDTH  128 // change this to 130 if your display has border problems
   #define TFT_HEIGHT 160
   #define CGRAM_OFFSET
   #define CGRAM_colstart 0x02 // h pixels offset (change this if pix has offset)

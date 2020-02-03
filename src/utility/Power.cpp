@@ -63,11 +63,11 @@ void POWER::begin() {
 }
 
 
-static bool getI2CReg(uint8_t *result, uint8_t address, uint8_t *reg) {
+__attribute__((unused)) static bool getI2CReg(uint8_t *result, uint8_t address, uint8_t *reg) {
   return (M5.I2C.readByte(address, *reg, result));
 }
 
-static bool setI2CReg(uint8_t address, uint8_t reg, uint8_t value) {
+__attribute__((unused)) static bool setI2CReg(uint8_t address, uint8_t reg, uint8_t value) {
   return (M5.I2C.writeByte(address, reg, value));
 }
 
@@ -88,7 +88,7 @@ bool POWER::setPowerBoostSet(bool en) {
 }
 
 bool POWER::setPowerVin(bool en) {
-  uint8_t data;
+  __attribute__((unused)) uint8_t data;
   if (M5.I2C.readByte(IP5306_ADDR, IP5306_REG_SYS_CTL1, &data) == true) {
     return M5.I2C.writeByte(IP5306_ADDR, IP5306_REG_SYS_CTL1, en ? (data | VIN_ENABLE_BIT) : (data & (~VIN_ENABLE_BIT)));
   }

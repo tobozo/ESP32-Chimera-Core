@@ -636,12 +636,44 @@ struct RGBColor {
 };
 
 
+typedef bool (*JpegRenderCallBack)(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *data);
+typedef bool (*PngRenderCallBack)(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color);
+typedef bool (*jpegLegacySketchCallback)(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *data);
+typedef int32_t (*getWidthCallBack)(void);
+typedef int32_t (*getHeightCallBack)(void);
+typedef uint16_t (*getRgb565CallBack)(uint8_t r, uint8_t g, uint8_t b);
+typedef void (*setWindowCallBack)(int32_t x0, int32_t y0, int32_t x1, int32_t y1);
+typedef void (*setWriteColorArrayCallBack)(uint16_t * buf, uint16_t len);
+typedef void (*transationStartCallBack)(void);
+typedef void (*transactionEndCallBack)(void);
+
+
 // Class functions and variables
 class TFT_eSPI : public Print {
 
  public:
 
   TFT_eSPI(int16_t _W = TFT_WIDTH, int16_t _H = TFT_HEIGHT);
+
+  void (*setWidthGetter)( getWidthCallBack cb );
+  void (*setHeightGetter)( getHeightCallBack cb );
+  void (*setRgb565Converter)( getRgb565CallBack cb );
+
+  void (*setTransactionStarter)( transationStartCallBack cb );
+  void (*setTransactionEnder)( transactionEndCallBack cb );
+
+  void (*setWindowSetter)( setWindowCallBack cb );
+  void (*setColorWriterArray)( setWriteColorArrayCallBack cb );
+
+  void (*setJpegRenderCallBack)( JpegRenderCallBack jpegRenderCallBack );
+  void (*jpgFlashRenderFunc)( const uint8_t *jpg_data, uint32_t jpg_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale );
+  void (*jpgFSRenderFunc)( fs::FS &fs, const char* pFilename, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale );
+  void (*jpgStreamRenderFunc)( Stream *dataSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, jpeg_div_t scale );
+
+  void (*setPngRenderCallBack)( PngRenderCallBack pngRenderCallBack );
+  void (*pngFlashRenderFunc)( const uint8_t *png_data, size_t png_len, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor );
+  void (*pngFSRenderFunc)( fs::FS &fs, const char* pFilename, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor );
+  void (*pngStreamRenderFunc)( Stream *dataSource, int32_t x, int32_t y, uint16_t maxWidth, uint16_t maxHeight, uint16_t offX, uint16_t offY, double scale, uint8_t alphaThreshold, uint16_t bgcolor );
 
   void     init(uint8_t tc = TAB_COLOUR), begin(uint8_t tc = TAB_COLOUR); // Same - begin included for backwards compatibility
 
@@ -882,7 +914,40 @@ class TFT_eSPI : public Print {
 
 // Load the Touch extension
 #ifdef TOUCH_CS
-  #include "Extensions/Touch.h"
+ // Coded by Bodmer 10/2/18, see license in root directory.
+ // This is part of the TFT_eSPI class and is associated with the Touch Screen handlers
+
+ public:
+           // Get raw x,y ADC values from touch controller
+  uint8_t  getTouchRaw(uint16_t *x, uint16_t *y);
+           // Get raw z (i.e. pressure) ADC value from touch controller
+  uint16_t getTouchRawZ(void);
+           // Convert raw x,y values to calibrated and correctly rotated screen coordinates
+  void     convertRawXY(uint16_t *x, uint16_t *y);
+           // Get the screen touch coordinates, returns true if screen has been touched
+           // if the touch cordinates are off screen then x and y are not updated
+  uint8_t  getTouch(uint16_t *x, uint16_t *y, uint16_t threshold = 600);
+
+           // Run screen calibration and test, report calibration values to the serial port
+  void     calibrateTouch(uint16_t *data, uint32_t color_fg, uint32_t color_bg, uint8_t size);
+           // Set the screen calibration values
+  void     setTouch(uint16_t *data);
+
+ private:
+           // Handlers for the SPI settings and clock speed change
+  inline void spi_begin_touch() __attribute__((always_inline));
+  inline void spi_end_touch()   __attribute__((always_inline));
+
+           // Private function to validate a touch, allow settle time and reduce spurious coordinates
+  uint8_t  validTouch(uint16_t *x, uint16_t *y, uint16_t threshold = 600);
+
+           // Initialise with example calibration values so processor does not crash if setTouch() not called in setup()
+  uint16_t touchCalibration_x0 = 300, touchCalibration_x1 = 3600, touchCalibration_y0 = 300, touchCalibration_y1 = 3600;
+  uint8_t  touchCalibration_rotate = 1, touchCalibration_invert_x = 2, touchCalibration_invert_y = 0;
+
+  uint32_t _pressTime;        // Press and hold time-out
+  uint16_t _pressX, _pressY;  // For future use (last sampled calibrated coordinates)
+
 #endif
 
 // Load the Anti-aliased font extension
