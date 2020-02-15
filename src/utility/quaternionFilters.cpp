@@ -34,7 +34,7 @@ static float GyroMeasDrift = PI * (0.0f  / 180.0f);
 static float beta = sqrt(3.0f / 4.0f) * GyroMeasError;   // Compute beta
 // Compute zeta, the other free parameter in the Madgwick scheme usually
 // set to a small or zero value
-static float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;
+__attribute__((unused)) static float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;
 
 // Vector to hold integral error for Mahony method
 static float eInt[3] = { 0.0f, 0.0f, 0.0f };

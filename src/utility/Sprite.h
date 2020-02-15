@@ -162,7 +162,7 @@ class TFT_eSprite : public TFT_eSPI {
 
   bool     _created;    // A Sprite has been created and memory reserved
   bool     _gFont = false;
-  bool     _usePsram = true; // use Psram if available
+  //bool     _usePsram = true; // use Psram if available
 
 //  int32_t  _icursor_x, _icursor_y;
   uint8_t  _rotation = 0;

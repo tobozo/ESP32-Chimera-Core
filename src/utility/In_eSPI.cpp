@@ -208,6 +208,10 @@ TFT_eSPI::TFT_eSPI(int16_t w, int16_t h)
   _cp437    = true;
   _utf8     = true;
 
+
+  if (psramFound()) _usePsram = true; // Enable the use of PSRAM (if available)
+  else _usePsram = false;
+
   addr_row = 0xFFFF;
   addr_col = 0xFFFF;
 
@@ -3129,17 +3133,22 @@ void TFT_eSPI::invertDisplay(boolean i)
 void TFT_eSPI::setAttribute(uint8_t attr_id, uint8_t param) {
     switch (attr_id) {
             break;
-        case 1:
+        case CP437_SWITCH:
             _cp437 = param;
             break;
-        case 2:
+        case UTF8_SWITCH:
             _utf8  = param;
             decoderState = 0;
             break;
+        case PSRAM_ENABLE:
         //case 3: // TBD future feature control
         //    _tbd = param;
         //    break;
+            if (psramFound()) _usePsram = param; // Enable the use of PSRAM (if available)
+            else _usePsram = false;
+        break;
     }
+
 }
 
 
@@ -3149,15 +3158,18 @@ void TFT_eSPI::setAttribute(uint8_t attr_id, uint8_t param) {
 **************************************************************************/
 uint8_t TFT_eSPI::getAttribute(uint8_t attr_id) {
     switch (attr_id) {
-        case 1: // ON/OFF control of full CP437 character set
+        case CP437_SWITCH: // ON/OFF control of full CP437 character set
             return _cp437;
             break;
-        case 2: // ON/OFF control of UTF-8 decoding
+        case UTF8_SWITCH: // ON/OFF control of UTF-8 decoding
             return _utf8;
             break;
         //case 3: // TBD future feature control
         //    return _tbd;
         //    break;
+        case PSRAM_ENABLE:
+            return _usePsram;
+        break;
     }
 
     return false;

@@ -627,10 +627,25 @@ struct RGBColor {
   uint8_t r;
   uint8_t g;
   uint8_t b;
-  void set( uint8_t r_, uint8_t g_, uint8_t b_ ) {
-    r = r_; g = g_;  b = b_;
+
+  RGBColor() : r{0}, g{0}, b{0} { }; // empty init on black
+  //RGBColor( uint16_t color565 ) { set(color565); }; // support 565
+  RGBColor( uint8_t r, uint8_t g, uint8_t b) : r{r}, g{g}, b{b} { }; // init rgb
+
+  void set( uint8_t _r, uint8_t _g, uint8_t _b ) {
+    r = _r; g = _g;  b = _b;
   }
-  bool operator==(const RGBColor& color) {
+
+  void set( uint16_t color565 ) {
+    r = ((color565 >> 10) & 0x3E) + 1;
+    g = ((color565 >>  4) & 0x7E) + 1;
+    b = ((color565 <<  1) & 0x3E) + 1;
+  }
+/*
+  bool operator!=( const RGBColor& color ) {
+    return color.r != r || color.g != g || color.b == b;
+  }*/
+  bool operator==( const RGBColor& color ) {
     return color.r == r && color.g == g && color.b == b;
   }
 };
@@ -833,7 +848,10 @@ class TFT_eSPI : public Print {
   void     begin_SDA_Read(void);
   void     end_SDA_Read(void);
 #endif
-
+  //       id = 3: Enable or disable use of ESP32 PSRAM (if available)
+           #define CP437_SWITCH 1
+           #define UTF8_SWITCH  2
+           #define PSRAM_ENABLE 3
   // Set or get an arbitrary library attribute or configuration option
   void     setAttribute(uint8_t id = 0, uint8_t a = 0);
   uint8_t  getAttribute(uint8_t id = 0);
@@ -905,6 +923,7 @@ class TFT_eSPI : public Print {
   bool     _booted;    // init() or begin() has already run once
   bool     _cp437;     // If set, use correct CP437 charset (default is ON)
   bool     _utf8;      // If set, use UTF-8 decoder in print stream 'write()' function (default ON)
+  bool     _usePsram = true; // use Psram if available
 
   uint32_t _lastColor; // Buffered value of last colour used
 

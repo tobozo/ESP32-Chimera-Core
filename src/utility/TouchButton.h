@@ -15,8 +15,8 @@ class TouchButton {
   TouchButton(void);
   // "Classic" initButton() uses center & size
   void     initButton(TFT_eSPI *gfx, int16_t x, int16_t y,
-  uint16_t w, uint16_t h, uint16_t outline, uint16_t fill,
-  uint16_t textcolor, char *label, uint8_t textsize);
+                      uint16_t w, uint16_t h, uint16_t outline, uint16_t fill,
+                      uint16_t textcolor, char *label, uint8_t textsize);
 
   // New/alt initButton() uses upper-left corner & size
   void     initButtonUL(TFT_eSPI *gfx, int16_t x1, int16_t y1,

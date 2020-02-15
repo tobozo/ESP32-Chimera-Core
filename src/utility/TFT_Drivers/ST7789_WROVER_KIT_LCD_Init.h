@@ -24,7 +24,7 @@
   spi_end_read();
   spi_end();
   delay(120);
-  log_d("Display ID: 0x%06X", _id);
+  log_w("Display ID: 0x%06X", _id);
 
   if( _id == 0 ) {
     // Software reset, needed by ILI9341 after the previous query
@@ -40,7 +40,7 @@
 
 
   if( _id > 0 ) {
-    log_d("ST7789 Init");
+    log_w("ST7789 Init");
     static const uint8_t PROGMEM st7789[] = {
       16,
       TFT_SLPOUT, 1, 255,
@@ -62,7 +62,7 @@
     };
     commandList(st7789);
   } else {
-    log_d("ILI9341 Init");
+    log_w("ILI9341 Init");
     static const uint8_t PROGMEM ili9341[] = {
       21,
       0xef, 3, 0x03,0x80,0x02,

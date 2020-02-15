@@ -10,6 +10,10 @@
 // there is a nett performance gain by using swapped bytes.
 ***************************************************************************************/
 #include "Sprite.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+
 /***************************************************************************************
 ** Function name:           TFT_eSprite
 ** Description:             Class constructor
@@ -2148,7 +2152,7 @@ int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
 
 
 
-
+#endif
 
 
 /*\
@@ -2172,13 +2176,22 @@ RGBColor TFT_eSprite::colorAt( int32_t x0, int32_t y0, int32_t x1, int32_t y1, i
     }
   }
   if( useHline ) {
-      r = map( x2, x0, x1, colorstart.r, colorend.r );
-      g = map( x2, x0, x1, colorstart.g, colorend.g );
-      b = map( x2, x0, x1, colorstart.b, colorend.b );
+    if( x1 > x0 ) {
+      swap_coord( x0, x1 );
+      swap_coord( colorstart, colorend );
+    }
+    r = map( x2, x0, x1, colorstart.r, colorend.r );
+    g = map( x2, x0, x1, colorstart.g, colorend.g );
+    b = map( x2, x0, x1, colorstart.b, colorend.b );
   } else {
-      r = map( y2, y0, y1, colorstart.r, colorend.r );
-      g = map( y2, y0, y1, colorstart.g, colorend.g );
-      b = map( y1, y0, y1, colorstart.b, colorend.b );
+    if( y1 > y0 ) {
+      swap_coord( y0, y1 );
+      swap_coord( colorstart, colorend );
+    }
+    r = map( y2, y0, y1, colorstart.r, colorend.r );
+    g = map( y2, y0, y1, colorstart.g, colorend.g );
+    b = map( y1, y0, y1, colorstart.b, colorend.b );
+
   }
   return RGBColor{r,g,b};
 
@@ -2306,8 +2319,10 @@ __attribute__((unused)) static TFT_eSPI *imgDecoderDisplay;
 \*/
 static bool fast_jpg_sprite_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap) {
   if ( y >= imgDecoderSprite->height() ) return 0;
-  imgDecoderSprite->pushImage(x, y, w, h, bitmap);
-  log_v("jpg sprite rendered");
+  imgDecoderSprite->setWindow( x, y, x+w-1, y+h-1 );
+  for( uint16_t i=0;i<w*h;i++) {
+    imgDecoderSprite->pushColor( bitmap[i] );
+  }
   return 1;
 }
 
@@ -2390,4 +2405,4 @@ bool TFT_eSprite::setupImgDecoder( int32_t x, int32_t y, uint16_t maxWidth, uint
   return true;
 }
 
-#endif
+#pragma GCC diagnostic pop

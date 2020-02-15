@@ -245,11 +245,11 @@ static void jpgLegacyRenderer( const uint8_t * jpg_data, uint32_t jpg_len, int32
 
   if (!maxWidth) {
     maxWidth = GetWidthCallBack() - x;
-    log_w("Adjusted maxWidth to %d", maxWidth );
+    log_d("Adjusted maxWidth to %d", maxWidth );
   }
   if (!maxHeight) {
     maxHeight = GetHeightCallBack() - y;
-    log_w("Adjusted maxHeight to %d", maxWidth );
+    log_d("Adjusted maxHeight to %d", maxWidth );
   }
 
   jpeg.src = jpg_data;
@@ -550,9 +550,9 @@ static void pngRender(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t w, uint32
       rgba[B] = p->bgcolor8[B];
     } else {
       // alpha color blend with background
-      rgba[R] = (p->bgcolor8[R] * p->alphaThreshold + rgba[R] * (255 - p->alphaThreshold)) / 255;
-      rgba[G] = (p->bgcolor8[G] * p->alphaThreshold + rgba[G] * (255 - p->alphaThreshold)) / 255;
-      rgba[B] = (p->bgcolor8[B] * p->alphaThreshold + rgba[B] * (255 - p->alphaThreshold)) / 255;
+      rgba[R] = (p->bgcolor8[R] * p->alphaThreshold + rgba[R] * (255 - p->alphaThreshold)) / 256;
+      rgba[G] = (p->bgcolor8[G] * p->alphaThreshold + rgba[G] * (255 - p->alphaThreshold)) / 256;
+      rgba[B] = (p->bgcolor8[B] * p->alphaThreshold + rgba[B] * (255 - p->alphaThreshold)) / 256;
     }
   }
 
