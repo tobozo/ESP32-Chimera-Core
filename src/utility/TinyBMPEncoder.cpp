@@ -90,6 +90,7 @@ bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const in
       colorByteH = colorByteH >> 1;
       outFile.write( colorByteL );
       outFile.write( colorByteH );
+      //vTaskDelay(1);
     }
   }
   outFile.close();

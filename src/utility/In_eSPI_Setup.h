@@ -74,7 +74,7 @@
   #define TFT_WIDTH     240
   #define TFT_HEIGHT    320
   #define TFT_DRIVER 0x7789
-  #define SPI_FREQUENCY 40000000
+  #define SPI_FREQUENCY 80000000
   #define SPI_READ_FREQUENCY 16000000
   #include "TFT_Drivers/ST7789_WROVER_KIT_LCD_Defines.h"
   #define WROVER_KIT_LCD_DRIVER
