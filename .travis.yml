@@ -46,7 +46,8 @@ before_install:
   - set_application_folder "$APPLICATION_FOLDER"
   - set_sketchbook_folder "$SKETCHBOOK_FOLDER"
 
-  - install_ide '("1.8.0" "1.8.10" "1.8.11")'
+  #- install_ide '("1.8.0" "1.8.10" "1.8.11")'
+  - install_ide '("1.8.0" "1.8.10" "newest")'
 
   # Install the library from the repository
   - install_library
