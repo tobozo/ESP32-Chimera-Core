@@ -15,13 +15,365 @@
 #ifndef _In_eSPIH_
 #define _In_eSPIH_
 
-#define TFT_ESPI_VERSION "1.4.21"
+#define TFT_ESPI_VERSION "2.1.3"
 
 //#define ESP32 //Just used to test ESP32 options
 
 // Include header file that defines the fonts loaded, the TFT drivers
 // available and the pins to be used
+//Standard support
+#include <Arduino.h>
+#include <Print.h>
+#include <SPI.h>
+
 #include "In_eSPI_Setup.h"
+
+#include <pgmspace.h>
+        ////////////////////////////////////////////////////
+        // TFT_eSPI driver functions for ESP32 processors //
+        ////////////////////////////////////////////////////
+
+
+// Processor ID reported by getSetup()
+#define PROCESSOR_ID 0x32
+
+// Include processor specific header
+#include "soc/spi_reg.h"
+
+// Processor specific code used by SPI bus transaction startWrite and endWrite functions
+#define SET_BUS_WRITE_MODE // Not used
+#define SET_BUS_READ_MODE  // Not used
+
+// Code to check if DMA is busy, used by SPI bus transaction transaction and endWrite functions
+#define DMA_BUSY_CHECK // DMA not implemented for this processor (yet)
+
+// SUPPORT_TRANSACTIONS is mandatory for ESP32 so the hal mutex is toggled
+#if !defined (SUPPORT_TRANSACTIONS)
+  #define SUPPORT_TRANSACTIONS
+#endif
+
+// ESP32 specific SPI port selection
+#ifdef USE_HSPI_PORT
+  #define SPI_PORT HSPI
+#else
+  #define SPI_PORT VSPI
+#endif
+
+#ifdef RPI_DISPLAY_TYPE
+  #define CMD_BITS (16-1)
+#else
+  #define CMD_BITS (8-1)
+#endif
+
+// Initialise processor specific SPI functions, used by init()
+#define INIT_TFT_DATA_BUS // Not used
+
+// Define a generic flag for 8 bit parallel
+#if defined (ESP32_PARALLEL) // Specific to ESP32 for backwards compatibility
+  #define TFT_PARALLEL_8_BIT // Generic parallel flag
+#endif
+
+
+// If smooth font is used then it is likely SPIFFS will be needed
+#ifdef SMOOTH_FONT
+  // Call up the SPIFFS (SPI FLASH Filing System) for the anti-aliased fonts
+  #define FS_NO_GLOBALS
+  #include <FS.h>
+  #include "SPIFFS.h" // ESP32 only
+  #define FONT_FS_AVAILABLE
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Define the DC (TFT Data/Command or Register Select (RS))pin drive code
+////////////////////////////////////////////////////////////////////////////////////////
+#ifndef TFT_DC
+  #define DC_C // No macro allocated so it generates no code
+  #define DC_D // No macro allocated so it generates no code
+#else
+  #if defined (TFT_PARALLEL_8_BIT)
+    #define DC_C GPIO.out_w1tc = (1 << TFT_DC)
+    #define DC_D GPIO.out_w1ts = (1 << TFT_DC)
+  #else
+    #if TFT_DC >= 32
+      #ifdef RPI_DISPLAY_TYPE  // RPi displays need a slower DC change
+        #define DC_C GPIO.out1_w1ts.val = (1 << (TFT_DC - 32)); \
+                     GPIO.out1_w1tc.val = (1 << (TFT_DC - 32))
+        #define DC_D GPIO.out1_w1tc.val = (1 << (TFT_DC - 32)); \
+                     GPIO.out1_w1ts.val = (1 << (TFT_DC - 32))
+      #else
+        #define DC_C GPIO.out1_w1tc.val = (1 << (TFT_DC - 32))//;GPIO.out1_w1tc.val = (1 << (TFT_DC - 32))
+        #define DC_D GPIO.out1_w1ts.val = (1 << (TFT_DC - 32))//;GPIO.out1_w1ts.val = (1 << (TFT_DC - 32))
+      #endif
+    #elif TFT_DC >= 0
+      #ifdef RPI_DISPLAY_TYPE  // RPi ILI9486 display needs a slower DC change
+        #define DC_C GPIO.out_w1tc = (1 << TFT_DC); \
+                     GPIO.out_w1tc = (1 << TFT_DC)
+        #define DC_D GPIO.out_w1tc = (1 << TFT_DC); \
+                     GPIO.out_w1ts = (1 << TFT_DC)
+      #elif defined (RPI_DISPLAY_TYPE)  // Other RPi displays need a slower C->D change
+        #define DC_C GPIO.out_w1tc = (1 << TFT_DC)
+        #define DC_D GPIO.out_w1tc = (1 << TFT_DC); \
+                     GPIO.out_w1ts = (1 << TFT_DC)
+      #else
+        #define DC_C GPIO.out_w1tc = (1 << TFT_DC)//;GPIO.out_w1tc = (1 << TFT_DC)
+        #define DC_D GPIO.out_w1ts = (1 << TFT_DC)//;GPIO.out_w1ts = (1 << TFT_DC)
+      #endif
+    #else
+      #define DC_C
+      #define DC_D
+    #endif
+  #endif
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Define the CS (TFT chip select) pin drive code
+////////////////////////////////////////////////////////////////////////////////////////
+#ifndef TFT_CS
+  #define CS_L // No macro allocated so it generates no code
+  #define CS_H // No macro allocated so it generates no code
+#else
+  #if defined (TFT_PARALLEL_8_BIT)
+    #if TFT_CS >= 32
+        #define CS_L GPIO.out1_w1tc.val = (1 << (TFT_CS - 32))
+        #define CS_H GPIO.out1_w1ts.val = (1 << (TFT_CS - 32))
+    #elif TFT_CS >= 0
+        #define CS_L GPIO.out_w1tc = (1 << TFT_CS)
+        #define CS_H GPIO.out_w1ts = (1 << TFT_CS)
+    #else
+      #define CS_L
+      #define CS_H
+    #endif
+  #else
+    #if TFT_CS >= 32
+      #ifdef RPI_DISPLAY_TYPE  // RPi ILI9486 display needs a slower CS change
+        #define CS_L GPIO.out1_w1ts.val = (1 << (TFT_CS - 32)); \
+                     GPIO.out1_w1tc.val = (1 << (TFT_CS - 32))
+        #define CS_H GPIO.out1_w1tc.val = (1 << (TFT_CS - 32)); \
+                     GPIO.out1_w1ts.val = (1 << (TFT_CS - 32))
+      #else
+        #define CS_L GPIO.out1_w1tc.val = (1 << (TFT_CS - 32)); GPIO.out1_w1tc.val = (1 << (TFT_CS - 32))
+        #define CS_H GPIO.out1_w1ts.val = (1 << (TFT_CS - 32))//;GPIO.out1_w1ts.val = (1 << (TFT_CS - 32))
+      #endif
+    #elif TFT_CS >= 0
+      #ifdef RPI_DISPLAY_TYPE  // RPi ILI9486 display needs a slower CS change
+        #define CS_L GPIO.out_w1ts = (1 << TFT_CS); GPIO.out_w1tc = (1 << TFT_CS)
+        #define CS_H GPIO.out_w1tc = (1 << TFT_CS); GPIO.out_w1ts = (1 << TFT_CS)
+      #else
+        #define CS_L GPIO.out_w1tc = (1 << TFT_CS);GPIO.out_w1tc = (1 << TFT_CS)
+        #define CS_H GPIO.out_w1ts = (1 << TFT_CS)//;GPIO.out_w1ts = (1 << TFT_CS)
+      #endif
+    #else
+      #define CS_L
+      #define CS_H
+    #endif
+  #endif
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Define the WR (TFT Write) pin drive code
+////////////////////////////////////////////////////////////////////////////////////////
+#ifdef TFT_WR
+  #define WR_L GPIO.out_w1tc = (1 << TFT_WR)
+  #define WR_H GPIO.out_w1ts = (1 << TFT_WR)
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Define the touch screen chip select pin drive code
+////////////////////////////////////////////////////////////////////////////////////////
+#ifndef TOUCH_CS
+  #define T_CS_L // No macro allocated so it generates no code
+  #define T_CS_H // No macro allocated so it generates no code
+#else // XPT2046 is slow, so use slower digitalWrite here
+  #define T_CS_L digitalWrite(TOUCH_CS, LOW)
+  #define T_CS_H digitalWrite(TOUCH_CS, HIGH)
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Make sure TFT_MISO is defined if not used to avoid an error message
+////////////////////////////////////////////////////////////////////////////////////////
+#if !defined (TFT_PARALLEL_8_BIT)
+  #ifndef TFT_MISO
+    #define TFT_MISO -1
+  #endif
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Define the parallel bus interface chip pin drive code
+////////////////////////////////////////////////////////////////////////////////////////
+#if defined (TFT_PARALLEL_8_BIT)
+
+  // Create a bit set lookup table for data bus - wastes 1kbyte of RAM but speeds things up dramatically
+  // can then use e.g. GPIO.out_w1ts = set_mask(0xFF); to set data bus to 0xFF
+  #define CONSTRUCTOR_INIT_TFT_DATA_BUS            \
+  for (int32_t c = 0; c<256; c++)                  \
+  {                                                \
+    xset_mask[c] = 0;                              \
+    if ( c & 0x01 ) xset_mask[c] |= (1 << TFT_D0); \
+    if ( c & 0x02 ) xset_mask[c] |= (1 << TFT_D1); \
+    if ( c & 0x04 ) xset_mask[c] |= (1 << TFT_D2); \
+    if ( c & 0x08 ) xset_mask[c] |= (1 << TFT_D3); \
+    if ( c & 0x10 ) xset_mask[c] |= (1 << TFT_D4); \
+    if ( c & 0x20 ) xset_mask[c] |= (1 << TFT_D5); \
+    if ( c & 0x40 ) xset_mask[c] |= (1 << TFT_D6); \
+    if ( c & 0x80 ) xset_mask[c] |= (1 << TFT_D7); \
+  }                                                \
+
+  // Mask for the 8 data bits to set pin directions
+  #define dir_mask ((1 << TFT_D0) | (1 << TFT_D1) | (1 << TFT_D2) | (1 << TFT_D3) | (1 << TFT_D4) | (1 << TFT_D5) | (1 << TFT_D6) | (1 << TFT_D7))
+
+  // Data bits and the write line are cleared to 0 in one step
+  #define clr_mask (dir_mask | (1 << TFT_WR))
+
+  // A lookup table is used to set the different bit patterns, this uses 1kByte of RAM
+  #define set_mask(C) xset_mask[C] // 63fps Sprite rendering test 33% faster, graphicstest only 1.8% faster than shifting in real time
+
+  // Real-time shifting alternative to above to save 1KByte RAM, 47 fps Sprite rendering test
+  /*#define set_mask(C) (((C)&0x80)>>7)<<TFT_D7 | (((C)&0x40)>>6)<<TFT_D6 | (((C)&0x20)>>5)<<TFT_D5 | (((C)&0x10)>>4)<<TFT_D4 | \
+                        (((C)&0x08)>>3)<<TFT_D3 | (((C)&0x04)>>2)<<TFT_D2 | (((C)&0x02)>>1)<<TFT_D1 | (((C)&0x01)>>0)<<TFT_D0
+  //*/
+
+  // Write 8 bits to TFT
+  #define tft_Write_8(C)  GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t)(C)); WR_H
+
+  // Write 16 bits to TFT
+  #define tft_Write_16(C) GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t)((C) >> 8)); WR_H; \
+                          GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t)((C) >> 0)); WR_H
+
+  // 16 bit write with swapped bytes
+  #define tft_Write_16S(C) GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >> 0)); WR_H; \
+                           GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >> 8)); WR_H
+
+  // Write 32 bits to TFT
+  #define tft_Write_32(C) GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >> 24)); WR_H; \
+                          GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >> 16)); WR_H; \
+                          GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >>  8)); WR_H; \
+                          GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >>  0)); WR_H
+
+  // Write two concatenated 16 bit values to TFT
+  #define tft_Write_32C(C,D) GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >> 8)); WR_H; \
+                             GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >> 0)); WR_H; \
+                             GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((D) >> 8)); WR_H; \
+                             GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((D) >> 0)); WR_H
+
+  // Write 16 bit value twice to TFT - used by drawPixel()
+  #define tft_Write_32D(C) GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >> 8)); WR_H; \
+                           GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >> 0)); WR_H; \
+                           GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >> 8)); WR_H; \
+                           GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t) ((C) >> 0)); WR_H
+
+   // Read pin
+  #ifdef TFT_RD
+    #define RD_L GPIO.out_w1tc = (1 << TFT_RD)
+    //#define RD_L digitalWrite(TFT_WR, LOW)
+    #define RD_H GPIO.out_w1ts = (1 << TFT_RD)
+    //#define RD_H digitalWrite(TFT_WR, HIGH)
+  #endif
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Macros to write commands/pixel colour data to an ILI9488 TFT
+////////////////////////////////////////////////////////////////////////////////////////
+#elif  defined (ILI9488_DRIVER) // 16 bit colour converted to 3 bytes for 18 bit RGB
+
+  // Write 8 bits to TFT
+  #define tft_Write_8(C)   spi.transfer(C)
+
+  // Convert 16 bit colour to 18 bit and write in 3 bytes
+  #define tft_Write_16(C)  spi.transfer(((C) & 0xF800)>>8); \
+                           spi.transfer(((C) & 0x07E0)>>3); \
+                           spi.transfer(((C) & 0x001F)<<3)
+
+  // Convert swapped byte 16 bit colour to 18 bit and write in 3 bytes
+  #define tft_Write_16S(C) spi.transfer((C) & 0xF8); \
+                           spi.transfer(((C) & 0xE000)>>11 | ((C) & 0x07)<<5); \
+                           spi.transfer(((C) & 0x1F00)>>5)
+
+  // Write 32 bits to TFT
+  #define tft_Write_32(C)  spi.write32(C)
+
+  // Write two concatenated 16 bit values to TFT
+  #define tft_Write_32C(C,D) spi.write32((C)<<16 | (D))
+
+  // Write 16 bit value twice to TFT
+  #define tft_Write_32D(C)  spi.write32((C)<<16 | (C))
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Macros to write commands/pixel colour data to an Raspberry Pi TFT
+////////////////////////////////////////////////////////////////////////////////////////
+#elif  defined (RPI_DISPLAY_TYPE)
+
+  // ESP32 low level SPI writes for 8, 16 and 32 bit values
+  // to avoid the function call overhead
+  #define TFT_WRITE_BITS(D, B) \
+  WRITE_PERI_REG(SPI_MOSI_DLEN_REG(SPI_PORT), B-1); \
+  WRITE_PERI_REG(SPI_W0_REG(SPI_PORT), D); \
+  SET_PERI_REG_MASK(SPI_CMD_REG(SPI_PORT), SPI_USR); \
+  while (READ_PERI_REG(SPI_CMD_REG(SPI_PORT))&SPI_USR);
+
+  // Write 8 bits
+  #define tft_Write_8(C) TFT_WRITE_BITS((C)<<8, 16)
+
+  // Write 16 bits with corrected endianess for 16 bit colours
+  #define tft_Write_16(C) TFT_WRITE_BITS((C)<<8 | (C)>>8, 16)
+
+  // Write 16 bits
+  #define tft_Write_16S(C) TFT_WRITE_BITS(C, 16)
+
+  // Write 32 bits
+  #define tft_Write_32(C) TFT_WRITE_BITS(C, 32)
+
+  // Write two address coordinates
+  #define tft_Write_32C(C,D)  TFT_WRITE_BITS((C)<<24 | (C), 32); \
+                              TFT_WRITE_BITS((D)<<24 | (D), 32)
+
+  // Write same value twice
+  #define tft_Write_32D(C) tft_Write_32C(C,C)
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Macros for all other SPI displays
+////////////////////////////////////////////////////////////////////////////////////////
+#else
+
+  // ESP32 low level SPI writes for 8, 16 and 32 bit values
+  // to avoid the function call overhead
+  #define TFT_WRITE_BITS(D, B) \
+  WRITE_PERI_REG(SPI_MOSI_DLEN_REG(SPI_PORT), B-1); \
+  WRITE_PERI_REG(SPI_W0_REG(SPI_PORT), D); \
+  SET_PERI_REG_MASK(SPI_CMD_REG(SPI_PORT), SPI_USR); \
+  while (READ_PERI_REG(SPI_CMD_REG(SPI_PORT))&SPI_USR);
+
+  // Write 8 bits
+  #define tft_Write_8(C) TFT_WRITE_BITS(C, 8)
+
+  // Write 16 bits with corrected endianess for 16 bit colours
+  #define tft_Write_16(C) TFT_WRITE_BITS((C)<<8 | (C)>>8, 16)
+
+  // Write 16 bits
+  #define tft_Write_16S(C) TFT_WRITE_BITS(C, 16)
+
+  // Write 32 bits
+  #define tft_Write_32(C) TFT_WRITE_BITS(C, 32)
+
+  // Write two address coordinates
+  #define tft_Write_32C(C,D)  TFT_WRITE_BITS((uint16_t)((D)<<8 | (D)>>8)<<16 | (uint16_t)((C)<<8 | (C)>>8), 32)
+
+  // Write same value twice
+  #define tft_Write_32D(C) TFT_WRITE_BITS((uint16_t)((C)<<8 | (C)>>8)<<16 | (uint16_t)((C)<<8 | (C)>>8), 32)
+
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Macros to read from display using SPI or software SPI
+////////////////////////////////////////////////////////////////////////////////////////
+#if !defined (TFT_PARALLEL_8_BIT)
+  // Read from display using SPI or software SPI
+  // Use a SPI read transfer
+  #define tft_Read_8() spi.transfer(0)
+#endif
+
+// Concatenate a byte sequence A,B,C,D to CDAB, P is a uint8_t pointer
+#define DAT8TO32(P) ( (uint32_t)P[0]<<8 | P[1] | P[2]<<24 | P[3]<<16 )
+
+
 
 #ifndef TAB_COLOUR
   #define TAB_COLOUR 0
@@ -98,12 +450,151 @@
   #endif
 #endif
 
-#include <Arduino.h>
-#include <Print.h>
+#ifdef LOAD_GFXFF
+  // We can include all the free fonts and they will only be built into
+  // the sketch if they are used
 
-#include <pgmspace.h>
+  #include <Fonts/GFXFF/gfxfont.h>
 
-#include <SPI.h>
+  // Call up any user custom fonts
+  // #include <User_Setups/User_Custom_Fonts.h>
+  // New custom font file #includes
+  #include <Fonts/Custom/Orbitron_Light_24.h> // CF_OL24
+  #include <Fonts/Custom/Orbitron_Light_32.h> // CF_OL32
+  #include <Fonts/Custom/Roboto_Thin_24.h>    // CF_RT24
+  #include <Fonts/Custom/Satisfy_24.h>        // CF_S24
+  #include <Fonts/Custom/Yellowtail_32.h>     // CF_Y32
+
+  // Original Adafruit_GFX "Free Fonts"
+  #include <Fonts/GFXFF/TomThumb.h>  // TT1
+
+  #include <Fonts/GFXFF/FreeMono9pt7b.h>  // FF1 or FM9
+  #include <Fonts/GFXFF/FreeMono12pt7b.h> // FF2 or FM12
+  #include <Fonts/GFXFF/FreeMono18pt7b.h> // FF3 or FM18
+  #include <Fonts/GFXFF/FreeMono24pt7b.h> // FF4 or FM24
+
+  #include <Fonts/GFXFF/FreeMonoOblique9pt7b.h>  // FF5 or FMO9
+  #include <Fonts/GFXFF/FreeMonoOblique12pt7b.h> // FF6 or FMO12
+  #include <Fonts/GFXFF/FreeMonoOblique18pt7b.h> // FF7 or FMO18
+  #include <Fonts/GFXFF/FreeMonoOblique24pt7b.h> // FF8 or FMO24
+
+  #include <Fonts/GFXFF/FreeMonoBold9pt7b.h>  // FF9  or FMB9
+  #include <Fonts/GFXFF/FreeMonoBold12pt7b.h> // FF10 or FMB12
+  #include <Fonts/GFXFF/FreeMonoBold18pt7b.h> // FF11 or FMB18
+  #include <Fonts/GFXFF/FreeMonoBold24pt7b.h> // FF12 or FMB24
+
+  #include <Fonts/GFXFF/FreeMonoBoldOblique9pt7b.h>  // FF13 or FMBO9
+  #include <Fonts/GFXFF/FreeMonoBoldOblique12pt7b.h> // FF14 or FMBO12
+  #include <Fonts/GFXFF/FreeMonoBoldOblique18pt7b.h> // FF15 or FMBO18
+  #include <Fonts/GFXFF/FreeMonoBoldOblique24pt7b.h> // FF16 or FMBO24
+
+  // Sans serif fonts
+  #include <Fonts/GFXFF/FreeSans9pt7b.h>  // FF17 or FSS9
+  #include <Fonts/GFXFF/FreeSans12pt7b.h> // FF18 or FSS12
+  #include <Fonts/GFXFF/FreeSans18pt7b.h> // FF19 or FSS18
+  #include <Fonts/GFXFF/FreeSans24pt7b.h> // FF20 or FSS24
+
+  #include <Fonts/GFXFF/FreeSansOblique9pt7b.h>  // FF21 or FSSO9
+  #include <Fonts/GFXFF/FreeSansOblique12pt7b.h> // FF22 or FSSO12
+  #include <Fonts/GFXFF/FreeSansOblique18pt7b.h> // FF23 or FSSO18
+  #include <Fonts/GFXFF/FreeSansOblique24pt7b.h> // FF24 or FSSO24
+
+  #include <Fonts/GFXFF/FreeSansBold9pt7b.h>  // FF25 or FSSB9
+  #include <Fonts/GFXFF/FreeSansBold12pt7b.h> // FF26 or FSSB12
+  #include <Fonts/GFXFF/FreeSansBold18pt7b.h> // FF27 or FSSB18
+  #include <Fonts/GFXFF/FreeSansBold24pt7b.h> // FF28 or FSSB24
+
+  #include <Fonts/GFXFF/FreeSansBoldOblique9pt7b.h>  // FF29 or FSSBO9
+  #include <Fonts/GFXFF/FreeSansBoldOblique12pt7b.h> // FF30 or FSSBO12
+  #include <Fonts/GFXFF/FreeSansBoldOblique18pt7b.h> // FF31 or FSSBO18
+  #include <Fonts/GFXFF/FreeSansBoldOblique24pt7b.h> // FF32 or FSSBO24
+
+  // Serif fonts
+  #include <Fonts/GFXFF/FreeSerif9pt7b.h>  // FF33 or FS9
+  #include <Fonts/GFXFF/FreeSerif12pt7b.h> // FF34 or FS12
+  #include <Fonts/GFXFF/FreeSerif18pt7b.h> // FF35 or FS18
+  #include <Fonts/GFXFF/FreeSerif24pt7b.h> // FF36 or FS24
+
+  #include <Fonts/GFXFF/FreeSerifItalic9pt7b.h>  // FF37 or FSI9
+  #include <Fonts/GFXFF/FreeSerifItalic12pt7b.h> // FF38 or FSI12
+  #include <Fonts/GFXFF/FreeSerifItalic18pt7b.h> // FF39 or FSI18
+  #include <Fonts/GFXFF/FreeSerifItalic24pt7b.h> // FF40 or FSI24
+
+  #include <Fonts/GFXFF/FreeSerifBold9pt7b.h>  // FF41 or FSB9
+  #include <Fonts/GFXFF/FreeSerifBold12pt7b.h> // FF42 or FSB12
+  #include <Fonts/GFXFF/FreeSerifBold18pt7b.h> // FF43 or FSB18
+  #include <Fonts/GFXFF/FreeSerifBold24pt7b.h> // FF44 or FSB24
+
+  #include <Fonts/GFXFF/FreeSerifBoldItalic9pt7b.h>  // FF45 or FSBI9
+  #include <Fonts/GFXFF/FreeSerifBoldItalic12pt7b.h> // FF46 or FSBI12
+  #include <Fonts/GFXFF/FreeSerifBoldItalic18pt7b.h> // FF47 or FSBI18
+  #include <Fonts/GFXFF/FreeSerifBoldItalic24pt7b.h> // FF48 or FSBI24
+
+#endif // #ifdef LOAD_GFXFF
+
+// This is a structure to conveniently hold information on the default fonts
+// Stores pointer to font character image address table, width table and height
+
+// Create a null set in case some fonts not used (to prevent crash)
+const  uint8_t widtbl_null[1] = {0};
+PROGMEM const uint8_t chr_null[1] = {0};
+PROGMEM const uint8_t* const chrtbl_null[1] = {chr_null};
+
+typedef struct {
+    const uint8_t *chartbl;
+    const uint8_t *widthtbl;
+    uint8_t height;
+    uint8_t baseline;
+    } fontinfo;
+
+// Now fill the structure
+const PROGMEM fontinfo fontdata [] = {
+  #ifdef LOAD_GLCD
+   { (const uint8_t *)font, widtbl_null, 0, 0 },
+  #else
+   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
+  #endif
+   // GLCD font (Font 1) does not have all parameters
+   { (const uint8_t *)chrtbl_null, widtbl_null, 8, 7 },
+
+  #ifdef LOAD_FONT2
+   { (const uint8_t *)chrtbl_f16, widtbl_f16, chr_hgt_f16, baseline_f16},
+  #else
+   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
+  #endif
+
+   // Font 3 current unused
+   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
+
+  #ifdef LOAD_FONT4
+   { (const uint8_t *)chrtbl_f32, widtbl_f32, chr_hgt_f32, baseline_f32},
+  #else
+   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
+  #endif
+
+   // Font 5 current unused
+   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
+
+  #ifdef LOAD_FONT6
+   { (const uint8_t *)chrtbl_f64, widtbl_f64, chr_hgt_f64, baseline_f64},
+  #else
+   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
+  #endif
+
+  #ifdef LOAD_FONT7
+   { (const uint8_t *)chrtbl_f7s, widtbl_f7s, chr_hgt_f7s, baseline_f7s},
+  #else
+   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
+  #endif
+
+  #ifdef LOAD_FONT8
+   { (const uint8_t *)chrtbl_f72, widtbl_f72, chr_hgt_f72, baseline_f72}
+  #else
+   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 }
+  #endif
+};
+
+/*
 
 #ifdef ESP32
   #include "soc/spi_reg.h"
@@ -260,9 +751,9 @@
   #define set_mask(C) xset_mask[C] // 63fps Sprite rendering test 33% faster, graphicstest only 1.8% faster than shifting in real time
 
   // Real-time shifting alternative to above to save 1KByte RAM, 47 fps Sprite rendering test
-  /*#define set_mask(C) ((C&0x80)>>7)<<TFT_D7 | ((C&0x40)>>6)<<TFT_D6 | ((C&0x20)>>5)<<TFT_D5 | ((C&0x10)>>4)<<TFT_D4 | \
-                        ((C&0x08)>>3)<<TFT_D3 | ((C&0x04)>>2)<<TFT_D2 | ((C&0x02)>>1)<<TFT_D1 | ((C&0x01)>>0)<<TFT_D0
-  //*/
+  //#define set_mask(C) ((C&0x80)>>7)<<TFT_D7 | ((C&0x40)>>6)<<TFT_D6 | ((C&0x20)>>5)<<TFT_D5 | ((C&0x10)>>4)<<TFT_D4 | \
+  //                      ((C&0x08)>>3)<<TFT_D3 | ((C&0x04)>>2)<<TFT_D2 | ((C&0x02)>>1)<<TFT_D1 | ((C&0x01)>>0)<<TFT_D0
+  //
 
   // Write 8 bits to TFT
   #define tft_Write_8(C)  GPIO.out_w1tc = clr_mask; GPIO.out_w1ts = set_mask((uint8_t)C); WR_H
@@ -343,8 +834,8 @@
   while (READ_PERI_REG(SPI_CMD_REG(SPI_PORT))&SPI_USR);
 
 #endif
-
-
+*/
+/*
 #if !defined (ESP32_PARALLEL)
 
   // Read from display using SPI or software SPI
@@ -357,89 +848,8 @@
   #endif
 
 #endif
+*/
 
-
-#ifdef LOAD_GFXFF
-  // We can include all the free fonts and they will only be built into
-  // the sketch if they are used
-
-  #include <Fonts/GFXFF/gfxfont.h>
-
-  // Call up any user custom fonts
-  // #include <User_Setups/User_Custom_Fonts.h>
-  // New custom font file #includes
-  #include <Fonts/Custom/Orbitron_Light_24.h> // CF_OL24
-  #include <Fonts/Custom/Orbitron_Light_32.h> // CF_OL32
-  #include <Fonts/Custom/Roboto_Thin_24.h>    // CF_RT24
-  #include <Fonts/Custom/Satisfy_24.h>        // CF_S24
-  #include <Fonts/Custom/Yellowtail_32.h>     // CF_Y32
-
-  // Original Adafruit_GFX "Free Fonts"
-  #include <Fonts/GFXFF/TomThumb.h>  // TT1
-
-  #include <Fonts/GFXFF/FreeMono9pt7b.h>  // FF1 or FM9
-  #include <Fonts/GFXFF/FreeMono12pt7b.h> // FF2 or FM12
-  #include <Fonts/GFXFF/FreeMono18pt7b.h> // FF3 or FM18
-  #include <Fonts/GFXFF/FreeMono24pt7b.h> // FF4 or FM24
-
-  #include <Fonts/GFXFF/FreeMonoOblique9pt7b.h>  // FF5 or FMO9
-  #include <Fonts/GFXFF/FreeMonoOblique12pt7b.h> // FF6 or FMO12
-  #include <Fonts/GFXFF/FreeMonoOblique18pt7b.h> // FF7 or FMO18
-  #include <Fonts/GFXFF/FreeMonoOblique24pt7b.h> // FF8 or FMO24
-
-  #include <Fonts/GFXFF/FreeMonoBold9pt7b.h>  // FF9  or FMB9
-  #include <Fonts/GFXFF/FreeMonoBold12pt7b.h> // FF10 or FMB12
-  #include <Fonts/GFXFF/FreeMonoBold18pt7b.h> // FF11 or FMB18
-  #include <Fonts/GFXFF/FreeMonoBold24pt7b.h> // FF12 or FMB24
-
-  #include <Fonts/GFXFF/FreeMonoBoldOblique9pt7b.h>  // FF13 or FMBO9
-  #include <Fonts/GFXFF/FreeMonoBoldOblique12pt7b.h> // FF14 or FMBO12
-  #include <Fonts/GFXFF/FreeMonoBoldOblique18pt7b.h> // FF15 or FMBO18
-  #include <Fonts/GFXFF/FreeMonoBoldOblique24pt7b.h> // FF16 or FMBO24
-
-  // Sans serif fonts
-  #include <Fonts/GFXFF/FreeSans9pt7b.h>  // FF17 or FSS9
-  #include <Fonts/GFXFF/FreeSans12pt7b.h> // FF18 or FSS12
-  #include <Fonts/GFXFF/FreeSans18pt7b.h> // FF19 or FSS18
-  #include <Fonts/GFXFF/FreeSans24pt7b.h> // FF20 or FSS24
-
-  #include <Fonts/GFXFF/FreeSansOblique9pt7b.h>  // FF21 or FSSO9
-  #include <Fonts/GFXFF/FreeSansOblique12pt7b.h> // FF22 or FSSO12
-  #include <Fonts/GFXFF/FreeSansOblique18pt7b.h> // FF23 or FSSO18
-  #include <Fonts/GFXFF/FreeSansOblique24pt7b.h> // FF24 or FSSO24
-
-  #include <Fonts/GFXFF/FreeSansBold9pt7b.h>  // FF25 or FSSB9
-  #include <Fonts/GFXFF/FreeSansBold12pt7b.h> // FF26 or FSSB12
-  #include <Fonts/GFXFF/FreeSansBold18pt7b.h> // FF27 or FSSB18
-  #include <Fonts/GFXFF/FreeSansBold24pt7b.h> // FF28 or FSSB24
-
-  #include <Fonts/GFXFF/FreeSansBoldOblique9pt7b.h>  // FF29 or FSSBO9
-  #include <Fonts/GFXFF/FreeSansBoldOblique12pt7b.h> // FF30 or FSSBO12
-  #include <Fonts/GFXFF/FreeSansBoldOblique18pt7b.h> // FF31 or FSSBO18
-  #include <Fonts/GFXFF/FreeSansBoldOblique24pt7b.h> // FF32 or FSSBO24
-
-  // Serif fonts
-  #include <Fonts/GFXFF/FreeSerif9pt7b.h>  // FF33 or FS9
-  #include <Fonts/GFXFF/FreeSerif12pt7b.h> // FF34 or FS12
-  #include <Fonts/GFXFF/FreeSerif18pt7b.h> // FF35 or FS18
-  #include <Fonts/GFXFF/FreeSerif24pt7b.h> // FF36 or FS24
-
-  #include <Fonts/GFXFF/FreeSerifItalic9pt7b.h>  // FF37 or FSI9
-  #include <Fonts/GFXFF/FreeSerifItalic12pt7b.h> // FF38 or FSI12
-  #include <Fonts/GFXFF/FreeSerifItalic18pt7b.h> // FF39 or FSI18
-  #include <Fonts/GFXFF/FreeSerifItalic24pt7b.h> // FF40 or FSI24
-
-  #include <Fonts/GFXFF/FreeSerifBold9pt7b.h>  // FF41 or FSB9
-  #include <Fonts/GFXFF/FreeSerifBold12pt7b.h> // FF42 or FSB12
-  #include <Fonts/GFXFF/FreeSerifBold18pt7b.h> // FF43 or FSB18
-  #include <Fonts/GFXFF/FreeSerifBold24pt7b.h> // FF44 or FSB24
-
-  #include <Fonts/GFXFF/FreeSerifBoldItalic9pt7b.h>  // FF45 or FSBI9
-  #include <Fonts/GFXFF/FreeSerifBoldItalic12pt7b.h> // FF46 or FSBI12
-  #include <Fonts/GFXFF/FreeSerifBoldItalic18pt7b.h> // FF47 or FSBI18
-  #include <Fonts/GFXFF/FreeSerifBoldItalic24pt7b.h> // FF48 or FSBI24
-
-#endif // #ifdef LOAD_GFXFF
 
 //These enumerate the text plotting alignment (reference datum point)
 #define TL_DATUM 0 // Top left (default)
@@ -479,20 +889,43 @@
 #define TFT_ORANGE      0xFDA0      /* 255, 180,   0 */
 #define TFT_GREENYELLOW 0xB7E0      /* 180, 255,   0 */
 #define TFT_PINK        0xFC9F
+#define TFT_BROWN       0x9A60      /* 150,  75,   0 */
+#define TFT_GOLD        0xFEA0      /* 255, 215,   0 */
+#define TFT_SILVER      0xC618      /* 192, 192, 192 */
+#define TFT_SKYBLUE     0x867D      /* 135, 206, 235 */
+#define TFT_VIOLET      0x915C      /* 180,  46, 226 */
 
 // Next is a special 16 bit colour value that encodes to 8 bits
 // and will then decode back to the same 16 bit value.
 // Convenient for 8 bit and 16 bit transparent sprites.
 #define TFT_TRANSPARENT 0x0120
 
-// Swap any type
-template <typename T> static inline void
-swap_coord(T& a, T& b) { T t = a; a = b; b = t; }
+// Default palette for 4 bit colour sprites
+static const uint16_t default_4bit_palette[] PROGMEM = {
+  TFT_BLACK,    //  0  ^
+  TFT_BROWN,    //  1  |
+  TFT_RED,      //  2  |
+  TFT_ORANGE,   //  3  |
+  TFT_YELLOW,   //  4  Colours 0-9 follow the resistor colour code!
+  TFT_GREEN,    //  5  |
+  TFT_BLUE,     //  6  |
+  TFT_PURPLE,   //  7  |
+  TFT_DARKGREY, //  8  |
+  TFT_WHITE,    //  9  v
+  TFT_CYAN,     // 10  Blue+green mix
+  TFT_MAGENTA,  // 11  Blue+red mix
+  TFT_MAROON,   // 12  Darker red colour
+  TFT_DARKGREEN,// 13  Darker green colour
+  TFT_NAVY,     // 14  Darker blue colour
+  TFT_PINK      // 15
+};
 
+/*
 #ifndef min
   // Return minimum of two numbers, may already be defined
   #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
+*/
 
 // This structure allows sketches to retrieve the user setup parameters at runtime
 // by calling getSetup(), zero impact on code size unless used, mainly for diagnostics
@@ -549,69 +982,14 @@ int16_t tft_rd_freq;
 int16_t tch_spi_freq;
 } setup_t;
 
-// This is a structure to conveniently hold information on the default fonts
-// Stores pointer to font character image address table, width table and height
-
-// Create a null set in case some fonts not used (to prevent crash)
-const  uint8_t widtbl_null[1] = {0};
-PROGMEM const uint8_t chr_null[1] = {0};
-PROGMEM const uint8_t* const chrtbl_null[1] = {chr_null};
-
-typedef struct {
-    const uint8_t *chartbl;
-    const uint8_t *widthtbl;
-    uint8_t height;
-    uint8_t baseline;
-    } fontinfo;
-
-// Now fill the structure
-const PROGMEM fontinfo fontdata [] = {
-  #ifdef LOAD_GLCD
-   { (const uint8_t *)font, widtbl_null, 0, 0 },
-  #else
-   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
-  #endif
-   // GLCD font (Font 1) does not have all parameters
-   { (const uint8_t *)chrtbl_null, widtbl_null, 8, 7 },
-
-  #ifdef LOAD_FONT2
-   { (const uint8_t *)chrtbl_f16, widtbl_f16, chr_hgt_f16, baseline_f16},
-  #else
-   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
-  #endif
-
-   // Font 3 current unused
-   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
-
-  #ifdef LOAD_FONT4
-   { (const uint8_t *)chrtbl_f32, widtbl_f32, chr_hgt_f32, baseline_f32},
-  #else
-   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
-  #endif
-
-   // Font 5 current unused
-   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
-
-  #ifdef LOAD_FONT6
-   { (const uint8_t *)chrtbl_f64, widtbl_f64, chr_hgt_f64, baseline_f64},
-  #else
-   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
-  #endif
-
-  #ifdef LOAD_FONT7
-   { (const uint8_t *)chrtbl_f7s, widtbl_f7s, chr_hgt_f7s, baseline_f7s},
-  #else
-   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
-  #endif
-
-  #ifdef LOAD_FONT8
-   { (const uint8_t *)chrtbl_f72, widtbl_f72, chr_hgt_f72, baseline_f72}
-  #else
-   { (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 }
-  #endif
-};
 
 
+
+// Swap any type
+template <typename T> static inline void
+swap_coord(T& a, T& b) { T t = a; a = b; b = t; }
+
+// Callback prototype for smooth font pixel colour read
 typedef uint16_t (*getColorCallback)(uint16_t x, uint16_t y);
 
 typedef enum {
@@ -714,6 +1092,12 @@ class TFT_eSPI : public Print {
 
            fillScreen(uint32_t color);
 
+           // Write a solid block of a single colour
+  void     pushBlock(uint16_t color, uint32_t len);
+
+           // Write a set of pixels stored in memory, use setSwapBytes(true/false) function to correct endianess
+  void     pushPixels(const void * data_in, uint32_t len);
+
   void     drawRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color),
            drawRoundRect(int32_t x0, int32_t y0, int32_t w, int32_t h, int32_t radius, uint32_t color),
            fillRoundRect(int32_t x0, int32_t y0, int32_t w, int32_t h, int32_t radius, uint32_t color),
@@ -783,8 +1167,16 @@ class TFT_eSPI : public Print {
   void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, const uint16_t *data);
 
            // These are used by pushSprite for 1 and 8 bit colours
-  void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint8_t  *data, bool bpp8 = true);
-  void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint8_t  *data, uint8_t  transparent, bool bpp8 = true);
+  //void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint8_t  *data, bool bpp8 = true);
+  //void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint8_t  *data, uint8_t  transparent, bool bpp8 = true);
+
+           // These are used by Sprite class pushSprite() member function for 1, 4 and 8 bits per pixel (bpp) colours
+           // They are not intended to be used with user sketches (but could be)
+           // Set bpp8 true for 8bpp sprites, false otherwise. The cmap pointer must be specified for 4bpp
+  void     pushImage(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t  *data, bool bpp8 = true, uint16_t *cmap = nullptr);
+  void     pushImage(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t  *data, uint8_t  transparent, bool bpp8 = true, uint16_t *cmap = nullptr);
+
+
 
            // Swap the byte order for pushImage() - corrects endianness
   void     setSwapBytes(bool swap);
@@ -808,6 +1200,20 @@ class TFT_eSPI : public Print {
   uint16_t fontsLoaded(void),
            color565(uint8_t red, uint8_t green, uint8_t blue),   // Convert 8 bit red, green and blue to 16 bits
            color8to16(uint8_t color332);  // Convert 8 bit colour to 16 bits
+
+           // Convert 16 bit colour to/from 24 bit, R+G+B concatenated into LS 24 bits
+  uint32_t color16to24(uint16_t color565);
+  uint32_t color24to16(uint32_t color888);
+
+           // Alpha blend 2 colours, see generic "alphaBlend_Test" example
+           // alpha =   0 = 100% background colour
+           // alpha = 255 = 100% foreground colour
+  uint16_t alphaBlend(uint8_t alpha, uint16_t fgc, uint16_t bgc);
+           // 16 bit colour alphaBlend with alpha dither (dither reduces colour banding)
+  uint16_t alphaBlend(uint8_t alpha, uint16_t fgc, uint16_t bgc, uint8_t dither);
+           // 24 bit colour alphaBlend with optional alpha dither
+  uint32_t alphaBlend24(uint8_t alpha, uint32_t fgc, uint32_t bgc, uint8_t dither = 0);
+
 
   int16_t  drawNumber(long long_num, int32_t poX, int32_t poY, uint8_t font),
            drawNumber(long long_num, int32_t poX, int32_t poY),
@@ -885,7 +1291,31 @@ class TFT_eSPI : public Print {
   inline void spi_begin_read() __attribute__((always_inline));
   inline void spi_end_read()   __attribute__((always_inline));
 
+           // New begin and end prototypes
+           // begin/end a TFT write transaction
+           // For SPI bus the transmit clock rate is set
+  inline void begin_tft_write()      __attribute__((always_inline));
+  inline void end_tft_write()        __attribute__((always_inline));
+
+
+           // begin/end a TFT read transaction
+           // For SPI bus: begin lowers SPI clock rate, end reinstates transmit clock rate
+  inline void begin_tft_read() __attribute__((always_inline));
+  inline void end_tft_read()   __attribute__((always_inline));
+
+           // Temporary  library development function  TODO: remove need for this
+  void     pushSwapBytePixels(const void* data_in, uint32_t len);
+
   void     readAddrWindow(int32_t xs, int32_t ys, int32_t w, int32_t h);
+
+           // Byte read prototype
+  uint8_t  readByte(void);
+
+           // GPIO parallel bus input/output direction control
+  void     busDir(uint32_t mask, uint8_t mode);
+
+           // Single GPIO input/output direction control
+  void     gpioMode(uint8_t gpio, uint8_t mode);
 
   uint8_t  tabcolor,
            colstart = 0, rowstart = 0; // some ST7735 displays need this changed
@@ -971,19 +1401,19 @@ class TFT_eSPI : public Print {
 
 // Load the Anti-aliased font extension
 #ifdef SMOOTH_FONT
-//  #include "Extensions/Smooth_font.h"
  // Coded by Bodmer 10/2/18, see license in root directory.
  // This is part of the TFT_eSPI class and is associated with anti-aliased font functions
 
  public:
 
   // These are for the new antialiased fonts
+  void     loadFont(const uint8_t array[]);
+#ifdef FONT_FS_AVAILABLE
   void     loadFont(String fontName, fs::FS &ffs);
+#endif
   void     loadFont(String fontName, bool flash = true);
   void     unloadFont( void );
   bool     getUnicodeIndex(uint16_t unicode, uint16_t *index);
-
-  uint16_t alphaBlend(uint8_t alpha, uint16_t fgc, uint16_t bgc);
 
   virtual void drawGlyph(uint16_t code);
 
@@ -992,16 +1422,17 @@ class TFT_eSPI : public Print {
  // This is for the whole font
   typedef struct
   {
-    uint16_t gCount;     // Total number of characters
-    uint16_t yAdvance;   // Line advance
-    uint16_t spaceWidth; // Width of a space character
-    int16_t  ascent;     // Height of top of 'd' above baseline, other characters may be taller
-    int16_t  descent;    // Offset to bottom of 'p', other characters may have a larger descent
-    uint16_t maxAscent;  // Maximum ascent found in font
-    uint16_t maxDescent; // Maximum descent found in font
+    const uint8_t* gArray;           //array start pointer
+    uint16_t gCount;                 // Total number of characters
+    uint16_t yAdvance;               // Line advance
+    uint16_t spaceWidth;             // Width of a space character
+    int16_t  ascent;                 // Height of top of 'd' above baseline, other characters may be taller
+    int16_t  descent;                // Offset to bottom of 'p', other characters may have a larger descent
+    uint16_t maxAscent;              // Maximum ascent found in font
+    uint16_t maxDescent;             // Maximum descent found in font
   } fontMetrics;
 
-fontMetrics gFont = { 0, 0, 0, 0, 0, 0, 0 };
+fontMetrics gFont = { nullptr, 0, 0, 0, 0, 0, 0, 0 };
 
   // These are for the metrics for each individual glyph (so we don't need to seek this in file and waste time)
   uint16_t* gUnicode = NULL;  //UTF-16 code, the codes are searched so do not need to be sequential
@@ -1013,15 +1444,25 @@ fontMetrics gFont = { 0, 0, 0, 0, 0, 0, 0 };
   uint32_t* gBitmap = NULL;   //file pointer to greyscale bitmap
 
   bool     fontLoaded = false; // Flags when a anti-aliased font is loaded
+
+#ifdef FONT_FS_AVAILABLE
   fs::File fontFile;
+  fs::FS   &fontFS  = SPIFFS;
+  bool     spiffs   = true;
+  bool     fs_font = false;    // For ESP32/8266 use smooth font file or FLASH (PROGMEM) array
+
+#else
+  bool     fontFile = true;
+#endif
 
   private:
 
-  void     loadMetrics(uint16_t gCount);
+  void     loadMetrics(void);
   uint32_t readInt32(void);
 
-  fs::FS   &fontFS = SPIFFS;
-  bool     spiffs = true;
+  uint8_t* fontPtr = nullptr;
+
+
 #endif
 
 }; // End of class TFT_eSPI

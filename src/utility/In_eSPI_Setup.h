@@ -87,7 +87,7 @@
   #define TFT_RST        -1  // Reset pin (could connect to Arduino RESET pin)
   #define TFT_BL         14  // LED back-light
   #define TFT_DRIVER 0x9341
-  #define SPI_FREQUENCY 40000000 // Maximum to use SPIFFS
+  #define SPI_FREQUENCY 80000000 // Maximum to use SPIFFS
   #define SPI_READ_FREQUENCY 20000000
   #define TFT_SDA_READ      // This option if for ESP32 ONLY, tested with ST7789 display only
   #include "TFT_Drivers/ILI9341_Defines.h"
