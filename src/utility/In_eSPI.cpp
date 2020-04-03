@@ -656,7 +656,7 @@ inline void TFT_eSPI::spi_end_read(void){
      if(!inTransaction) {CS_H;}
 #endif
 }
-
+*/
 #if defined (TOUCH_CS) && defined (SPI_TOUCH_FREQUENCY) // && !defined(ESP32_PARALLEL)
 
   inline void TFT_eSPI::spi_begin_touch(void){
@@ -683,7 +683,7 @@ inline void TFT_eSPI::spi_end_read(void){
   }
 
 #endif
-*/
+
 
 
 /***************************************************************************************
