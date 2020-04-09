@@ -80,8 +80,9 @@ namespace lgfx
   };
 
   const PROGMEM fontinfo fontdata [] = {
-    { ft_unknown, (const uint8_t *)chrtbl_null, widtbl_null, 0, 0 },
-    // GLCD font (Font 1) does not have all parameters
+    // GLCD font (Font 0)
+    { ft_glcd, (const uint8_t *)font, widtbl_null, 8, 6 },
+    // GLCD font (or GFX font)
     { ft_glcd, (const uint8_t *)font, widtbl_null, 8, 6 },
 
     { ft_bmp,  (const uint8_t *)chrtbl_f16, widtbl_f16, chr_hgt_f16, baseline_f16},
@@ -819,10 +820,11 @@ namespace lgfx
         int32_t i = 0;
         do {
           int32_t ip = i;
-          do {
-            if (i & 7) byte <<= 1;
-            else       byte = pgm_read_byte(&bitmap[i >> 3]);
-          } while (fg == (bool)(byte & 0x80) && (++i < w));
+          for (;;) {
+            if (!(i & 7)) byte = pgm_read_byte(&bitmap[i >> 3]);
+            if (fg != (bool)(byte & 0x80) || (++i >= w)) break;
+            byte <<= 1;
+          }
           if ((ip != i) && (fg || bg_rawcolor != ~0)) {
             writeFastHLine(x + ip, y + j, i - ip);
           }
@@ -848,10 +850,11 @@ namespace lgfx
         int32_t i = 0;
         do {
           int32_t ip = i;
-          do {
-            if (i & 7) byte >>= 1;
-            else       byte = pgm_read_byte(&bitmap[i >> 3]);
-          } while (fg == (bool)(byte & 0x01) && (++i < w));
+          for (;;) {
+            if (!(i & 7)) byte = pgm_read_byte(&bitmap[i >> 3]);
+            if (fg != (bool)(byte & 0x01) || (++i >= w)) break;
+            byte >>= 1;
+          }
           if ((ip != i) && (fg || bg_rawcolor != ~0)) {
             writeFastHLine(x + ip, y + j, i - ip);
           }
@@ -1352,86 +1355,35 @@ namespace lgfx
 
 
 
-    __attribute__ ((always_inline)) inline int16_t drawString(const char *string, int32_t x, int32_t y)
+    __attribute__ ((always_inline)) inline int_fast16_t drawString(const char *string, int32_t x, int32_t y)
     {
-      return drawString(string, x, y, _textdatum);
-    }
-    int16_t drawString(const char *string, int32_t x, int32_t y, textdatum_t datum)
-    {
-      int16_t sumX = 0;
-      int32_t cwidth = textWidth(string); // Find the pixel width of the string in the font
-      int32_t cheight = _font_size_y.size * _textsize_y;
-
-      if (fpUpdateFontSize) {
-        uint16_t uniCode = *string;
-        if (_decoderState != utf8_decode_state_t::utf8_no_use) {
-          auto tmp = string;
-          do {
-            uniCode = decodeUTF8(*tmp++);
-          } while (uniCode == 0 && *tmp);
-        }
-        if ((fpUpdateFontSize)(this, uniCode)) {
-          if (_font_size_x.offset < 0) sumX = - _font_size_x.offset * _textsize_x;
-        }
-      }
-
-      if (datum & middle_left) {          // vertical: middle
-        y -= cheight >> 1;
-      } else if (datum & bottom_left) {   // vertical: bottom
-        y -= cheight;
-      } else if (datum & baseline_left) { // vertical: baseline
-        y -= _font_baseline * _textsize_y;
-      }
-
-      startWrite();
-      int32_t padx = _padding_x;
-      if ((_text_fore_rgb888 != _text_back_rgb888) && (padx > cwidth)) {
-        setColor(_text_back_rgb888);
-        if (datum & top_center) {
-          auto halfcwidth = cwidth >> 1;
-          auto halfpadx = (padx >> 1);
-          writeFillRect(x - halfpadx, y, halfpadx - halfcwidth, cheight);
-          halfcwidth = cwidth - halfcwidth;
-          halfpadx = padx - halfpadx;
-          writeFillRect(x + halfcwidth, y, halfpadx - halfcwidth, cheight);
-        } else if (datum & top_right) {
-          writeFillRect(x - padx, y, padx - cwidth, cheight);
-        } else {
-          writeFillRect(x + cwidth, y, padx - cwidth, cheight);
-        }
-      }
-
-      if (datum & top_center) {           // Horizontal: middle
-        x -= cwidth >> 1;
-      } else if (datum & top_right) {     // Horizontal: right
-        x -= cwidth;
-      }
-
-      y -= _font_size_y.offset * _textsize_y;
-
-      _filled_x = 0;
-      do {
-        uint16_t uniCode = *string;
-        if (_decoderState != utf8_decode_state_t::utf8_no_use) {
-          uniCode = decodeUTF8(uniCode);
-          if (uniCode == 0) continue;
-        }
-
-        sumX += (fpDrawChar)(this, x + sumX, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
-      } while (*(++string));
-      endWrite();
-
-      return sumX;
+      return draw_string(string, x, y, _textdatum);
     }
 
-    int16_t drawNumber(long long_num, int32_t poX, int32_t poY)
+    __attribute__ ((always_inline)) inline int_fast16_t drawString(const char *string, int32_t x, int32_t y, uint8_t font)
+    {
+      setTextFont(font);
+      return draw_string(string, x, y, _textdatum);
+    }
+
+    __attribute__ ((always_inline)) inline int_fast16_t drawNumber(long long_num, int32_t poX, int32_t poY, uint8_t font)
+    {
+      setTextFont(font);
+      return drawNumber(long_num, poX, poY);
+    }
+    int_fast16_t drawNumber(long long_num, int32_t poX, int32_t poY)
     {
       constexpr size_t len = 8 * sizeof(long) + 1;
       char buf[len];
       return drawString(numberToStr(long_num, buf, len, 10), poX, poY);
     }
 
-    int16_t drawFloat(float floatNumber, uint8_t dp, int32_t poX, int32_t poY)
+    __attribute__ ((always_inline)) inline int_fast16_t drawFloat(float floatNumber, uint8_t dp, int32_t poX, int32_t poY, uint8_t font)
+    {
+      setTextFont(font);
+      return drawFloat(floatNumber, dp, poX, poY);
+    }
+    int_fast16_t drawFloat(float floatNumber, uint8_t dp, int32_t poX, int32_t poY)
     {
       size_t len = 14 + dp;
       char buf[len];
@@ -1508,6 +1460,7 @@ namespace lgfx
     int16_t getTextSizeX(void) const { return _textsize_x; }
     int16_t getTextSizeY(void) const { return _textsize_y; }
     int16_t fontHeight(void) const { return _font_size_y.size * _textsize_y; }
+    int16_t fontHeight(uint8_t font) const { if (_textfont == font) return fontHeight(); return pgm_read_byte( &fontdata[font].height ); }
 
     void setTextDatum(uint8_t datum) { _textdatum = (textdatum_t)datum; }
     void setTextDatum(textdatum_t datum) { _textdatum = datum; }
@@ -1521,7 +1474,7 @@ namespace lgfx
       _filled_x = 0; 
       _font_size_x.offset = 0;
       _font_size_y.offset = 0;
-      if (f == 0) f = 1;
+      //if (f == 0) f = 1;
       _textfont = f;
       _font_size_y.size = _font_size_y.advance = pgm_read_byte( &fontdata[f].height );
       _font_baseline = pgm_read_byte( &fontdata[f].baseline );
@@ -1730,6 +1683,74 @@ namespace lgfx
       }
       dst[0] = 0;
       return buf;
+    }
+
+    int_fast16_t draw_string(const char *string, int32_t x, int32_t y, textdatum_t datum)
+    {
+      int16_t sumX = 0;
+      int32_t cwidth = textWidth(string); // Find the pixel width of the string in the font
+      int32_t cheight = _font_size_y.size * _textsize_y;
+
+      if (fpUpdateFontSize) {
+        uint16_t uniCode = *string;
+        if (_decoderState != utf8_decode_state_t::utf8_no_use) {
+          auto tmp = string;
+          do {
+            uniCode = decodeUTF8(*tmp++);
+          } while (uniCode == 0 && *tmp);
+        }
+        if ((fpUpdateFontSize)(this, uniCode)) {
+          if (_font_size_x.offset < 0) sumX = - _font_size_x.offset * _textsize_x;
+        }
+      }
+
+      if (datum & middle_left) {          // vertical: middle
+        y -= cheight >> 1;
+      } else if (datum & bottom_left) {   // vertical: bottom
+        y -= cheight;
+      } else if (datum & baseline_left) { // vertical: baseline
+        y -= _font_baseline * _textsize_y;
+      }
+
+      startWrite();
+      int32_t padx = _padding_x;
+      if ((_text_fore_rgb888 != _text_back_rgb888) && (padx > cwidth)) {
+        setColor(_text_back_rgb888);
+        if (datum & top_center) {
+          auto halfcwidth = cwidth >> 1;
+          auto halfpadx = (padx >> 1);
+          writeFillRect(x - halfpadx, y, halfpadx - halfcwidth, cheight);
+          halfcwidth = cwidth - halfcwidth;
+          halfpadx = padx - halfpadx;
+          writeFillRect(x + halfcwidth, y, halfpadx - halfcwidth, cheight);
+        } else if (datum & top_right) {
+          writeFillRect(x - padx, y, padx - cwidth, cheight);
+        } else {
+          writeFillRect(x + cwidth, y, padx - cwidth, cheight);
+        }
+      }
+
+      if (datum & top_center) {           // Horizontal: middle
+        x -= cwidth >> 1;
+      } else if (datum & top_right) {     // Horizontal: right
+        x -= cwidth;
+      }
+
+      y -= _font_size_y.offset * _textsize_y;
+
+      _filled_x = 0;
+      do {
+        uint16_t uniCode = *string;
+        if (_decoderState != utf8_decode_state_t::utf8_no_use) {
+          uniCode = decodeUTF8(uniCode);
+          if (uniCode == 0) continue;
+        }
+
+        sumX += (fpDrawChar)(this, x + sumX, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
+      } while (*(++string));
+      endWrite();
+
+      return sumX;
     }
 
     bool(*fpUpdateFontSize)(LGFXBase* me, uint16_t uniCode) = nullptr;
@@ -2070,18 +2091,19 @@ namespace lgfx
   public:
 
     void setTextFont(uint8_t f) override {
+      if (f == 1 && _gfxFont) return;
       _gfxFont = nullptr;
       Base::setTextFont(f);
     }
 
     void setFreeFont(const GFXfont *f = nullptr)
     {
+      _gfxFont = f;
       if (f == nullptr) { this->setTextFont(1); return; } // Use GLCD font
       this->fpDrawChar = drawCharGFXFF;
       this->fpUpdateFontSize = updateFontSizeGFXFF;
 
       this->_textfont = 1;
-      _gfxFont = f; // (GFXfont *)f;
       this->_decoderState = Base::utf8_decode_state_t::utf8_state0;
 
       _glyph_ab = 0;

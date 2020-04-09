@@ -20,12 +20,6 @@ namespace lgfx
 
   protected:
 
-//    enum colmod_t
-//    { RGB565_2BYTE = 0x55
-//    , RGB666_3BYTE = 0x66
-//    };
-//    uint8_t getColMod(uint8_t bpp) const override { return (bpp > 16) ? RGB666_3BYTE : RGB565_2BYTE; }
-
     struct CMD : public CommandCommon
     {
       static constexpr uint8_t PORCTRL  = 0xB2;      // Porch control
