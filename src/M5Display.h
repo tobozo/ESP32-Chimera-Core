@@ -268,9 +268,9 @@ ESP_LOGI("M5Display", "TFT_eSPI construct");
 //        #endif
 //        CS_H;
 //      }
-      inline void writePixel(uint16_t color) {
-        SPI.write16(color);
-      }
+//      inline void writePixel(uint16_t color) {
+//        SPI.write16(color);
+//      }
       inline void writePixels(uint16_t * colors, uint32_t len){
         SPI.writePixels((uint8_t*)colors , len * 2);
       }
