@@ -211,6 +211,22 @@ namespace lgfx
     }
   };
 
+  struct Panel_LoLinD32 : public Panel_ST7735S
+  {
+    Panel_LoLinD32(void) {
+      panel_width  = 128;
+      panel_height = 128;
+      offset_x     = 2;
+      offset_y     = 1;
+      spi_3wire = true;
+      spi_cs = 14;
+      spi_dc = 27;
+      gpio_rst = 33;
+//      gpio_bl  = -1;
+//      pwm_ch_bl = 7;
+    }
+  };
+
 #endif
 }
 
