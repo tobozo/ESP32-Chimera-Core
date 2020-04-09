@@ -84,7 +84,8 @@ bool ScreenShotService::displayCanReadPixels() {
   uint16_t value_out;
   __attribute__((unused)) byte testnum = 0;
 
-  log_w( "Testing display#%04x", TFT_DRIVER );
+  log_w( "Testing display readpixel" );
+//  log_w( "Testing display#%04x", TFT_DRIVER );
 
   _tft->drawPixel( 30, 30, value_in ); //  <----- Test color
   value_out = _tft->readPixel( 30,30 );
@@ -181,9 +182,9 @@ void ScreenShotService::genFileName( const char* name, const char* extension ) {
 
 void ScreenShotService::snapAnimation() {
   for( byte i = 0; i<16; i++ ) {
-    _tft->drawRect(0, 0, _tft->width()-1, _tft->height()-1, WHITE);
+    _tft->drawRect(0, 0, _tft->width()-1, _tft->height()-1, TFT_WHITE);
     delay(20);
-    _tft->drawRect(0, 0, _tft->width()-1, _tft->height()-1, BLACK);
+    _tft->drawRect(0, 0, _tft->width()-1, _tft->height()-1, TFT_BLACK);
     delay(20);
   }
   _tft->clear();

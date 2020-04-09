@@ -22,8 +22,15 @@
  * SOFTWARE.
  */
 
-#ifndef __PNGLE_H__
-#define __PNGLE_H__
+/*----------------------------------------------------------------------------/
+/ Modified for LGFX  by lovyan03, 2020
+/ tweak for 32bit processor
+/----------------------------------------------------------------------------*/
+
+#ifndef __LGFX_PNGLE_H__
+#define __LGFX_PNGLE_H__
+
+#define PNGLE_NO_GAMMA_CORRECTION 1
 
 #include <stdint.h>
 
@@ -35,8 +42,8 @@ extern "C" {
 typedef struct _pngle_t pngle_t;
 
 // Callback signatures
-typedef void (*pngle_init_callback_t)(pngle_t *pngle, uint32_t w, uint32_t h);
-typedef void (*pngle_draw_callback_t)(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint8_t rgba[4]);
+typedef void (*pngle_init_callback_t)(pngle_t *pngle, uint32_t w, uint32_t h, uint_fast8_t hasTransparent);
+typedef void (*pngle_draw_callback_t)(pngle_t *pngle, uint32_t x, uint32_t y, uint8_t rgba[4]);
 typedef void (*pngle_done_callback_t)(pngle_t *pngle);
 
 // ----------------
@@ -68,11 +75,11 @@ void *pngle_get_user_data(pngle_t *pngle);
 typedef struct _pngle_ihdr_t {
   uint32_t width;
   uint32_t height;
-  uint8_t depth;
-  uint8_t color_type;
-  uint8_t compression;
-  uint8_t filter;
-  uint8_t interlace;
+  uint_fast8_t depth;
+  uint_fast8_t color_type;
+  uint_fast8_t compression;
+  uint_fast8_t filter;
+  uint_fast8_t interlace;
 } pngle_ihdr_t;
 
 // Get IHDR information

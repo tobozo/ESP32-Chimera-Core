@@ -6,21 +6,21 @@
 M5Stack::M5Stack() : isInited(0) {
 }
 
-void M5Stack::setJpgRenderer( bool legacy ) {
-  if( legacy ) {
-    islegacyJpegDecoder = true;
-    Lcd.setJpegRenderCallBack = nullptr;
-    Lcd.jpgFlashRenderFunc    = &jpgLegacyRenderer;
-    Lcd.jpgFSRenderFunc       = &jpgLegacyRenderer;
-    Lcd.jpgStreamRenderFunc   = &jpgLegacyRenderer;
-  } else {
-    islegacyJpegDecoder = false;
-    Lcd.setJpegRenderCallBack = &jpgCallBackSetter;
-    Lcd.jpgFlashRenderFunc    = &jpgRenderer;
-    Lcd.jpgFSRenderFunc       = &jpgRenderer;
-    Lcd.jpgStreamRenderFunc   = &jpgRenderer;
-  }
-}
+//void M5Stack::setJpgRenderer( bool legacy ) {
+//  if( legacy ) {
+//    islegacyJpegDecoder = true;
+//    Lcd.setJpegRenderCallBack = nullptr;
+//    Lcd.jpgFlashRenderFunc    = &jpgLegacyRenderer;
+//    Lcd.jpgFSRenderFunc       = &jpgLegacyRenderer;
+//    Lcd.jpgStreamRenderFunc   = &jpgLegacyRenderer;
+//  } else {
+//    islegacyJpegDecoder = false;
+//    Lcd.setJpegRenderCallBack = &jpgCallBackSetter;
+//    Lcd.jpgFlashRenderFunc    = &jpgRenderer;
+//    Lcd.jpgFSRenderFunc       = &jpgRenderer;
+//    Lcd.jpgStreamRenderFunc   = &jpgRenderer;
+//  }
+//}
 
 
 
@@ -47,22 +47,22 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Lcd.begin();
 
     // provide consistent getWidth()/getHeight() to both Sprite and TFT image decoding
-    Lcd.setWidthGetter        = &setWidthGetter;
-    Lcd.setHeightGetter       = &setHeightGetter;
-    //Lcd.setColorPusher        = &setColorPusher;
-    Lcd.setWindowSetter       = &setWindowSetter;
-    //Lcd.setColorWriter        = &setColorWriter;
-    Lcd.setColorWriterArray   = &setColorWriterArray;
-    Lcd.setRgb565Converter    = &setRgb565Converter;
-    Lcd.setTransactionStarter = &setTransactionStarter;
-    Lcd.setTransactionEnder   = &setTransactionEnder;
-
-    setJpgRenderer( true );
-
-    Lcd.setPngRenderCallBack  = &pngCallBackSetter;
-    Lcd.pngFlashRenderFunc    = &pngRenderer;
-    Lcd.pngFSRenderFunc       = &pngRenderer;
-    Lcd.pngStreamRenderFunc   = &pngRenderer;
+//    Lcd.setWidthGetter        = &setWidthGetter;
+//    Lcd.setHeightGetter       = &setHeightGetter;
+//    //Lcd.setColorPusher        = &setColorPusher;
+//    Lcd.setWindowSetter       = &setWindowSetter;
+//    //Lcd.setColorWriter        = &setColorWriter;
+//    Lcd.setColorWriterArray   = &setColorWriterArray;
+//    Lcd.setRgb565Converter    = &setRgb565Converter;
+//    Lcd.setTransactionStarter = &setTransactionStarter;
+//    Lcd.setTransactionEnder   = &setTransactionEnder;
+//
+//    setJpgRenderer( true );
+//
+//    Lcd.setPngRenderCallBack  = &pngCallBackSetter;
+//    Lcd.pngFlashRenderFunc    = &pngRenderer;
+//    Lcd.pngFSRenderFunc       = &pngRenderer;
+//    Lcd.pngStreamRenderFunc   = &pngRenderer;
 
     if( ScreenShotEnable == true ) {
        ScreenShot.init( &Lcd, M5STACK_SD );

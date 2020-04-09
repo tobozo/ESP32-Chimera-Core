@@ -159,8 +159,8 @@
         SPEAKER Speaker;
 
         // LCD
-        M5Display Lcd = M5Display();
-        void setJpgRenderer( bool legacy = true );
+        M5Display Lcd; // = M5Display();
+//        void setJpgRenderer( bool legacy = true );
 
         ScreenShotService ScreenShot;
 
