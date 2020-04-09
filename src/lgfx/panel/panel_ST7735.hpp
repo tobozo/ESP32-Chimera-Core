@@ -13,9 +13,9 @@ namespace lgfx
       panel_width  = memory_width  = 132;  // or 128
       panel_height = memory_height = 162;  // or 160
 
-      freq_write = 20000000;
-      freq_read  = 10000000;
-      freq_fill  = 20000000;
+      freq_write = 27000000;
+      freq_read  = 16000000;
+      freq_fill  = 27000000;
 
       len_dummy_read_pixel = 9;
       len_dummy_read_rddid = 1;
@@ -222,8 +222,8 @@ namespace lgfx
       spi_cs = 14;
       spi_dc = 27;
       gpio_rst = 33;
-//      gpio_bl  = -1;
-//      pwm_ch_bl = 7;
+      gpio_bl  = 32;
+      pwm_ch_bl = 7;
     }
   };
 

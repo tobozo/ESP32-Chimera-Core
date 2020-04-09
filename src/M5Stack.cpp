@@ -41,6 +41,17 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Serial.print("M5Stack initializing...");
   }
 
+  // TF Card
+  if (SDEnable == true) {
+    #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
+      log_d("Enabling SD from TFCARD_CS_PIN");
+      M5STACK_SD.begin(TFCARD_CS_PIN, SPI, 40000000);
+    #else
+      log_d("Enabling SD_MMC");
+      M5STACK_SD.begin();
+    #endif
+  }
+
   // LCD INIT
   if (LCDEnable == true) {
     log_d("Enabling LCD");
@@ -68,17 +79,6 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
        ScreenShot.init( &Lcd, M5STACK_SD );
        ScreenShot.begin();
     }
-  }
-
-  // TF Card
-  if (SDEnable == true) {
-    #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
-      log_d("Enabling SD from TFCARD_CS_PIN");
-      M5STACK_SD.begin(TFCARD_CS_PIN, SPI, 40000000);
-    #else
-      log_d("Enabling SD_MMC");
-      M5STACK_SD.begin();
-    #endif
   }
 
   // TONE
