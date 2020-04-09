@@ -1354,10 +1354,26 @@ namespace lgfx
     }
 
 
-
     __attribute__ ((always_inline)) inline int_fast16_t drawString(const char *string, int32_t x, int32_t y)
     {
       return draw_string(string, x, y, _textdatum);
+    }
+
+    [[deprecated("use setTextDatum() and drawString()")]]
+    inline int_fast16_t drawCentreString(const char *string, int32_t x, int32_t y, uint8_t font) { return drawCenterString(string, x, y, font); }
+
+    [[deprecated("use setTextDatum() and drawString()")]]
+    inline int_fast16_t drawCenterString(const char *string, int32_t x, int32_t y, uint8_t font)
+    {
+      setTextFont(font);
+      return draw_string(string, x, y, textdatum_t::top_center);
+    }
+
+    [[deprecated("use setTextDatum() and drawString()")]]
+    int_fast16_t drawRightString( const char *string, int32_t x, int32_t y, uint8_t font)
+    {
+      setTextFont(font);
+      return draw_string(string, x, y, textdatum_t::top_right);
     }
 
     __attribute__ ((always_inline)) inline int_fast16_t drawString(const char *string, int32_t x, int32_t y, uint8_t font)
@@ -1446,6 +1462,18 @@ namespace lgfx
     template<typename T> void setTextColor(T c, T b) { if (hasPalette()) { _text_fore_rgb888 = c; _text_back_rgb888 = b; } else { _text_fore_rgb888 = convert_to_rgb888(c); _text_back_rgb888 = convert_to_rgb888(b); } }
 
     inline int_fast16_t drawChar(uint16_t uniCode, int32_t x, int32_t y) { _filled_x = 0; return (fpDrawChar)(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y); }
+
+    int_fast16_t drawChar(uint16_t uniCode, int32_t x, int32_t y, uint8_t font) {
+      if (font == _textfont) return drawChar(uniCode, x, y);
+      _filled_x = 0;
+      switch (pgm_read_byte( &fontdata[font].type)) {
+      default:
+      case font_type_t::ft_glcd:    return drawCharGLCD(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
+      case font_type_t::ft_bmp:     return drawCharBMP(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
+      case font_type_t::ft_rle:     return drawCharRLE(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
+      }
+    }
+
     template<typename T>
     inline int_fast16_t drawChar(int32_t x, int32_t y, uint16_t uniCode, T color, T bg, int_fast8_t size) { _filled_x = 0; return (fpDrawChar)(this, x, y, uniCode, convert_to_rgb888(color), convert_to_rgb888(bg), size, size); }
     template<typename T>

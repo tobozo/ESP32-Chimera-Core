@@ -57,16 +57,20 @@ namespace lgfx
   //  0:top    4:middle   8:bottom   16:baseline
   { top_left        =  0  // Top left (default)
   , top_center      =  1  // Top center
+  , top_centre      =  1  // Top center
   , top_right       =  2  // Top right
   , middle_left     =  4  // Middle left
   , middle_center   =  5  // Middle center
+  , middle_centre   =  5  // Middle center
   , middle_right    =  6  // Middle right
   , bottom_left     =  8  // Bottom left
   , bottom_center   =  9  // Bottom center
+  , bottom_centre   =  9  // Bottom center
   , bottom_right    = 10  // Bottom right
-  , baseline_left   = 16  // Left character baseline (Line the 'A' character would sit on)
-  , baseline_center = 17  // Centre character baseline
-  , baseline_right  = 18  // Right character baseline
+  , baseline_left   = 16  // Baseline left (Line the 'A' character would sit on)
+  , baseline_center = 17  // Baseline center
+  , baseline_centre = 17  // Baseline center
+  , baseline_right  = 18  // Baseline right
   };
 
   enum color_depth_t : uint8_t
