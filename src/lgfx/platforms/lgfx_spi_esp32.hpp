@@ -113,6 +113,7 @@ namespace lgfx
     void initBus(void)
     {
 #if defined (ARDUINO) // Arduino ESP32
+      _spi_handle = spiStartBus(_spi_port, SPI_CLK_EQU_SYSCLK, 0, 0);
 /*
       if (_spi_host == HSPI_HOST) {
         SPIClass spi = SPIClass(HSPI);
@@ -440,6 +441,8 @@ namespace lgfx
       *reg(SPI_PIN_REG(_spi_port))  = _pin_reg;
 
 #if defined (ARDUINO) // Arduino ESP32
+      spiSimpleTransaction(_spi_handle);
+
       if (_dma_channel) {
         _next_dma_reset = true;
 //      *reg(SPI_DMA_CONF_REG(_spi_port)) |= SPI_OUT_DATA_BURST_EN | SPI_INDSCR_BURST_EN | SPI_OUTDSCR_BURST_EN;
@@ -486,6 +489,7 @@ namespace lgfx
 
       *reg(SPI_USER_REG(_spi_port)) = _user_reg
                      | ((_spi_miso == -1) ? 0 : (SPI_USR_MISO | SPI_DOUTDIN)); // for other SPI device (SD)
+      spiEndTransaction(_spi_handle);
 #elif defined (CONFIG_IDF_TARGET_ESP32) // ESP-IDF
       if (_spi_handle) {
         spi_device_release_bus(_spi_handle);
@@ -1216,8 +1220,9 @@ namespace lgfx
 
 //    static bool _dma_chan_claimed;
 //    static volatile spi_dev_t *_hw;
-
-#if defined (CONFIG_IDF_TARGET_ESP32) // ESP-IDF
+#if defined ( ARDUINO )
+    static spi_t* _spi_handle;
+#elif defined (CONFIG_IDF_TARGET_ESP32) // ESP-IDF
     static spi_device_handle_t _spi_handle;
 #endif
   };
@@ -1230,7 +1235,9 @@ namespace lgfx
 //  template <class T> bool LGFX_SPI<T>::_dma_chan_claimed;
 //  template <class T> volatile spi_dev_t *LGFX_SPI<T>::_hw;
 
-#if defined (CONFIG_IDF_TARGET_ESP32) // ESP-IDF
+#if defined ( ARDUINO )
+  template <class T> spi_t* LGFX_SPI<T>::_spi_handle;
+#elif defined (CONFIG_IDF_TARGET_ESP32) // ESP-IDF
   template <class T> spi_device_handle_t LGFX_SPI<T>::_spi_handle;
 #endif
 

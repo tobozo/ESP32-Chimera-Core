@@ -11,7 +11,7 @@ namespace lgfx
     {
 // The ST7735 is available in two resolutions, 132x162 and 128x160, depending on the mode select pin status.
       panel_width  = memory_width  = 132;  // or 128
-      panel_height = memory_height = 162;  // or 160
+      panel_height = memory_height = 162;  // or 160 or 132
 
       freq_write = 27000000;
       freq_read  = 16000000;
@@ -200,13 +200,13 @@ namespace lgfx
     Panel_TTGO_TS(void) {
       panel_width  = 128;
       panel_height = 160;
-      offset_x     = 2;
-      offset_y     = 3;
+      offset_x  = 2;
+      offset_y  = 3;
       spi_3wire = true;
-      spi_cs = 16;
-      spi_dc = 17;
-      gpio_rst = 9;
-      gpio_bl  = 27;
+      spi_cs    = 16;
+      spi_dc    = 17;
+      gpio_rst  = 9;
+      gpio_bl   = 27;
       pwm_ch_bl = 7;
     }
   };
@@ -216,13 +216,15 @@ namespace lgfx
     Panel_LoLinD32(void) {
       panel_width  = 128;
       panel_height = 128;
-      offset_x     = 2;
-      offset_y     = 1;
+      memory_width  = 132;
+      memory_height = 132;
+      offset_x  = 2;
+      offset_y  = 1;
       spi_3wire = true;
-      spi_cs = 14;
-      spi_dc = 27;
-      gpio_rst = 33;
-      gpio_bl  = 32;
+      spi_cs    = 14;
+      spi_dc    = 27;
+      gpio_rst  = 33;
+      gpio_bl   = 32;
       pwm_ch_bl = 7;
     }
   };
