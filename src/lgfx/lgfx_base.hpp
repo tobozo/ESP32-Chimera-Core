@@ -1466,15 +1466,25 @@ namespace lgfx
 
       return (uint16_t)c; // fall-back to extended ASCII
     }
-/*
-    inline int16_t drawChar(uint16_t uniCode, int32_t x, int32_t y) { return drawChar(uniCode, x, y, _textfont); }
-    inline int16_t drawChar(uint16_t uniCode, int32_t x, int32_t y, uint8_t font)
-    {
-      return drawChar(x, y, uniCode, _textcolor, _textbgcolor, _textsize_x, _textsize_y, font);
+
+    template<typename T>
+    void setTextColor(T color) {
+      if (hasPalette()) {
+        _text_fore_rgb888 = _text_back_rgb888 = color;
+      } else {
+        _text_fore_rgb888 = _text_back_rgb888 = convert_to_rgb888(color);
+      }
     }
-*/
-    template<typename T> void setTextColor(T c)      { if (hasPalette()) { _text_fore_rgb888 =    _text_back_rgb888 = c; } else { _text_fore_rgb888 = _text_back_rgb888 = convert_to_rgb888(c); } }
-    template<typename T> void setTextColor(T c, T b) { if (hasPalette()) { _text_fore_rgb888 = c; _text_back_rgb888 = b; } else { _text_fore_rgb888 = convert_to_rgb888(c); _text_back_rgb888 = convert_to_rgb888(b); } }
+    template<typename T1, typename T2>
+    void setTextColor(T1 fgcolor, T2 bgcolor) {
+      if (hasPalette()) {
+        _text_fore_rgb888 = fgcolor;
+        _text_back_rgb888 = bgcolor;
+      } else {
+        _text_fore_rgb888 = convert_to_rgb888(fgcolor);
+        _text_back_rgb888 = convert_to_rgb888(bgcolor);
+      }
+    }
 
     inline int_fast16_t drawChar(uint16_t uniCode, int32_t x, int32_t y) { _filled_x = 0; return (fpDrawChar)(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y); }
 
@@ -1483,9 +1493,9 @@ namespace lgfx
       _filled_x = 0;
       switch (pgm_read_byte( &fontdata[font].type)) {
       default:
-      case font_type_t::ft_glcd:    return drawCharGLCD(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
-      case font_type_t::ft_bmp:     return drawCharBMP(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
-      case font_type_t::ft_rle:     return drawCharRLE(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
+      case font_type_t::ft_glcd: return drawCharGLCD(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
+      case font_type_t::ft_bmp:  return drawCharBMP(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
+      case font_type_t::ft_rle:  return drawCharRLE(this, x, y, uniCode, _text_fore_rgb888, _text_back_rgb888, _textsize_x, _textsize_y);
       }
     }
 
