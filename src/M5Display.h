@@ -215,13 +215,13 @@ typedef lgfx::bgr888_t RGBColor;
 #define TFT_TRANSPARENT 0x0120
 
 
-  class TFT_eSPI : public lgfx::LGFX_SPI<lgfx::LGFX_Config>
+  class LGFX : public lgfx::LGFX_SPI<lgfx::LGFX_Config>
   {
   public:
-    TFT_eSPI(void)
+    LGFX(void)
     {
       static lgfx::Panel_default panel;
-ESP_LOGI("M5Display", "TFT_eSPI construct");
+ESP_LOGI("M5Display", "LGFX construct");
       setPanel(&panel);
     }
 
@@ -237,19 +237,20 @@ ESP_LOGI("M5Display", "TFT_eSPI construct");
 
   };
 
+  typedef LGFX TFT_eSPI;
 
   class TFT_eSprite : public lgfx::LGFX_Sprite {
   public:
     TFT_eSprite() : LGFX_Sprite() {}
     TFT_eSprite(LovyanGFX* parent) : LGFX_Sprite(parent) {}
 
-    void* frameBuffer(uint8_t dummy) { return buffer(); }
+    void* frameBuffer(uint8_t dummy) { return getBuffer(); }
   };
 
 
   __attribute__((unused)) static TFT_eSprite *jpegSprite = nullptr;
 
-  class M5Display : public TFT_eSPI {
+  class M5Display : public LGFX {
     public:
       M5Display();
 //      void begin();

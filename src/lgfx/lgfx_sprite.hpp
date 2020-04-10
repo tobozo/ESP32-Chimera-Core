@@ -67,7 +67,6 @@ namespace lgfx
     }
 
     __attribute__ ((always_inline)) inline void* getBuffer(void) const { return _img; }
-    __attribute__ ((always_inline)) inline void* buffer(void) const { return _img; }
     uint32_t bufferLength(void) const { return _bitwidth * _height * _write_conv.bits >> 3; }
 
     LGFX_Sprite()

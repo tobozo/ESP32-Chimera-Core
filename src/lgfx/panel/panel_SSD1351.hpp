@@ -12,9 +12,9 @@ namespace lgfx
       panel_width  = memory_width  = 128;
       panel_height = memory_height = 128;
 
-      freq_write = 24000000;
+      freq_write = 20000000;
       freq_read  = 17000000;
-      freq_fill  = 24000000;
+      freq_fill  = 20000000;
 
       read_depth = rgb666_3Byte;
       len_dummy_read_pixel = 8;
@@ -42,14 +42,11 @@ namespace lgfx
 
     const uint8_t* getRotationCommands(uint8_t* buf, int_fast8_t r) override
     {
-      PanelCommon::getRotationCommands(buf, r);
+      rotation = r & 7;
       buf[0] = CommandCommon::MADCTL;
       buf[1] = 1;
       buf[2] = getMadCtl(rotation, write_depth);
-      buf[3] = CommandCommon::STARTLINE;
-      buf[4] = 1;
-      buf[5] = (rotation < 2) ? memory_height : 0;
-      buf[6] = buf[7] = 0xFF;
+      buf[3] = buf[4] = 0xFF;
       return buf;
     }
 
@@ -103,6 +100,7 @@ namespace lgfx
           0xB1                  , 1, 0x32,  // PRECHARGE
 
           0xBE                  , 1, 0x05,  // VCOMH
+          CommandCommon::STARTLINE,1,0x00,
           CommandCommon::INVOFF , 0,
           0xC1                  , 3, 0xC8, 0x80, 0xC8, // CONTRASTABC
           0xC7                  , 1, 0x0F,  // CONTRASTMASTER
@@ -127,9 +125,9 @@ namespace lgfx
         0b00100110,
         0b00100101,
         0b00100100,
-        0b00100111,
-        0b00110110,
         0b00110101,
+        0b00110110,
+        0b00100111,
       };
       r = (((r + offset_rotation) & 3) | (r & 4));
       if (r & 1) {
