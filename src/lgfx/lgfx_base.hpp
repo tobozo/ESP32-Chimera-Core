@@ -1359,7 +1359,7 @@ namespace lgfx
     inline int_fast16_t drawString(const String& string, int32_t x, int32_t y) { return draw_string(string.c_str(), x, y, _textdatum); }
 
     [[deprecated("use setTextDatum() and drawString()")]]
-    inline int_fast16_t drawCentreString(const String& string, int32_t x, int32_t y, uint8_t font) { return drawCenterString(string.c_str(), x, y, font); }
+    inline int_fast16_t drawCentreString(const String& string, int32_t x, int32_t y, uint8_t font) { setTextFont(font); return draw_string(string.c_str(), x, y, textdatum_t::top_center); }
 
     [[deprecated("use setTextDatum() and drawString()")]]
     inline int_fast16_t drawCenterString(const String& string, int32_t x, int32_t y, uint8_t font) { setTextFont(font); return draw_string(string.c_str(), x, y, textdatum_t::top_center); }
@@ -1373,45 +1373,25 @@ namespace lgfx
     inline int_fast16_t drawString(const char *string, int32_t x, int32_t y) { return draw_string(string, x, y, _textdatum); }
 
     [[deprecated("use setTextDatum() and drawString()")]]
-    inline int_fast16_t drawCentreString(const char *string, int32_t x, int32_t y, uint8_t font) { return drawCenterString(string, x, y, font); }
+    inline int_fast16_t drawCentreString(const char *string, int32_t x, int32_t y, uint8_t font) { setTextFont(font); return draw_string(string, x, y, textdatum_t::top_center); }
 
     [[deprecated("use setTextDatum() and drawString()")]]
-    inline int_fast16_t drawCenterString(const char *string, int32_t x, int32_t y, uint8_t font)
-    {
-      setTextFont(font);
-      return draw_string(string, x, y, textdatum_t::top_center);
-    }
+    inline int_fast16_t drawCenterString(const char *string, int32_t x, int32_t y, uint8_t font) { setTextFont(font); return draw_string(string, x, y, textdatum_t::top_center); }
 
     [[deprecated("use setTextDatum() and drawString()")]]
-    inline int_fast16_t drawRightString( const char *string, int32_t x, int32_t y, uint8_t font)
-    {
-      setTextFont(font);
-      return draw_string(string, x, y, textdatum_t::top_right);
-    }
+    inline int_fast16_t drawRightString( const char *string, int32_t x, int32_t y, uint8_t font) { setTextFont(font); return draw_string(string, x, y, textdatum_t::top_right); }
 
-    inline int_fast16_t drawString(const char *string, int32_t x, int32_t y, uint8_t font)
-    {
-      setTextFont(font);
-      return draw_string(string, x, y, _textdatum);
-    }
+    inline int_fast16_t drawString(const char *string, int32_t x, int32_t y, uint8_t font) { setTextFont(font); return draw_string(string, x, y, _textdatum); }
 
-    inline int_fast16_t drawNumber(long long_num, int32_t poX, int32_t poY, uint8_t font)
-    {
-      setTextFont(font);
-      return drawNumber(long_num, poX, poY);
-    }
+    inline int_fast16_t drawNumber(long long_num, int32_t poX, int32_t poY, uint8_t font) { setTextFont(font); return drawNumber(long_num, poX, poY); }
+
+    inline int_fast16_t drawFloat(float floatNumber, uint8_t dp, int32_t poX, int32_t poY, uint8_t font) { setTextFont(font); return drawFloat(floatNumber, dp, poX, poY); }
 
     int_fast16_t drawNumber(long long_num, int32_t poX, int32_t poY)
     {
       constexpr size_t len = 8 * sizeof(long) + 1;
       char buf[len];
       return drawString(numberToStr(long_num, buf, len, 10), poX, poY);
-    }
-
-    inline int_fast16_t drawFloat(float floatNumber, uint8_t dp, int32_t poX, int32_t poY, uint8_t font)
-    {
-      setTextFont(font);
-      return drawFloat(floatNumber, dp, poX, poY);
     }
 
     int_fast16_t drawFloat(float floatNumber, uint8_t dp, int32_t poX, int32_t poY)

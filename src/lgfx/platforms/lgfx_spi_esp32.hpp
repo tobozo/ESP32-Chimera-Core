@@ -46,7 +46,7 @@ Author
 #if defined (ARDUINO) // Arduino ESP32
  #include <SPI.h>
 #else
- #include <driver/spi_common_internal.h>
+ #include <driver/spi_common.h>
 #endif
 
 #include "esp32_common.hpp"
@@ -95,20 +95,62 @@ namespace lgfx
     }
 
     void setPanel(PanelCommon* panel) { _panel = panel; postSetPanel(); }
-    PanelCommon* getPanel(void) const { return _panel; }
+
+    __attribute__ ((always_inline)) inline PanelCommon* getPanel(void) const { return _panel; }
+
+    __attribute__ ((always_inline)) inline int_fast8_t getRotation(void) const { return _panel->rotation; }
+
+    __attribute__ ((always_inline)) inline bool getInvert(void) const { return _panel->invert; }
+
+    __attribute__ ((always_inline)) inline void dmaWait(void) const { wait_spi(); }
 
     __attribute__ ((always_inline)) inline void begin(void) { init(); }
+
     void init(void) { initBus(); initPanel(); }
 
-
     // Write single byte as COMMAND
-    void writeCommand(uint_fast8_t cmd) { write_cmd(cmd); }
-
-    // Write single byte as DATA
-    void spiWrite(uint_fast8_t data)       { write_data(data, 8); }
+    void writeCommand(uint_fast8_t cmd) { startWrite(); write_cmd(cmd); endWrite(); } // AdafruitGFX compatible
+    void writecommand(uint_fast8_t cmd) { startWrite(); write_cmd(cmd); endWrite(); } // TFT_eSPI compatible
 
     // Write multi bytes as DATA (max 4byte)
-    void writeData(uint32_t data, uint32_t len = 1) { write_data(data, len << 3); }
+    void spiWrite(uint32_t data, uint32_t len = 1)  { startWrite(); write_data(data, len << 3); endWrite(); } // AdafruitGFX compatible
+    void writedata(uint32_t data, uint32_t len = 1) { startWrite(); write_data(data, len << 3); endWrite(); } // TFT_eSPI compatible
+
+    uint8_t  readcommand8( uint_fast8_t commandByte, uint_fast8_t index) { return read_command(commandByte, index << 3, 8); }
+    uint16_t readcommand16(uint_fast8_t commandByte, uint_fast8_t index) { return __builtin_bswap16(read_command(commandByte, index << 3, 16)); }
+    uint32_t readcommand32(uint_fast8_t commandByte, uint_fast8_t index) { return __builtin_bswap32(read_command(commandByte, index << 3, 32)); }
+
+    void setColorDepth(uint8_t bpp) { setColorDepth((color_depth_t)bpp); }
+
+    void sleep()  { writeCommand(_panel->getCmdSlpin()); }
+
+    void wakeup() { writeCommand(_panel->getCmdSlpout()); }
+
+    void setColorDepth(color_depth_t depth)
+    {
+      commandList(_panel->getColorDepthCommands((uint8_t*)_regbuf, depth));
+      postSetColorDepth();
+    }
+
+    void setRotation(int_fast8_t r)
+    {
+      commandList(_panel->getRotationCommands((uint8_t*)_regbuf, r));
+      postSetRotation();
+    }
+
+    void invertDisplay(bool i)
+    {
+      commandList(_panel->getInvertDisplayCommands((uint8_t*)_regbuf, i));
+    }
+
+    void setBrightness(uint8_t brightness) {
+      _panel->setBrightness(brightness);
+    }
+
+    uint32_t readPanelID(void)
+    {
+      return read_command(_panel->getCmdRddid(), _panel->len_dummy_read_rddid, 32);
+    }
 
     void initBus(void)
     {
@@ -256,80 +298,6 @@ namespace lgfx
       _sw = _width;
       _sh = _height;
     }
-
-    __attribute__ ((always_inline)) inline void setColorDepth(uint8_t bpp) { setColorDepth((color_depth_t)bpp); }
-    void setColorDepth(color_depth_t depth)
-    {
-      commandList(_panel->getColorDepthCommands((uint8_t*)_regbuf, depth));
-      postSetColorDepth();
-    }
-
-
-    __attribute__ ((always_inline))
-    inline int_fast8_t getRotation(void) const { return _panel->rotation; }
-
-    void setRotation(int_fast8_t r)
-    {
-      commandList(_panel->getRotationCommands((uint8_t*)_regbuf, r));
-      postSetRotation();
-    }
-
-    __attribute__ ((always_inline)) inline
-    bool getInvert(void) const { return _panel->invert; }
-
-    void invertDisplay(bool i)
-    {
-      commandList(_panel->getInvertDisplayCommands((uint8_t*)_regbuf, i));
-    }
-
-    void dmaWait(void) {
-      wait_spi();
-    }
-
-    void setBrightness(uint8_t brightness) {
-      _panel->setBrightness(brightness);
-    }
-
-    void sleep() {
-      startWrite();
-      write_cmd(_panel->getCmdSlpin());
-      endWrite();
-    }
-
-    void wakeup() {
-      startWrite();
-      write_cmd(_panel->getCmdSlpout());
-      endWrite();
-    }
-
-    uint32_t readPanelID(void)
-    {
-      startWrite();
-      //write_cmd(0xD9);
-      //write_data(0x10, 8);
-      write_cmd(_panel->getCmdRddid());
-      start_read();
-      if (_panel->len_dummy_read_rddid) read_data(_panel->len_dummy_read_rddid);
-      uint32_t res = read_data(32);
-      end_read();
-      endWrite();
-      return res;
-    }
-//*
-    uint32_t readPanelIDSub(uint8_t cmd)
-    {
-      startWrite();
-      //write_cmd(0xD9);
-      //write_data(0x10, 8);
-      write_cmd(cmd);
-      start_read();
-      if (_panel->len_dummy_read_rddid) read_data(_panel->len_dummy_read_rddid);
-      uint32_t res = read_data(32);
-      end_read();
-      endWrite();
-      return res;
-    }
-//*/
 
     void setupOffscreenDMA(uint8_t** data, int32_t w, int32_t h, bool endless)
     {
@@ -569,12 +537,12 @@ namespace lgfx
       }
 
       length *= _write_conv.bits;          // convert to bitlength.
-      uint32_t len = std::min(96, length); // 1st send length = max (96bit) 12Byte. 
+      uint32_t len = std::min(96, length); // 1st send length = max 12Byte (96bit). 
       auto spi_w0_reg = reg(SPI_W0_REG(_spi_port));
       dc_h();
       if (fillclock) {
         _fill_mode = true;
-        set_clock_fill();
+        set_clock_fill();  // fillmode clockup
       }
       set_write_len(len);
 
@@ -723,6 +691,18 @@ namespace lgfx
       wait_spi();
       return *reg(SPI_W0_REG(_spi_port));
 
+    }
+
+    uint32_t read_command(uint_fast8_t command, uint32_t bitindex = 0, uint32_t bitlen = 8)
+    {
+      startWrite();
+      write_cmd(command);
+      start_read();
+      if (bitindex) read_data(bitindex);
+      uint32_t res = read_data(bitlen);
+      end_read();
+      endWrite();
+      return res;
     }
 
     void pushImage_impl(int32_t x, int32_t y, int32_t w, int32_t h, pixelcopy_t* param, bool use_dma) override
@@ -903,7 +883,7 @@ namespace lgfx
     {
       set_window(x, y, x + w - 1, y + h - 1);
       write_cmd(_panel->getCmdRamrd());
-      auto len_dummy_read_pixel = _panel->len_dummy_read_pixel;
+      uint32_t len_dummy_read_pixel = _panel->len_dummy_read_pixel;
       start_read();
       if (len_dummy_read_pixel) {;
         set_read_len(len_dummy_read_pixel);

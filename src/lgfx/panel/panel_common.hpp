@@ -39,9 +39,9 @@ namespace lgfx
     color_depth_t write_depth = rgb565_2Byte;
     color_depth_t read_depth  = rgb888_3Byte;
 
-    uint_fast8_t len_setwindow = 32;
-    uint_fast8_t len_dummy_read_pixel = 8;
-    uint_fast8_t len_dummy_read_rddid = 1;
+    uint8_t len_setwindow = 32;
+    uint8_t len_dummy_read_pixel = 8;
+    uint8_t len_dummy_read_rddid = 1;
 
 
     virtual void init(void) {
