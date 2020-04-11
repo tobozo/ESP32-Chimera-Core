@@ -156,6 +156,7 @@ void M5Stack::sd_begin(void)
   #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
     log_d("Enabling SD from TFCARD_CS_PIN");
 
+    spi.end();
     spi.begin(TFCARD_CLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, -1);
     M5STACK_SD.begin(TFCARD_CS_PIN, spi, 20000000);
 
@@ -163,9 +164,9 @@ void M5Stack::sd_begin(void)
       Lcd.setSPIShared(false);
     }
   #else
-    Lcd.setSPIShared(false);
     log_d("Enabling SD_MMC");
     M5STACK_SD.begin();
+    Lcd.setSPIShared(false);
   #endif
 }
 
