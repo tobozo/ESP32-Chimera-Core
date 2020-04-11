@@ -43,13 +43,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   // TF Card
   if (SDEnable == true) {
-    #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
-      log_d("Enabling SD from TFCARD_CS_PIN");
-      M5STACK_SD.begin(TFCARD_CS_PIN, SPI, 40000000);
-    #else
-      log_d("Enabling SD_MMC");
-      M5STACK_SD.begin();
-    #endif
+    sd_begin();
   }
 
   // LCD INIT
@@ -151,6 +145,33 @@ void M5Stack::setWakeupButton(uint8_t button) {
   */
 void M5Stack::powerOFF() {
   M5.Power.deepSleep();
+}
+
+#if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
+static SPIClass spi ( TFCARD_SPI );
+#endif
+
+void M5Stack::sd_begin(void)
+{
+  #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
+    log_d("Enabling SD from TFCARD_CS_PIN");
+
+    spi.begin(TFCARD_CLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, -1);
+    M5STACK_SD.begin(TFCARD_CS_PIN, spi, 20000000);
+
+    if ( TFCARD_SPI == HSPI ) {
+      Lcd.setSPIShared(false);
+    }
+  #else
+    Lcd.setSPIShared(false);
+    log_d("Enabling SD_MMC");
+    M5STACK_SD.begin();
+  #endif
+}
+
+void M5Stack::sd_end(void)
+{
+  M5STACK_SD.end();
 }
 
 M5Stack M5;

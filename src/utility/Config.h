@@ -34,13 +34,27 @@
   #define TFT_DC_PIN   23
   #define TFT_RST_PIN  32
   #define TFT_MOSI_PIN 26
-  #define TFT_SCLK_PIN 27
+  #define TFT_CLK_PIN 27
   #define NEOPIXEL_PIN 25    // Digital IO pin connected to the NeoPixels.
   #define SPEAKER_PIN  33
   #define SD_ENABLE     0
   #define BUTTON_A_PIN  5
   #define BUTTON_B_PIN 18
   #define BUTTON_C_PIN 19
+
+#elif defined(ARDUINO_T) // TTGO T-Watch
+
+  #define TFCARD_CS_PIN 13
+  #define TFCARD_MOSI_PIN 15
+  #define TFCARD_MISO_PIN 2
+  #define TFCARD_CLK_PIN 14
+  #define TFCARD_SPI HSPI
+
+  #define SPEAKER_PIN  -1
+  #define SD_ENABLE     1
+  #define BUTTON_A_PIN  36
+  #define BUTTON_B_PIN  -1
+  #define BUTTON_C_PIN  -1
 
 #elif defined(ARDUINO_TTGO_T1)
 
@@ -127,5 +141,19 @@
 
 // UART
 #define USE_SERIAL Serial
+
+
+#if !defined(TFCARD_MOSI_PIN)
+  #define TFCARD_MOSI_PIN TFT_MOSI_PIN
+#endif
+#if !defined(TFCARD_MISO_PIN)
+  #define TFCARD_MISO_PIN TFT_MISO_PIN
+#endif
+#if !defined(TFCARD_CLK_PIN)
+  #define TFCARD_CLK_PIN TFT_CLK_PIN
+#endif
+#if !defined(TFCARD_SPI)
+  #define TFCARD_SPI VSPI
+#endif
 
 #endif // _CONFIG_H_

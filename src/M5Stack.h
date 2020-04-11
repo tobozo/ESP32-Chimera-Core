@@ -137,6 +137,9 @@
         void begin(bool LCDEnable = true, bool SDEnable = SD_ENABLE, bool SerialEnable = true, bool I2CEnable = false, bool ScreenShotEnable = false);
         void update();
 
+        void sd_begin(void);
+        void sd_end(void);
+
         // Button API
         #define DEBOUNCE_MS 10
         Button BtnA = Button(BUTTON_A_PIN, true, DEBOUNCE_MS);

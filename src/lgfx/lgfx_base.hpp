@@ -173,7 +173,7 @@ namespace lgfx
     __attribute__ ((always_inline)) inline uint8_t getTextFont  (void) const { return _textfont; }
     __attribute__ ((always_inline)) inline color_depth_t getColorDepth(void) const { return _write_conv.depth; }
     __attribute__ ((always_inline)) inline bool hasPalette    (void) const { return _palette_count; }
-    __attribute__ ((always_inline)) inline bool hasTransaction(void) const { return _has_transaction; }
+    __attribute__ ((always_inline)) inline bool isSPIShared(void) const { return _spi_shared; }
     __attribute__ ((always_inline)) inline bool getSwapBytes    (void) const { return _swapBytes; }
     __attribute__ ((always_inline)) inline void setSwapBytes(bool swap) { _swapBytes = swap; }
 
@@ -181,6 +181,8 @@ namespace lgfx
     __attribute__ ((always_inline)) inline void endTransaction(void)   { endTransaction_impl(); }
     __attribute__ ((always_inline)) inline void waitDMA(void)  { waitDMA_impl(); }
     __attribute__ ((always_inline)) inline void setWindow(int32_t xs, int32_t ys, int32_t xe, int32_t ye) { setWindow_impl(xs, ys, xe, ye); }
+
+    void setSPIShared(bool shared) { _spi_shared = shared; }
 
     void setAddrWindow(int32_t x, int32_t y, int32_t w, int32_t h)
     {
@@ -1560,7 +1562,7 @@ namespace lgfx
     textdatum_t _textdatum;
     int16_t _padding_x = 0;
 
-    bool _has_transaction = true;
+    bool _spi_shared = true;
     bool _swapBytes = false;
     bool _textwrapX = true;
     bool _textwrapY = false;
@@ -2215,7 +2217,7 @@ namespace lgfx
       unloadFont();
 
       _fontData = &_fontFile;
-      _fontFile.need_transaction &= this->hasTransaction();
+      _fontFile.need_transaction &= this->isSPIShared();
 
       if (_fontFile.need_transaction && this->_transaction_count) this->endTransaction();
 
@@ -2579,7 +2581,7 @@ namespace lgfx
       FileWrapper file;
       file.setFS(fs);
 
-      file.need_transaction &= this->_has_transaction;
+      file.need_transaction &= this->isSPIShared();
       if (file.need_transaction) this->endTransaction();
       if (file.open(path, "rb")) {
         res = drawJpg(&file, x, y, maxWidth, maxHeight, offX, offY, scale);
@@ -2594,7 +2596,7 @@ namespace lgfx
       bool res;
       FileWrapper file;
       file.setFS(fs);
-      file.need_transaction &= this->_has_transaction;
+      file.need_transaction &= this->isSPIShared();
       if (file.need_transaction) this->endTransaction();
       if (file.open(path, "rb")) {
         res = draw_png(&file, x, y, maxWidth, maxHeight, offX, offY, scale);
@@ -2631,7 +2633,7 @@ namespace lgfx
     bool drawJpgFile(const char *path, int32_t x=0, int32_t y=0, int32_t maxWidth=0, int32_t maxHeight=0, int32_t offX=0, int32_t offY=0, jpeg_div_t scale=JPEG_DIV_NONE) {
       bool res;
       FileWrapper file;
-      file.need_transaction &= this->_has_transaction;
+      file.need_transaction &= this->isSPIShared();
       if (file.need_transaction) this->endTransaction();
       if (file.open(path, "rb")) {
         res = drawJpg(&file, x, y, maxWidth, maxHeight, offX, offY, scale);
@@ -2644,7 +2646,7 @@ namespace lgfx
     {
       bool res;
       FileWrapper file;
-      file.need_transaction &= this->_has_transaction;
+      file.need_transaction &= this->isSPIShared();
       if (file.need_transaction) this->endTransaction();
       if (file.open(path, "rb")) {
         res = draw_png(&file, x, y, maxWidth, maxHeight, offX, offY, scale);
@@ -2796,7 +2798,7 @@ namespace lgfx
   private:
 
     void drawBmpFile(FileWrapper* file, const char *path, int32_t x=0, int32_t y=0) {
-      file->need_transaction &= this->_has_transaction;
+      file->need_transaction &= this->isSPIShared();
       if (file->need_transaction) this->endTransaction();
       if (file->open(path, "rb")) {
         draw_bmp(file, x, y);

@@ -62,7 +62,7 @@ namespace lgfx
     , _index(0)
     {
       _read_conv = _write_conv;
-      _has_transaction = false;
+      _spi_shared = false;
       _transaction_count = 0xFFFF;
     }
 
