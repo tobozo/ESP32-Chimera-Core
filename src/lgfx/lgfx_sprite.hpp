@@ -1,39 +1,21 @@
-/*
-MIT License
-
-Copyright (c) 2020 lovyan03
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
 /*----------------------------------------------------------------------------/
   Lovyan GFX library - ESP32 hardware SPI graphics library .  
   
     for Arduino and ESP-IDF  
   
-Original Source  
+Original Source:  
  https://github.com/lovyan03/LovyanGFX/  
 
-Licence  
- [MIT](https://github.com/lovyan03/LovyanGFX/blob/master/LICENSE)  
+Licence:  
+ [BSD and MIT mixed](https://github.com/lovyan03/LovyanGFX/blob/master/license.txt)  
 
-Author  
+Author:  
  [lovyan03](https://twitter.com/lovyan03)  
+
+Contributors:  
+ [ciniml](https://github.com/ciniml)  
+ [mongonta0716](https://github.com/mongonta0716)  
+ [tobozo](https://github.com/tobozo)  
 /----------------------------------------------------------------------------*/
 #ifndef LGFX_SPRITE_HPP_
 #define LGFX_SPRITE_HPP_
@@ -421,12 +403,9 @@ namespace lgfx
       dst->push_image(x, y, _width, _height, &p, !_use_spiram); // DMA disable with use SPIRAM
     }
 
-    bool push_rotate_zoom(LovyanGFX* dst, int32_t x, int32_t y, float angle, float zoom_x, float zoom_y, uint32_t transp = ~0)
+    inline bool push_rotate_zoom(LovyanGFX* dst, int32_t x, int32_t y, float angle, float zoom_x, float zoom_y, uint32_t transp = ~0)
     {
-      if (_img == nullptr) return false;
-      pixelcopy_t p(_img, dst->getColorDepth(), getColorDepth(), dst->hasPalette(), _palette, transp);
-      dst->pushImageRotateZoom(x, y, _width, _height, _xpivot, _ypivot, angle, zoom_x, zoom_y, &p);
-      return true;
+      return dst->pushImageRotateZoom(x, y, _img, _xpivot, _ypivot, _width, _height, angle, zoom_x, zoom_y, transp, getColorDepth(), _palette);
     }
 
     void set_window(int32_t xs, int32_t ys, int32_t xe, int32_t ye)

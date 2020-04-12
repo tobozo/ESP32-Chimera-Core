@@ -1,39 +1,21 @@
-/*
-MIT License
-
-Copyright (c) 2020 lovyan03
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
 /*----------------------------------------------------------------------------/
   Lovyan GFX library - ESP32 hardware SPI graphics library .  
   
     for Arduino and ESP-IDF  
   
-Original Source  
+Original Source:  
  https://github.com/lovyan03/LovyanGFX/  
 
-Licence  
- [MIT](https://github.com/lovyan03/LovyanGFX/blob/master/LICENSE)  
+Licence:  
+ [BSD and MIT mixed](https://github.com/lovyan03/LovyanGFX/blob/master/license.txt)  
 
-Author  
+Author:  
  [lovyan03](https://twitter.com/lovyan03)  
+
+Contributors:  
+ [ciniml](https://github.com/ciniml)  
+ [mongonta0716](https://github.com/mongonta0716)  
+ [tobozo](https://github.com/tobozo)  
 /----------------------------------------------------------------------------*/
 #ifndef LGFX_BASE_HPP_
 #define LGFX_BASE_HPP_
@@ -172,6 +154,7 @@ namespace lgfx
     __attribute__ ((always_inline)) inline int32_t height       (void) const { return _height; }
     __attribute__ ((always_inline)) inline uint8_t getTextFont  (void) const { return _textfont; }
     __attribute__ ((always_inline)) inline color_depth_t getColorDepth(void) const { return _write_conv.depth; }
+    __attribute__ ((always_inline)) inline color_conv_t* getColorConverter(void) { return &_write_conv; }
     __attribute__ ((always_inline)) inline bool hasPalette    (void) const { return _palette_count; }
     __attribute__ ((always_inline)) inline bool isSPIShared(void) const { return _spi_shared; }
     __attribute__ ((always_inline)) inline bool getSwapBytes    (void) const { return _swapBytes; }
@@ -187,9 +170,10 @@ namespace lgfx
     void setAddrWindow(int32_t x, int32_t y, int32_t w, int32_t h)
     {
       if (_adjust_abs(x, w)||_adjust_abs(y, h)) return;
-      if (!_transaction_count) beginTransaction();
+      bool tr = !_transaction_count;
+      if (tr) beginTransaction();
       setWindow(x, y, x + w - 1, y + h - 1);
-      if (!_transaction_count) endTransaction();
+      if (tr) endTransaction();
     }
 
     void setClipRect(int32_t x, int32_t y, int32_t w, int32_t h) {
@@ -232,9 +216,10 @@ namespace lgfx
     void drawFastVLine(int32_t x, int32_t y, int32_t h)
     {
       _adjust_abs(y, h);
-      startWrite();
+      bool tr = !_transaction_count;
+      if (tr) beginTransaction();
       writeFastVLine(x, y, h);
-      endWrite();
+      if (tr) endTransaction();
     }
 
     void writeFastVLine(int32_t x, int32_t y, int32_t h)
@@ -252,9 +237,10 @@ namespace lgfx
     void drawFastHLine(int32_t x, int32_t y, int32_t w)
     {
       _adjust_abs(x, w);
-      startWrite();
+      bool tr = !_transaction_count;
+      if (tr) beginTransaction();
       writeFastHLine(x, y, w);
-      endWrite();
+      if (tr) endTransaction();
     }
 
     void writeFastHLine(int32_t x, int32_t y, int32_t w)
@@ -273,9 +259,10 @@ namespace lgfx
     {
       _adjust_abs(x, w);
       _adjust_abs(y, h);
-      startWrite();
+      bool tr = !_transaction_count;
+      if (tr) beginTransaction();
       writeFillRect(x, y, w, h);
-      endWrite();
+      if (tr) endTransaction();
     }
 
     void writeFillRect(int32_t x, int32_t y, int32_t w, int32_t h)
@@ -304,7 +291,8 @@ namespace lgfx
     void drawRect(int32_t x, int32_t y, int32_t w, int32_t h)
     {
       if (_adjust_abs(x, w)||_adjust_abs(y, h)) return;
-      startWrite();
+      bool tr = !_transaction_count;
+      if (tr) beginTransaction();
       writeFastHLine(x, y        , w);
       if (--h) {
         writeFastHLine(x, y + h    , w);
@@ -313,7 +301,7 @@ namespace lgfx
           writeFastVLine(x + w - 1,   y, h);
         }
       }
-      endWrite();
+      if (tr) endTransaction();
     }
 
     void drawCircle(int32_t x, int32_t y, int32_t r)
@@ -995,8 +983,8 @@ namespace lgfx
 
     template<typename T> void pushImageDMA( int32_t x, int32_t y, int32_t w, int32_t h, const T* data)                          { pixelcopy_t p(data, _write_conv.depth, T::depth, _palette_count, nullptr                                   ); push_image(x, y, w, h, &p, true); }
     template<typename T> void pushImageDMA( int32_t x, int32_t y, int32_t w, int32_t h, const T* data   , const T& transparent) { pixelcopy_t p(data, _write_conv.depth, T::depth, _palette_count, nullptr, _write_conv.convert(transparent)); push_image(x, y, w, h, &p, true); }
-    template<typename T> void pushImageDMA( int32_t x, int32_t y, int32_t w, int32_t h, const bgr888_t* data                      , const uint8_t bits, const T* palette) { pixelcopy_t p(data, _write_conv.depth, (color_depth_t)bits, _palette_count, palette              ); push_image(x, y, w, h, &p, true); }
-    template<typename T> void pushImageDMA( int32_t x, int32_t y, int32_t w, int32_t h, const bgr888_t* data, uint32_t transparent, const uint8_t bits, const T* palette) { pixelcopy_t p(data, _write_conv.depth, (color_depth_t)bits, _palette_count, palette, transparent ); push_image(x, y, w, h, &p, true); }
+    template<typename T> void pushImageDMA( int32_t x, int32_t y, int32_t w, int32_t h, const void* data                      , const uint8_t bits, const T* palette) { pixelcopy_t p(data, _write_conv.depth, (color_depth_t)bits, _palette_count, palette              ); push_image(x, y, w, h, &p, true); }
+    template<typename T> void pushImageDMA( int32_t x, int32_t y, int32_t w, int32_t h, const void* data, uint32_t transparent, const uint8_t bits, const T* palette) { pixelcopy_t p(data, _write_conv.depth, (color_depth_t)bits, _palette_count, palette, transparent ); push_image(x, y, w, h, &p, true); }
 
     void pushImageDMA(int32_t x, int32_t y, int32_t w, int32_t h, const uint16_t* data, uint32_t transp = ~0)
     {
@@ -1046,10 +1034,16 @@ namespace lgfx
       endWrite();
     }
 
-    void pushImageRotateZoom(int32_t dst_x, int32_t dst_y, int32_t w, int32_t h, int32_t src_x, int32_t src_y, float angle, float zoom_x, float zoom_y, pixelcopy_t *param)
-    {
-      if (zoom_x == 0.0 || zoom_y == 0.0) return;
+    bool pushImageRotateZoom(int32_t dst_x, int32_t dst_y, const void* data, int32_t src_x, int32_t src_y, int32_t w, int32_t h, float angle, float zoom_x, float zoom_y, uint32_t transparent, const uint8_t bits, const bgr888_t* palette) {
+      if (nullptr == data) return false;
+      if (zoom_x == 0.0 || zoom_y == 0.0) return true;
+      pixelcopy_t pc(data, getColorDepth(), (color_depth_t)bits, hasPalette(), palette, transparent );
+      push_image_rotate_zoom(dst_x, dst_y, src_x, src_y, w, h, angle, zoom_x, zoom_y, &pc);
+      return true;
+    }
 
+    void push_image_rotate_zoom(int32_t dst_x, int32_t dst_y, int32_t src_x, int32_t src_y, int32_t w, int32_t h, float angle, float zoom_x, float zoom_y, pixelcopy_t *param)
+    {
       angle *= - 0.0174532925; // Convert degrees to radians
       float sin_f = sin(angle) * (1 << FP_SCALE);
       float cos_f = cos(angle) * (1 << FP_SCALE);
@@ -1080,11 +1074,11 @@ namespace lgfx
 
       param->no_convert = false;
       if (param->src_bits < 8) {        // get bitwidth
-// if (bits==1) { shift=3 }
-// if (bits==2) { shift=2 }
-// if (bits==4) { shift=1 }
-        uint8_t shift = 3 & (~param->src_bits >> 1);
-        uint32_t x_mask = (1 << shift) - 1;
+//      uint32_t x_mask = (1 << (4 - __builtin_ffs(param->src_bits))) - 1;
+//      uint32_t x_mask = (1 << ((~(param->src_bits>>1)) & 3)) - 1;
+        uint32_t x_mask = (param->src_bits == 1) ? 7
+                        : (param->src_bits == 2) ? 3
+                                                 : 1;
         param->src_width = (w + x_mask) & (~x_mask);
       } else {
         param->src_width = w;

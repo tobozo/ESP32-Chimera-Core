@@ -1,39 +1,21 @@
-/*
-MIT License
-
-Copyright (c) 2020 lovyan03
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
 /*----------------------------------------------------------------------------/
   Lovyan GFX library - ESP32 hardware SPI graphics library .  
   
     for Arduino and ESP-IDF  
   
-Original Source  
+Original Source:  
  https://github.com/lovyan03/LovyanGFX/  
 
-Licence  
- [MIT](https://github.com/lovyan03/LovyanGFX/blob/master/LICENSE)  
+Licence:  
+ [BSD and MIT mixed](https://github.com/lovyan03/LovyanGFX/blob/master/license.txt)  
 
-Author  
+Author:  
  [lovyan03](https://twitter.com/lovyan03)  
+
+Contributors:  
+ [ciniml](https://github.com/ciniml)  
+ [mongonta0716](https://github.com/mongonta0716)  
+ [tobozo](https://github.com/tobozo)  
 /----------------------------------------------------------------------------*/
 #ifndef LGFX_SPI_ESP32_HPP_
 #define LGFX_SPI_ESP32_HPP_
@@ -325,6 +307,11 @@ namespace lgfx
       *reg(SPI_DMA_CONF_REG(_spi_port)) |= SPI_DMA_TX_STOP;
       periph_module_reset( PERIPH_SPI_DMA_MODULE );
     }
+
+    void pushPixelsDMA(const void* data, uint32_t length) {
+      write_bytes((const uint8_t*)data, length, true);
+    }
+
 
 //----------------------------------------------------------------------------
   protected:
@@ -711,8 +698,8 @@ namespace lgfx
       auto src_x = param->src_x;
       auto fp_copy = param->fp_copy;
 
+      int32_t xr = (x + w) - 1;
       if (param->transp == ~0) {
-        int32_t xr = ((h == 1) ? _width : (x + w)) - 1;
         if (param->no_convert) {
           setWindow_impl(x, y, xr, y + h - 1);
           uint32_t i = (src_x + param->src_y * param->src_width) * bytes;
@@ -768,7 +755,6 @@ namespace lgfx
           } while (--h);
         }
       } else {
-        int32_t xr = _width - 1;
         auto fp_skip = param->fp_skip;
         h += y;
         do {
@@ -776,7 +762,7 @@ namespace lgfx
           while (w != (i = fp_skip(i, w, param))) {
             auto buf = get_dmabuffer(w * bytes);
             int32_t len = fp_copy(buf, 0, w - i, param);
-            setWindow_impl(x + i, y, xr, y);
+            setWindow_impl(x + i, y, x + i + len - 1, y);
             write_bytes(buf, len * bytes, use_dma);
             if (w == (i += len)) break;
           }
