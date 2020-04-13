@@ -7,7 +7,7 @@ Original Source:
  https://github.com/lovyan03/LovyanGFX/  
 
 Licence:  
- [BSD and MIT mixed](https://github.com/lovyan03/LovyanGFX/blob/master/license.txt)  
+ [BSD](https://github.com/lovyan03/LovyanGFX/blob/master/license.txt)  
 
 Author:  
  [lovyan03](https://twitter.com/lovyan03)  
