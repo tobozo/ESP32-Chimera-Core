@@ -56,7 +56,7 @@ void loop() {
 // colour = 16 bit colour value
 // Note if rx and ry are the same then an arc of a circle is drawn
 
-int fillArc(int x, int y, int start_angle, int seg_count, int rx, int ry, int w, unsigned int colour)
+int fillArc(int x, int y, int start_angle, int seg_count, int rx, int ry, int w, uint16_t colour)
 {
 
   byte seg = 6; // Segments are 3 degrees wide = 120 segments for 360 degrees
@@ -111,7 +111,7 @@ unsigned int brightness(unsigned int colour, int brightness)
 // #########################################################################
 // Return a 16 bit rainbow colour
 // #########################################################################
-unsigned int rainbow(byte value)
+uint16_t rainbow(byte value)
 {
   // Value is expected to be in range 0-127
   // The value is converted to a spectrum colour from 0 = blue through to 127 = red

@@ -58,7 +58,7 @@ void loop()
   delay(2000);
 }
 
-unsigned int rainbow(int value)
+uint16_t rainbow(int value)
 {
   // Value is expected to be in range 0-127
   // The value is converted to a spectrum colour from 0 = blue through to red = blue

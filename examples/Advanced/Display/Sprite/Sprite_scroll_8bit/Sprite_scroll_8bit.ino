@@ -160,7 +160,7 @@ void numberBox(int num, int x, int y)
 // #########################################################################
 // Return a 16 bit rainbow colour
 // #########################################################################
-unsigned int rainbow(byte value)
+uint16_t rainbow(byte value)
 {
   // Value is expected to be in range 0-127
   // The value is converted to a spectrum colour from 0 = red through to 127 = blue

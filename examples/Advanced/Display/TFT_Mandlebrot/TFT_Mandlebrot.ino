@@ -4,8 +4,6 @@
 
 #include <M5Stack.h>
 
-#define ILI9341_GREY 0x7BEF
-
 unsigned long runTime = 0;
 
 float sx = 0, sy = 0;
@@ -21,7 +19,8 @@ void loop()
 {
   runTime = millis();
 
-  M5.Lcd.fillScreen(ILI9341_BLACK);
+  M5.Lcd.fillScreen(TFT_BLACK);
+  M5.Lcd.startWrite();
   for (int px = 1; px < 320; px++)
   {
     for (int py = 0; py < 240; py++)
@@ -39,14 +38,14 @@ void loop()
         xx = xtemp;
         iteration++;
       }
-      int color = rainbow((3*iteration+64)%128);
-      yield();M5.Lcd.drawPixel(px, py, color);
+      yield();M5.Lcd.drawPixel(px, py, rainbow((3*iteration+64)%128));
     }
   }
+  M5.Lcd.endWrite();
   while(1) yield();
 }
 
-unsigned int rainbow(int value)
+uint16_t rainbow(int value)
 {
   // Value is expected to be in range 0-127
   // The value is converted to a spectrum colour from 0 = blue through to red = blue

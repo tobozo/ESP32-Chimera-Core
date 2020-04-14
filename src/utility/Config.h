@@ -28,7 +28,7 @@
   #define BUTTON_B_PIN  -1
   #define BUTTON_C_PIN  -1  // BUTTON_MENU
 
-#elif defined(ARDUINO_DDUINO32_XS)
+#elif defined(ARDUINO_D) || defined(ARDUINO_DDUINO32_XS)
 
   #define TFT_LED_PIN  22
   #define TFT_DC_PIN   23
