@@ -120,7 +120,7 @@
         freq_write = 40000000;
         freq_read  = 20000000;
         freq_fill  = 80000000;
-        backlignt_level = false;
+        backlight_level = false;
       }
     };
     struct Panel_default2 : public lgfx::Panel_ST7789 {
@@ -134,7 +134,7 @@
         freq_write = 80000000;
         freq_read  = 20000000;
         freq_fill  = 80000000;
-        backlignt_level = false;
+        backlight_level = false;
       }
     };
 
@@ -223,15 +223,20 @@
     LGFX(void)
     {
       static lgfx::Panel_default panel;
-  ESP_LOGI("M5Display", "LGFX construct");
       setPanel(&panel);
     }
 
   #if defined( ARDUINO_ESP32_DEV ) // ESP-WROVER-KIT
     void initPanel(void) override {
+      if (!_panel) return;
+      _panel->init();
+
       if (readPanelID() > 0) {  // check panel (ILI9341 or ST7789)
+        ESP_LOGI("M5Display", "[Autodetect] Using Panel_ST7789");
         static lgfx::Panel_default2 panel;
         setPanel(&panel);
+      } else {
+        ESP_LOGI("M5Display", "[Autodetect] Using Panel_ILI9341");
       }
       lgfx::LGFX_SPI<lgfx::LGFX_Config>::initPanel();
     }
