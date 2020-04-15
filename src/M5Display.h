@@ -123,20 +123,6 @@
         backlight_level = false;
       }
     };
-    struct Panel_default2 : public lgfx::Panel_ST7789 {
-      Panel_default2(void) {
-        spi_3wire = false;
-        spi_cs   = 22;
-        spi_dc   = 21;
-        gpio_rst = 18;
-        gpio_bl  = 5;
-        pwm_ch_bl = 7;
-        freq_write = 80000000;
-        freq_read  = 20000000;
-        freq_fill  = 80000000;
-        backlight_level = false;
-      }
-    };
 
     struct LGFX_Config {
       static constexpr spi_host_device_t spi_host = VSPI_HOST;
@@ -233,7 +219,21 @@
 
       if (readPanelID() > 0) {  // check panel (ILI9341 or ST7789)
         ESP_LOGI("M5Display", "[Autodetect] Using Panel_ST7789");
-        static lgfx::Panel_default2 panel;
+
+        static lgfx::Panel_ST7789 panel;
+        panel.spi_3wire = false;
+        panel.spi_cs   = 22;
+        panel.spi_dc   = 21;
+        panel.gpio_rst = 18;
+        panel.gpio_bl  = 5;
+        panel.pwm_ch_bl = 7;
+        panel.freq_write = 80000000;
+        panel.freq_read  = 16000000;
+        panel.freq_fill  = 80000000;
+        panel.backlight_level = false;
+        panel.spi_mode_read = 1;
+        panel.len_dummy_read_pixel = 16;
+
         setPanel(&panel);
       } else {
         ESP_LOGI("M5Display", "[Autodetect] Using Panel_ILI9341");
