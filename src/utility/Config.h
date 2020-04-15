@@ -45,10 +45,6 @@
 #elif defined(ARDUINO_T) // TTGO T-Watch
 
   #define TFCARD_CS_PIN 13
-  #define TFCARD_MOSI_PIN 15
-  #define TFCARD_MISO_PIN 2
-  #define TFCARD_CLK_PIN 14
-  #define TFCARD_SPI HSPI
 
   #define SPEAKER_PIN  -1
   #define SD_ENABLE     1
@@ -143,17 +139,8 @@
 #define USE_SERIAL Serial
 
 
-#if !defined(TFCARD_MOSI_PIN)
-  #define TFCARD_MOSI_PIN TFT_MOSI_PIN
-#endif
-#if !defined(TFCARD_MISO_PIN)
-  #define TFCARD_MISO_PIN TFT_MISO_PIN
-#endif
-#if !defined(TFCARD_CLK_PIN)
-  #define TFCARD_CLK_PIN TFT_CLK_PIN
-#endif
-#if !defined(TFCARD_SPI)
-  #define TFCARD_SPI VSPI
+#if !defined(TFCARD_CS_PIN)
+ #define TFCARD_CS_PIN SS
 #endif
 
 #endif // _CONFIG_H_

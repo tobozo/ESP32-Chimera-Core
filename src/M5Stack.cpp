@@ -147,20 +147,18 @@ void M5Stack::powerOFF() {
   M5.Power.deepSleep();
 }
 
-#if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
-static SPIClass spi ( TFCARD_SPI );
-#endif
-
 void M5Stack::sd_begin(void)
 {
   #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
+
     log_d("Enabling SD from TFCARD_CS_PIN");
 
-    spi.end();
-    spi.begin(TFCARD_CLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, -1);
-    M5STACK_SD.begin(TFCARD_CS_PIN, spi, 20000000);
+    M5STACK_SD.end();
+    SPI.end();
+    SPI.begin();
+    M5STACK_SD.begin(TFCARD_CS_PIN, SPI, 20000000);
 
-    if ( TFCARD_SPI == HSPI ) {
+    if ( lgfx::LGFX_Config::spi_host == HSPI_HOST ) {
       Lcd.setSPIShared(false);
     }
   #else

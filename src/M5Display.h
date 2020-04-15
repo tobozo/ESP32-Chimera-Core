@@ -76,7 +76,7 @@
 
     typedef Panel_TTGO_TWatch Panel_default;
     struct LGFX_Config {
-      static constexpr spi_host_device_t spi_host = VSPI_HOST;
+      static constexpr spi_host_device_t spi_host = HSPI_HOST;
       static constexpr int dma_channel = 1;
       static constexpr int spi_mosi = 19;
       static constexpr int spi_miso = -1;
@@ -146,7 +146,7 @@
       static constexpr int spi_sclk = 19;
     };
 
-  #elif defined (ESP32) || (CONFIG_IDF_TARGET_ESP32) // ESP-IDF ( or other panel )
+  #elif defined( ESP32 ) || ( CONFIG_IDF_TARGET_ESP32 ) // ESP-IDF ( or other panel )
 
     typedef Panel_M5Stack Panel_default;
 
