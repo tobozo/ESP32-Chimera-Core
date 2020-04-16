@@ -7,7 +7,7 @@
   #include <SD.h>
 
   #include "lgfx/lgfx_common.hpp"  // common include (always include)
-  #include "lgfx/gfxfont.hpp"      // GFX font support (optional)
+  #include "Fonts/gfxfont.hpp"      // GFX font support (optional)
   #include "lgfx/utility/lgfx_tjpgd.h" // JPEG decode support (optional)
   #include "lgfx/utility/lgfx_pngle.h" // PNG decode support (optional)
   #include "lgfx/lgfx_sprite.hpp"   // sprite class (optional)
@@ -213,6 +213,7 @@
     }
 
   #if defined( ARDUINO_ESP32_DEV ) // ESP-WROVER-KIT
+  // ESP-WROVER-KIT is available in two types of panels. (ILI9341 or ST7789)
     void initPanel(void) override {
       if (!_panel) return;
       _panel->init();
