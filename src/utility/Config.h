@@ -95,6 +95,26 @@
   #define BUTTON_JOY_Y_PIN  35
   #define BUTTON_JOY_X_PIN  34
 
+#elif defined(ARDUINO_M5Stick_C) // M5Stick C
+
+  #define SPEAKER_PIN   -1
+  #define TFT_DC_PIN   23
+  #define TFT_CS_PIN    5
+  #define TFT_MOSI_PIN 15
+  #define TFT_CLK_PIN  13
+  #define TFT_RST_PIN  18
+  #define TFT_MISO_PIN 14
+
+  #define M5_IR      9
+  #define M5_LED     10
+  #define M5_BUTTON_HOME 37
+  #define M5_BUTTON_RST  39
+
+  #define BUTTON_A_PIN 37
+  #define BUTTON_B_PIN 39
+  #define BUTTON_C_PIN  -1
+  #define SD_ENABLE      0
+
 #else // m5stack classic/fire
   #define TFT_LED_PIN  32
   #define TFT_DC_PIN   27

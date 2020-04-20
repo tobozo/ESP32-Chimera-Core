@@ -90,6 +90,11 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   pinMode(BUTTON_JOY_Y_PIN, INPUT_PULLDOWN);
   pinMode(BUTTON_JOY_X_PIN, INPUT_PULLDOWN);
 #endif
+#if defined(ARDUINO_M5Stick_C) // M5Stick C
+  Axp.begin();
+  Rtc.begin();
+#endif
+
 
   // Set wakeup button
   Power.setWakeupButton(BUTTON_A_PIN);

@@ -130,6 +130,11 @@
     #include "utility/battery.h"
 #endif
 
+#if defined(ARDUINO_M5Stick_C) // M5Stick C
+    #include "utility/AXP192.h"
+    #include "utility/RTC.h"
+#endif
+
     class M5Stack
     {
       public:
@@ -170,7 +175,15 @@
         //Power
         POWER Power;
 
+#if defined(ARDUINO_M5Stick_C) // M5Stick C
 
+        //!Power
+        AXP192 Axp = AXP192();
+
+        //!RTC
+        RTC Rtc;
+
+#endif
 
         // UART
         // HardwareSerial Serial0 = HardwareSerial(0);
