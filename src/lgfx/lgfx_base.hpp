@@ -1310,6 +1310,7 @@ namespace lgfx
           else {
             int32_t right = _textscroll ? _sx + _sw : _width;
             if (_cursor_x + xo + w > right) {
+              _filled_x = 0;
               _cursor_x = left - xo;
               _cursor_y += _font_size_y.advance * _textsize_y;
             }
@@ -1567,7 +1568,7 @@ namespace lgfx
       switch (attr_id) {
         case cp437_switch: return _cp437;
         case utf8_switch: return _utf8;
-        default: break;
+        default: return 0;
       }
     }
 
@@ -2115,8 +2116,6 @@ namespace lgfx
   class LGFX_GFXFont_Support : public Base {
 
     const GFXfont  *_gfxFont;
-    uint8_t _glyph_ab;   // glyph delta Y (height) above baseline
-    uint8_t _glyph_bb;   // glyph delta Y (height) below baseline
 
     static bool updateFontSizeGFXFF(LGFXBase* lgfxbase, uint16_t uniCode) {
       auto me = (LGFX_GFXFont_Support*)lgfxbase;
@@ -2151,16 +2150,11 @@ namespace lgfx
       me->startWrite();
       uint32_t colortbl[2] = {me->_write_conv.convert(back_rgb888), me->_write_conv.convert(fore_rgb888)};
       bool fillbg = (back_rgb888 != fore_rgb888);
+      int32_t left  = 0;
+      int32_t right = 0;
       if (fillbg) {
-        int32_t left  = std::max(me->_filled_x, x + (xoffset < 0 ? xoffset : 0));
-        int32_t right = x + std::max((int32_t)(w * size_x + xoffset), (int32_t)(xAdvance));
-        if (right > left) {
-          me->setRawColor(colortbl[0]);
-          me->writeFillRect(left, y + me->_font_size_y.offset * size_y, right - left, (me->_glyph_bb + me->_glyph_ab) * size_y);
-          me->_filled_x = right;
-        }
-      } else {
-        me->_filled_x = 0;
+        left  = std::max(me->_filled_x, x + (xoffset < 0 ? xoffset : 0));
+        right = x + std::max((int32_t)(w * size_x + xoffset), (int32_t)(xAdvance));
       }
 
       x += xoffset;
@@ -2173,12 +2167,30 @@ namespace lgfx
 
       if ((x <= clip_right) && (clip_left < (x + w * size_x ))
        && (y <= clip_bottom) && (clip_top < (y + h * size_y ))) {
+
+        if (right > left) {
+          me->setRawColor(colortbl[0]);
+          int tmp = yoffset - (me->_font_size_y.offset * size_y);
+          if (tmp > 0)
+            me->writeFillRect(left, y - yoffset + me->_font_size_y.offset * size_y, right - left, tmp);
+
+          tmp = (me->_font_size_y.offset + me->_font_size_y.size - h) * size_y - yoffset;
+          if (tmp > 0)
+            me->writeFillRect(left, y + h * size_y, right - left, tmp);
+        }
+
         uint8_t  *bitmap = (uint8_t *)pgm_read_dword(&gfxFont->bitmap)
                          + pgm_read_word(&glyph->bitmapOffset);
         uint8_t bits=0, bit=0;
 
         me->setRawColor(colortbl[1]);
         while (h--) {
+          if (right > left) {
+            me->setRawColor(colortbl[0]);
+            me->writeFillRect(left, y, right - left, size_y);
+            me->setRawColor(colortbl[1]);
+          }
+
           int32_t len = 0;
           int32_t i = 0;
           for (i = 0; i < w; i++) {
@@ -2198,7 +2210,13 @@ namespace lgfx
           }
           y += size_y;
         }
+      } else {
+        if (right > left) {
+          me->setRawColor(colortbl[0]);
+          me->writeFillRect(left, y - yoffset + me->_font_size_y.offset * size_y, right - left, (me->_font_size_y.size) * size_y);
+        }
       }
+      me->_filled_x = right;
       me->endWrite();
       return xAdvance;
     }
@@ -2220,8 +2238,8 @@ namespace lgfx
       this->_textfont = 1;
       this->_decoderState = Base::utf8_decode_state_t::utf8_state0;
 
-      _glyph_ab = 0;
-      _glyph_bb = 0;
+      int_fast8_t glyph_ab = 0;   // glyph delta Y (height) above baseline
+      int_fast8_t glyph_bb = 0;   // glyph delta Y (height) below baseline
       uint16_t numChars = pgm_read_word(&_gfxFont->last) - pgm_read_word(&_gfxFont->first);
       
       // Find the biggest above and below baseline offsets
@@ -2229,14 +2247,14 @@ namespace lgfx
       {
         GFXglyph *glyph1 = &(((GFXglyph *)pgm_read_dword(&_gfxFont->glyph))[c]);
         int8_t ab = -pgm_read_byte(&glyph1->yOffset);
-        if (ab > _glyph_ab) _glyph_ab = ab;
+        if (ab > glyph_ab) glyph_ab = ab;
         int8_t bb = pgm_read_byte(&glyph1->height) - ab;
-        if (bb > _glyph_bb) _glyph_bb = bb;
+        if (bb > glyph_bb) glyph_bb = bb;
       }
 
-      this->_font_baseline = _glyph_ab;
-      this->_font_size_y.offset = - _glyph_ab;
-      this->_font_size_y.size = _glyph_bb + _glyph_ab;
+      this->_font_baseline = glyph_ab;
+      this->_font_size_y.offset = - glyph_ab;
+      this->_font_size_y.size = glyph_bb + glyph_ab;
       this->_font_size_y.advance = (uint8_t)pgm_read_byte(&_gfxFont->yAdvance);
     }
   };
@@ -2671,7 +2689,7 @@ namespace lgfx
     inline bool drawJpg(Stream *dataSource, int32_t x=0, int32_t y=0, int32_t maxWidth=0, int32_t maxHeight=0, int32_t offX=0, int32_t offY=0, jpeg_div_t scale=JPEG_DIV_NONE) {
       StreamWrapper data;
       data.set(dataSource);
-      return drawJpg(&data, x, y, maxWidth, maxHeight, offX, offY, scale);
+      return draw_jpg(&data, x, y, maxWidth, maxHeight, offX, offY, scale);
     }
 
     inline void drawPng( Stream *dataSource, int32_t x = 0, int32_t y = 0, int32_t maxWidth = 0, int32_t maxHeight = 0, int32_t offX = 0, int32_t offY = 0, double scale = 1.0) {
@@ -2688,7 +2706,6 @@ namespace lgfx
       FileWrapper file;
       drawBmpFile(&file, path, x, y);
     }
-
     inline bool drawJpgFile(const char *path, int32_t x=0, int32_t y=0, int32_t maxWidth=0, int32_t maxHeight=0, int32_t offX=0, int32_t offY=0, jpeg_div_t scale=JPEG_DIV_NONE) {
       FileWrapper file;
       return drawJpgFile(&file, path, x, y, maxWidth, maxHeight, offX, offY, scale);
@@ -2709,7 +2726,7 @@ namespace lgfx
     bool drawJpg(const uint8_t *jpg_data, uint32_t jpg_len, int32_t x=0, int32_t y=0, int32_t maxWidth=0, int32_t maxHeight=0, int32_t offX=0, int32_t offY=0, jpeg_div_t scale=JPEG_DIV_NONE) {
       PointerWrapper data;
       data.set(jpg_data, jpg_len);
-      return drawJpg(&data, x, y, maxWidth, maxHeight, offX, offY, scale);
+      return draw_jpg(&data, x, y, maxWidth, maxHeight, offX, offY, scale);
     }
     bool drawPng( const uint8_t *png_data, uint32_t png_len, int32_t x = 0, int32_t y = 0, int32_t maxWidth = 0, int32_t maxHeight = 0, int32_t offX = 0, int32_t offY = 0, double scale = 1.0)
     {
@@ -2850,6 +2867,31 @@ namespace lgfx
       if (file->need_transaction && this->_transaction_count) { this->beginTransaction(); }
     }
 
+    bool drawJpgFile(FileWrapper* file, const char *path, int32_t x, int32_t y, int32_t maxWidth, int32_t maxHeight, int32_t offX, int32_t offY, jpeg_div_t scale) {
+      bool res = false;
+      file->need_transaction &= this->isSPIShared();
+      if (file->need_transaction) this->endTransaction();
+      if (file->open(path, "rb")) {
+        res = draw_jpg(file, x, y, maxWidth, maxHeight, offX, offY, scale);
+        file->close();
+      }
+//    if (file->need_transaction && this->_transaction_count) { this->beginTransaction(); }
+      return res;
+    }
+
+    bool drawPngFile( FileWrapper* file, const char *path, int32_t x, int32_t y, int32_t maxWidth, int32_t maxHeight, int32_t offX, int32_t offY, double scale)
+    {
+      bool res = false;
+      file->need_transaction &= this->isSPIShared();
+      if (file->need_transaction) this->endTransaction();
+      if (file->open(path, "rb")) {
+        res = draw_png(file, x, y, maxWidth, maxHeight, offX, offY, scale);
+        file->close();
+      }
+      if (file->need_transaction && this->_transaction_count) { this->beginTransaction(); }
+      return res;
+    }
+
     void draw_bmp(DataWrapper* data, int32_t x, int32_t y) {
       if ((x >= this->_width) || (y >= this->_height)) return;
 
@@ -2929,60 +2971,43 @@ namespace lgfx
     }
 
 
-    bool drawJpgFile(FileWrapper* file, const char *path, int32_t x, int32_t y, int32_t maxWidth, int32_t maxHeight, int32_t offX, int32_t offY, jpeg_div_t scale) {
-      bool res = false;
-      file->need_transaction &= this->isSPIShared();
-      if (file->need_transaction) this->endTransaction();
-      if (file->open(path, "rb")) {
-        res = drawJpg(file, x, y, maxWidth, maxHeight, offX, offY, scale);
-        file->close();
-      }
-      if (file->need_transaction && this->_transaction_count) { this->beginTransaction(); }
-      return res;
-    }
+protected:
 
 #if !defined (__LGFX_TJPGDEC_H__)
 
-public:
-    bool drawJpg(DataWrapper* data, int32_t x, int32_t y, int32_t maxWidth, int32_t maxHeight, int32_t offX, int32_t offY, jpeg_div_t scale)
+    bool draw_jpg(DataWrapper* data, int32_t x, int32_t y, int32_t maxWidth, int32_t maxHeight, int32_t offX, int32_t offY, jpeg_div_t scale)
     {
 //ESP_LOGI("LGFX","drawJpg need include utility/tjpgd.h");
       return false;
     }
 
-private:
-
 #else
 
-public:
-    bool drawJpg(DataWrapper* data, int32_t x, int32_t y, int32_t maxWidth, int32_t maxHeight, int32_t offX, int32_t offY, jpeg_div_t scale)
+    bool draw_jpg(DataWrapper* data, int32_t x, int32_t y, int32_t maxWidth, int32_t maxHeight, int32_t offX, int32_t offY, jpeg_div_t scale)
     {
       draw_jpg_info_t jpeg;
       pixelcopy_t pc(nullptr, this->getColorDepth(), bgr888_t::depth, this->hasPalette());
       jpeg.pc = &pc;
-      jpeg.tft = this;
+      jpeg.lgfx = this;
       jpeg.data = data;
       jpeg.x = x - offX;
       jpeg.y = y - offY;
 
       //TJpgD jpegdec;
-      JDEC jpegdec;
+      lgfxJdec jpegdec;
 
       static constexpr uint16_t sz_pool = 3100;
-      uint8_t pool[sz_pool];
-//    uint8_t *pool = new uint8_t[sz_pool];
-//      if (!pool) {
+      uint8_t *pool = (uint8_t*)heap_alloc_dma(sz_pool);
+      if (!pool) {
 //        ESP_LOGE("LGFX","memory allocation failure");
-//        delete[] pool;
-//        return false;
-//      }
+        return false;
+      }
 
-//      auto jres = jpegdec.prepare(jpg_read_data, pool, sz_pool, &jpeg);
-      auto jres = jd_prepare(&jpegdec, jpg_read_data, pool, sz_pool, &jpeg);
+      auto jres = lgfx_jd_prepare(&jpegdec, jpg_read_data, pool, sz_pool, &jpeg);
 
       if (jres != JDR_OK) {
 //ESP_LOGE("LGFX","jpeg prepare error:%x", jres);
-//        delete[] pool;
+        heap_free(pool);
         return false;
       }
 
@@ -3001,8 +3026,7 @@ public:
       if (maxWidth > 0 && maxHeight > 0) {
         this->setClipRect(x, y, maxWidth, maxHeight);
         this->startWrite();
-  //      jres = jpegdec.decomp(jpg_push_image, nullptr);
-        jres = jd_decomp(&jpegdec, jpg_push_image, scale);
+        jres = lgfx_jd_decomp(&jpegdec, jpg_push_image, scale);
 
         this->_clip_l = cl;
         this->_clip_t = ct;
@@ -3010,7 +3034,7 @@ public:
         this->_clip_b = cb-1;
         this->endWrite();
       }
-//      delete[] pool;
+      heap_free(pool);
 
       if (jres != JDR_OK) {
 //ESP_LOGE("LGFX","jpeg decomp error:%x", jres);
@@ -3019,33 +3043,33 @@ public:
       return true;
     }
 
-private:
     struct draw_jpg_info_t {
       int32_t x;
       int32_t y;
       DataWrapper *data;
-      LGFXBase *tft;
+      LGFXBase *lgfx;
       pixelcopy_t *pc;
     };
 
-    static uint32_t jpg_read_data(JDEC  *decoder, uint8_t *buf, uint32_t len) {
-      draw_jpg_info_t *jpeg = (draw_jpg_info_t *)decoder->device;
+    static uint32_t jpg_read_data(lgfxJdec  *decoder, uint8_t *buf, uint32_t len) {
+      auto jpeg = (draw_jpg_info_t *)decoder->device;
       auto data = (DataWrapper*)jpeg->data;
       auto res = len;
-      if (data->need_transaction) jpeg->tft->endTransaction();
+      if (data->need_transaction) jpeg->lgfx->endTransaction();
       if (buf) {
         res = data->read(buf, len);
       } else {
         data->skip(len);
       }
-      if (data->need_transaction) jpeg->tft->beginTransaction();
       return res;
     }
 
-    static uint32_t jpg_push_image(JDEC *decoder, void *bitmap, JRECT *rect) {
+    static uint32_t jpg_push_image(lgfxJdec *decoder, void *bitmap, JRECT *rect) {
       draw_jpg_info_t *jpeg = (draw_jpg_info_t *)decoder->device;
       jpeg->pc->src_data = bitmap;
-      jpeg->tft->push_image( jpeg->x + rect->left
+      auto data = (DataWrapper*)jpeg->data;
+      if (data->need_transaction) jpeg->lgfx->beginTransaction();
+      jpeg->lgfx->push_image( jpeg->x + rect->left
                            , jpeg->y + rect->top 
                            , rect->right  - rect->left + 1
                            , rect->bottom - rect->top + 1
@@ -3055,20 +3079,6 @@ private:
     }
 
 #endif
-
-
-    bool drawPngFile( FileWrapper* file, const char *path, int32_t x, int32_t y, int32_t maxWidth, int32_t maxHeight, int32_t offX, int32_t offY, double scale)
-    {
-      bool res = false;
-      file->need_transaction &= this->isSPIShared();
-      if (file->need_transaction) this->endTransaction();
-      if (file->open(path, "rb")) {
-        res = draw_png(file, x, y, maxWidth, maxHeight, offX, offY, scale);
-        file->close();
-      }
-      if (file->need_transaction && this->_transaction_count) { this->beginTransaction(); }
-      return res;
-    }
 
 
 #ifndef __LGFX_PNGLE_H__
@@ -3091,7 +3101,7 @@ private:
       double scale;
       bgr888_t* lineBuffer;
       pixelcopy_t *pc;
-      LGFXBase *tft;
+      LGFXBase *lgfx;
       int32_t last_y;
       int32_t scale_y0;
       int32_t scale_y1;
@@ -3110,14 +3120,14 @@ private:
     {
       int32_t h = p->scale_y1 - p->scale_y0;
       if (0 < h)
-        p->tft->push_image(p->x, p->y + p->scale_y0, p->maxWidth, h, p->pc, true);
+        p->lgfx->push_image(p->x, p->y + p->scale_y0, p->maxWidth, h, p->pc, true);
     }
 
     static void png_prepare_line(png_file_decoder_t *p, uint32_t y)
     {
       p->last_y = y;
       if (png_ypos_update(p, y))      // read next line
-        p->tft->readRectRGB(p->x, p->y + p->scale_y0, p->maxWidth, p->scale_y1 - p->scale_y0, p->lineBuffer);
+        p->lgfx->readRectRGB(p->x, p->y + p->scale_y0, p->maxWidth, p->scale_y1 - p->scale_y0, p->lineBuffer);
     }
 
     static void png_done_callback(pngle_t *pngle)
@@ -3136,8 +3146,8 @@ private:
       int32_t l = x - p->offX;
       if (l < 0 || l >= p->maxWidth) return;
 
-      p->tft->setColor(color888(rgba[0], rgba[1], rgba[2]));
-      p->tft->writeFillRectPreclipped(p->x + l, p->y + t, 1, 1);
+      p->lgfx->setColor(color888(rgba[0], rgba[1], rgba[2]));
+      p->lgfx->writeFillRectPreclipped(p->x + l, p->y + t, 1, 1);
     }
 
     static void png_draw_normal_scale_callback(pngle_t *pngle, uint32_t x, uint32_t y, uint8_t rgba[4])
@@ -3159,8 +3169,8 @@ private:
       if (r > p->maxWidth) r = p->maxWidth;
       if (l >= r) return;
 
-      p->tft->setColor(color888(rgba[0], rgba[1], rgba[2]));
-      p->tft->writeFillRectPreclipped(p->x + l, p->y + t, r - l, h);
+      p->lgfx->setColor(color888(rgba[0], rgba[1], rgba[2]));
+      p->lgfx->writeFillRectPreclipped(p->x + l, p->y + t, r - l, h);
     }
 
     static void png_draw_alpha_callback(pngle_t *pngle, uint32_t x, uint32_t y, uint8_t rgba[4])
@@ -3299,7 +3309,7 @@ private:
       png.maxWidth = maxWidth;
       png.maxHeight = maxHeight;
       png.scale = scale;
-      png.tft = this;
+      png.lgfx = this;
       png.lineBuffer = nullptr;
 
       pixelcopy_t pc(nullptr, this->getColorDepth(), bgr888_t::depth, this->_palette_count);

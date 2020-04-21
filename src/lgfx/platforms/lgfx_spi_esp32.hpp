@@ -28,7 +28,9 @@ Contributors:
 #if defined (ARDUINO) // Arduino ESP32
  #include <SPI.h>
 #else
-// #include <driver/spi_common_internal.h> // ESP-IDF4.0
+ #if ESP_IDF_VERSION_MAJOR > 3
+  #include <driver/spi_common_internal.h>
+ #endif
 #endif
 
 #include "esp32_common.hpp"
@@ -36,19 +38,14 @@ Contributors:
 
 namespace lgfx
 {
-  static void spi_dma_transfer_active(int dmachan)
+  inline static void spi_dma_transfer_active(int dmachan)
   {
     spicommon_dmaworkaround_transfer_active(dmachan);
   }
 
-  static void spi_dma_reset(void) //periph_module_reset( PERIPH_SPI_DMA_MODULE );
+  static void spi_dma_reset(void)
   {
     periph_module_reset( PERIPH_SPI_DMA_MODULE );
-//  static portMUX_TYPE periph_spinlock = portMUX_INITIALIZER_UNLOCKED;
-//    vTaskEnterCritical(&periph_spinlock);
-//    DPORT_SET_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_DMA_CLK_EN);
-//    DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_DMA_CLK_EN);
-//    vTaskExitCritical(&periph_spinlock);
   }
 
   #define MEMBER_DETECTOR(member, classname, classname_impl, valuetype) struct classname_impl { \
@@ -383,6 +380,7 @@ namespace lgfx
     }
 
     void begin_transaction(void) {
+      _fill_mode = false;
       uint32_t apb_freq = getApbFrequency();
       if (_last_apb_freq != apb_freq) {
         _last_apb_freq = apb_freq;
@@ -390,18 +388,12 @@ namespace lgfx
         _clkdiv_fill  = FreqToClockDiv(apb_freq, _panel->freq_fill);
         _clkdiv_write = FreqToClockDiv(apb_freq, _panel->freq_write);
       }
-      _fill_mode = false;
 
       auto spi_mode = _panel->spi_mode;
       uint32_t user = (spi_mode == 1 || spi_mode == 2) ? SPI_CK_OUT_EDGE | SPI_USR_MOSI : SPI_USR_MOSI;
       uint32_t pin = (spi_mode & 2) ? SPI_CK_IDLE_EDGE : 0;
 
-      wait_spi();
-
-      *reg(SPI_USER_REG(_spi_port)) = user;
-      *reg(SPI_PIN_REG(_spi_port))  = pin;
-
-      set_clock_write();
+//    wait_spi();
 
 #if defined (ARDUINO) // Arduino ESP32
       spiSimpleTransaction(_spi_handle);
@@ -422,6 +414,10 @@ namespace lgfx
       }
 #endif
 
+      *reg(SPI_USER_REG(_spi_port)) = user;
+      *reg(SPI_PIN_REG(_spi_port))  = pin;
+      set_clock_write();
+
       cs_l();
 
       // MSB first
@@ -440,10 +436,6 @@ namespace lgfx
       dc_h();
       cs_h();
 #if defined (ARDUINO) // Arduino ESP32
-//      if (_dma_channel) {
-//        if (_next_dma_reset) spi_dma_reset();
-//      }
-
       *reg(SPI_USER_REG(_spi_port)) = SPI_USR_MOSI | SPI_USR_MISO | SPI_DOUTDIN; // for other SPI device (SD)
       spiEndTransaction(_spi_handle);
 #elif defined (CONFIG_IDF_TARGET_ESP32) // ESP-IDF
@@ -1093,7 +1085,10 @@ namespace lgfx
     {          //spicommon_setup_dma_desc_links
       if (!_dma_channel) return;
 
-//      if (_next_dma_reset) spi_dma_reset();
+      if (_next_dma_reset) {
+        _next_dma_reset = false;
+        spi_dma_reset();
+      }
 
       if (_dmadesc_len < h) {
         _alloc_dmadesc(h);

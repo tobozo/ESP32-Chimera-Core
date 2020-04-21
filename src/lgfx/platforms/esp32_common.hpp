@@ -209,6 +209,7 @@ namespace lgfx
 
 //----------------------------------------------------------------------------
   struct FileWrapper : public DataWrapper {
+    FileWrapper() : DataWrapper() { need_transaction = true; }
 #if defined (ARDUINO) && defined (FS_H)
     fs::File _fp;
   #if defined (_SD_H_)
@@ -217,15 +218,15 @@ namespace lgfx
       _fs = fs;
       need_transaction = (&fs == &SD);
     }
+    FileWrapper(fs::FS& fs) : DataWrapper(), _fs(fs) { need_transaction = (&fs == &SD); }
   #else
     fs::FS& _fs = SPIFFS;
     void setFS(fs::FS& fs) {
       _fs = fs;
       need_transaction = (&fs != &SPIFFS);
     }
-  #endif
-    FileWrapper() : DataWrapper() {}
     FileWrapper(fs::FS& fs) : DataWrapper(), _fs(fs) { need_transaction = (&fs != &SPIFFS); }
+  #endif
 
     bool open(fs::FS& fs, const char* path, const char* mode) {
       setFS(fs);
@@ -241,7 +242,7 @@ namespace lgfx
 #elif defined (CONFIG_IDF_TARGET_ESP32)  // ESP-IDF
 
     FILE* _fp;
-    bool open(const char* path, const char* mode) { need_transaction = true; return (_fp = fopen(path, mode)); }
+    bool open(const char* path, const char* mode) { return (_fp = fopen(path, mode)); }
     int read(uint8_t *buf, uint32_t len) override { return fread((char*)buf, 1, len, _fp); }
     void skip(int32_t offset) override { seek(offset, SEEK_CUR); }
     bool seek(uint32_t offset) override { return seek(offset, SEEK_SET); }
