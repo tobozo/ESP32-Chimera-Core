@@ -57,11 +57,11 @@ bool ScreenShotService::begin( bool ifPsram ) {
   }
   if( ifPsram && psramInit() ) {
     log_w("Will attempt to allocate psram for screenshots");
-    rgbBuffer = (uint8_t*)ps_calloc( (_tft->width()*_tft->height()*3)+1, sizeof( uint8_t ) );
+    rgbBuffer = (uint8_t*)ps_calloc( (_tft->width()*8*3)+1, sizeof( uint8_t ) );
   } else {
     log_w("Will attempt to allocate ram for screenshots");
     // attempt to allocate anyway, and use BMP stream on failure
-    rgbBuffer = (uint8_t*)calloc( (_tft->width()*_tft->height()*3)+1, sizeof( uint8_t ) );
+    rgbBuffer = (uint8_t*)calloc( (_tft->width()*8*3)+1, sizeof( uint8_t ) );
   }
   if( rgbBuffer != NULL ) {
     log_w( "ScreenShot Service can use JPG capture" );
@@ -112,15 +112,20 @@ void ScreenShotService::snap( const char* name, bool displayAfter ) {
   return;
 }
 
+static void jpeg_encoder_callback(uint32_t y, uint32_t h, unsigned char* rgbBuffer, void* device)
+{
+  auto tft = (M5Display*)device;
+  tft->readRectRGB( 0, y, tft->width(), h, rgbBuffer );
+}
 
 void ScreenShotService::snapJPG( const char* name, bool displayAfter ) {
   if( !jpegCapture ) return;
 
   genFileName( name, "jpg" );
 
-  _tft->readRectRGB( 0, 0, _tft->width(), _tft->height(), rgbBuffer );
+//  _tft->readRectRGB( 0, 0, _tft->width(), _tft->height(), rgbBuffer );
 
-  if ( !JPEGEncoder.encodeToFile( fileName, _tft->width(), _tft->height(), 3 /*3=RGB,4=RGBA*/, rgbBuffer ) ) {
+  if ( !JPEGEncoder.encodeToFile( fileName, _tft->width(), _tft->height(), 3 /*3=RGB,4=RGBA*/, rgbBuffer, &jpeg_encoder_callback, _tft ) ) {
     log_e( "[ERROR] Could not write JPG file to: %s", fileName );
   } else {
     Serial.printf( "Screenshot saved as %s\n", fileName );
