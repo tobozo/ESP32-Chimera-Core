@@ -76,7 +76,7 @@ namespace lgfx
     { ft_glcd, (const uint8_t *)font, widtbl_null, 8, 6, nullptr, 0 },
 
     { ft_bmp,  (const uint8_t *)chrtbl_f16, widtbl_f16, chr_hgt_f16, baseline_f16, nullptr, 0},
-#ifdef __EFONT_ENABLE_0X0030__
+#ifdef __EFONT_FONT_DATA_H__
     // Font 3 efont
     { ft_bdf, (const uint8_t *)efontFontData, nullptr, 16, 14, efontFontList, sizeof(efontFontList)>>1 },
 #else
@@ -150,7 +150,8 @@ namespace lgfx
     template<typename T> inline void drawLine      ( int32_t x0, int32_t y0, int32_t x1, int32_t y1                        , const T& color)  { setColor(color); drawLine(    x0, y0, x1, y1        ); }
     template<typename T> inline void drawTriangle  ( int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, const T& color)  { setColor(color); drawTriangle(x0, y0, x1, y1, x2, y2); }
     template<typename T> inline void fillTriangle  ( int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, const T& color)  { setColor(color); fillTriangle(x0, y0, x1, y1, x2, y2); }
-
+    template<typename T> inline void drawArc       ( int32_t x, int32_t y, int32_t r1, int32_t r2, float start, float end, const T& color) { setColor(color); drawArc( x, y, r1, r2, start, end); }
+    template<typename T> inline void fillArc       ( int32_t x, int32_t y, int32_t r1, int32_t r2, float start, float end, const T& color) { setColor(color); fillArc( x, y, r1, r2, start, end); }
     template<typename T> inline void drawCircleHelper(int32_t x, int32_t y, int32_t r, uint_fast8_t cornername            , const T& color)  { setColor(color); drawCircleHelper(x, y, r, cornername    ); }
     template<typename T> inline void fillCircleHelper(int32_t x, int32_t y, int32_t r, uint_fast8_t corners, int32_t delta, const T& color)  { setColor(color); fillCircleHelper(x, y, r, corners, delta); }
 
@@ -202,6 +203,13 @@ namespace lgfx
       if (h < 1) { y = 0; h = 0; }
       _clip_t = y;
       _clip_b = y + h - 1;
+    }
+
+    void getClipRect(int32_t *x, int32_t *y, int32_t *w, int32_t *h) {
+      *x = _clip_l;
+      *y = _clip_t;
+      *w = _clip_r - _clip_l + 1;
+      *h = _clip_b - _clip_t + 1;
     }
 
     void clearClipRect(void) {
@@ -343,9 +351,9 @@ namespace lgfx
         writeFastHLine(x + j + 1, y - r, i - j);
         writeFastHLine(x + j + 1, y + r, i - j);
 
-        writeFastVLine(x - r, y - i    , i - j);
-        writeFastVLine(x + r, y - i    , i - j);
         writeFastVLine(x + r, y + j + 1, i - j);
+        writeFastVLine(x + r, y - i    , i - j);
+        writeFastVLine(x - r, y - i    , i - j);
         writeFastVLine(x - r, y + j + 1, i - j);
         j = i;
       } while (i < --r);
@@ -805,6 +813,45 @@ namespace lgfx
       endWrite();
     }
 
+    void drawArc(int32_t x, int32_t y, int32_t r1, int32_t r2, float start, float end)
+    {
+      if (r1 < r2) std::swap(r1, r2);
+      if (r1 < 1) r1 = 1;
+      if (r2 < 1) r2 = 1;
+
+      bool equal = fabsf(start - end) < std::numeric_limits<float>::epsilon();
+      start = fmodf(start, 360);
+      end = fmodf(end, 360);
+      if (start < 0) start += 360.0;
+      if (end < 0) end += 360.0;
+
+      startWrite();
+      fill_arc_helper(x, y, r1, r2, start, start);
+      fill_arc_helper(x, y, r1, r2, end  , end);
+      if (!equal && (fabsf(start - end) <= 0.0001)) { start = .0; end = 360.0; }
+      fill_arc_helper(x, y, r1, r1, start, end);
+      fill_arc_helper(x, y, r2, r2, start, end);
+      endWrite();
+    }
+
+    void fillArc(int32_t x, int32_t y, int32_t r1, int32_t r2, float start, float end)
+    {
+      if (r1 < r2) std::swap(r1, r2);
+      if (r1 < 1) r1 = 1;
+      if (r2 < 1) r2 = 1;
+
+      bool equal = fabsf(start - end) < std::numeric_limits<float>::epsilon();
+      start = fmodf(start, 360);
+      end = fmodf(end, 360);
+      if (start < 0) start += 360.0;
+      if (end < 0) end += 360.0;
+      if (!equal && (fabsf(start - end) <= 0.0001)) { start = .0; end = 360.0; }
+
+      startWrite();
+      fill_arc_helper(x, y, r1, r2, start, end);
+      endWrite();
+    }
+
     template<typename T> void drawBitmap(int32_t x, int32_t y, const uint8_t *bitmap, int32_t w, int32_t h, const T& color                    ) { draw_bitmap(x, y, bitmap, w, h, _write_conv.convert(color)); }
     template<typename T> void drawBitmap(int32_t x, int32_t y, const uint8_t *bitmap, int32_t w, int32_t h, const T& fgcolor, const T& bgcolor) { draw_bitmap(x, y, bitmap, w, h, _write_conv.convert(fgcolor), _write_conv.convert(bgcolor)); }
     template<typename T> void drawXBitmap(int32_t x, int32_t y, const uint8_t *bitmap, int32_t w, int32_t h, const T& color                    ) { draw_xbitmap(x, y, bitmap, w, h, _write_conv.convert(color)); }
@@ -1058,7 +1105,7 @@ namespace lgfx
 
     void push_image_rotate_zoom(int32_t dst_x, int32_t dst_y, int32_t src_x, int32_t src_y, int32_t w, int32_t h, float angle, float zoom_x, float zoom_y, pixelcopy_t *param)
     {
-      angle *= - 0.0174532925; // Convert degrees to radians
+      angle *= - deg_to_rad; // Convert degrees to radians
       float sin_f = sin(angle) * (1 << FP_SCALE);
       float cos_f = cos(angle) * (1 << FP_SCALE);
       int32_t min_y, max_y;
@@ -1168,6 +1215,13 @@ namespace lgfx
       if (h < 0) h = 0;
       _sy = y;
       _sh = h;
+    }
+
+    void getScrollRect(int32_t *x, int32_t *y, int32_t *w, int32_t *h) {
+      *x = _sx;
+      *y = _sy;
+      *w = _sw;
+      *h = _sh;
     }
 
     void scroll(int_fast16_t dx, int_fast16_t dy = 0)
@@ -1582,7 +1636,7 @@ namespace lgfx
     int32_t _width = 0, _height = 0;
     int32_t  _sx, _sy, _sw, _sh; // for scroll zone
 
-    int32_t  _clip_l = 0, _clip_t = 0, _clip_r = 0, _clip_b = 0; // clip rect
+    int32_t _clip_l = 0, _clip_t = 0, _clip_r = 0, _clip_b = 0; // clip rect
     int32_t _cursor_x = 0, _cursor_y = 0, _filled_x = 0;
     uint32_t _text_fore_rgb888 = 0xFFFFFFU;
     uint32_t _text_back_rgb888 = 0;
@@ -1652,6 +1706,64 @@ namespace lgfx
       startWrite();
       readRect_impl(x, y, w, h, dst, param);
       endWrite();
+    }
+    void fill_arc_helper(int32_t cx, int32_t cy, int32_t oradius, int32_t iradius, float start, float end)
+    {
+      float s_cos = (cos(start * deg_to_rad));
+      float e_cos = (cos(end * deg_to_rad));
+      float sslope = s_cos / (sin(start * deg_to_rad));
+      float eslope = -1000000;
+      if (end != 360.0) eslope = e_cos / (sin(end * deg_to_rad));
+      float swidth =  0.5 / s_cos;
+      float ewidth = -0.5 / e_cos;
+      --iradius;
+      int ir2 = iradius * iradius + iradius;
+      int or2 = oradius * oradius + oradius;
+
+      bool start180 = !(start < 180);
+      bool end180 = end < 180;
+      bool reversed = start + 180 < end || (end < start && start < end + 180);
+
+      int xs = -oradius;
+      int y = -oradius;
+      int ye = oradius;
+      int xe = oradius + 1;
+      if (!reversed) {
+        if (   (end >= 270 || end < 90) && (start >= 270 || start < 90)) xs = 0;
+        else if (end < 270 && end >= 90 && start < 270 && start >= 90) xe = 1;
+        if (     end >= 180 && start >= 180) ye = 0;
+        else if (end < 180 && start < 180) y = 0;
+      }
+      do {
+        int y2 = y * y;
+        int x = xs;
+        if (x < 0) {
+          while (x * x + y2 >= or2) ++x;
+          if (xe != 1) xe = 1 - x;
+        }
+        float ysslope = (y + swidth) * sslope;
+        float yeslope = (y + ewidth) * eslope;
+        int len = 0;
+        do {
+          bool flg1 = start180 != x <= ysslope;
+          bool flg2 =   end180 != x <= yeslope;
+          int distance = x * x + y2;
+          if (distance >= ir2
+           && ((flg1 && flg2) || (reversed && (flg1 || flg2)))
+           && x != xe
+           && distance < or2
+            ) {
+            ++len;
+          } else {
+            if (len) {
+              writeFastHLine(cx + x - len, cy + y, len);
+              len = 0;
+            }
+            if (distance >= or2) break;
+            if (x < 0 && distance < ir2) { x = -x; }
+          }
+        } while (++x <= xe);
+      } while (++y <= ye);
     }
 
     virtual void beginTransaction_impl(void) = 0;
