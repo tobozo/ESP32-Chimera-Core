@@ -56,6 +56,7 @@ namespace lgfx
   MEMBER_DETECTOR(spi_mosi   , get_spi_mosi   , get_spi_mosi_impl   , int)
   MEMBER_DETECTOR(spi_miso   , get_spi_miso   , get_spi_miso_impl   , int)
   MEMBER_DETECTOR(spi_sclk   , get_spi_sclk   , get_spi_sclk_impl   , int)
+  MEMBER_DETECTOR(spi_dlen   , get_spi_dlen   , get_spi_dlen_impl   , int)
   MEMBER_DETECTOR(dma_channel, get_dma_channel, get_dma_channel_impl, int)
   #undef MEMBER_DETECTOR
 
@@ -96,10 +97,10 @@ namespace lgfx
     void writeCommand(uint_fast8_t cmd) { startWrite(); write_cmd(cmd); endWrite(); } // AdafruitGFX compatible
     void writecommand(uint_fast8_t cmd) { startWrite(); write_cmd(cmd); endWrite(); } // TFT_eSPI compatible
 
-    // Write multi bytes as DATA (max 4byte)
-    void spiWrite(uint32_t data, uint32_t len = 1)  { startWrite(); write_data(data, len << 3); endWrite(); } // AdafruitGFX compatible
-    void writeData(uint32_t data, uint32_t len = 1) { startWrite(); write_data(data, len << 3); endWrite(); } // TFT_eSPI compatible
-    void writedata(uint32_t data, uint32_t len = 1) { startWrite(); write_data(data, len << 3); endWrite(); } // TFT_eSPI compatible
+    // Write single bytes as DATA
+    void spiWrite( uint_fast8_t data) { startWrite(); if (_spi_dlen == 16) { write_data(data << 8, _spi_dlen); } else { write_data(data, _spi_dlen); } endWrite(); } // AdafruitGFX compatible
+    void writeData(uint_fast8_t data) { startWrite(); if (_spi_dlen == 16) { write_data(data << 8, _spi_dlen); } else { write_data(data, _spi_dlen); } endWrite(); } // TFT_eSPI compatible
+    void writedata(uint_fast8_t data) { startWrite(); if (_spi_dlen == 16) { write_data(data << 8, _spi_dlen); } else { write_data(data, _spi_dlen); } endWrite(); } // TFT_eSPI compatible
 
     // Read data
     uint8_t  readCommand8( uint_fast8_t commandByte, uint_fast8_t index=0) { return read_command(commandByte, index << 3, 8); }
@@ -584,7 +585,7 @@ namespace lgfx
         numArgs &= ~CMD_INIT_DELAY;          // Mask out delay bit
 
         while (numArgs--) {                   // For each argument...
-          write_data(pgm_read_byte(addr++), 8);  // Read, issue argument
+          writeData(pgm_read_byte(addr++));  // Read, issue argument
         }
         if (ms) {
           ms = pgm_read_byte(addr++);        // Read post-command delay time (ms)
@@ -597,11 +598,12 @@ namespace lgfx
 
     void write_cmd(uint_fast8_t cmd)
     {
+      if (_spi_dlen == 16) { cmd <<= 8; }
       auto spi_w0_reg        = reg(SPI_W0_REG(_spi_port));
       auto spi_mosi_dlen_reg = reg(SPI_MOSI_DLEN_REG(_spi_port));
       dc_l();
+      *spi_mosi_dlen_reg = _spi_dlen - 1;
       *spi_w0_reg = cmd;
-      *spi_mosi_dlen_reg = 7;
       exec_spi();
     }
 
@@ -617,21 +619,55 @@ namespace lgfx
 
     void set_window(uint_fast16_t xs, uint_fast16_t ys, uint_fast16_t xe, uint_fast16_t ye)
     {
+      uint32_t len;
+      if (_spi_dlen == 8) {
+        len = _len_setwindow - 1;
+      } else {
+        len = (_len_setwindow << 1) - 1;
+      }
+      auto spi_w0_reg        = reg(SPI_W0_REG(_spi_port));
+      auto spi_mosi_dlen_reg = reg(SPI_MOSI_DLEN_REG(_spi_port));
       auto fp = fpGetWindowAddr;
-      auto len = _len_setwindow;
+
       if (_xs != xs || _xe != xe) {
         write_cmd(_cmd_caset);
         _xs = xs;
         _xe = xe;
-        auto tmp = _colstart;
-        write_data(fp(xs + tmp, xe + tmp), len);
+        uint32_t tmp = _colstart;
+
+        tmp = fp(xs + tmp, xe + tmp);
+        if (_spi_dlen == 8) {
+          dc_h();
+          *spi_w0_reg = tmp;
+        } else if (_spi_dlen == 16) {
+          _regbuf[0] = (tmp & 0xFF) << 8 | (tmp >> 8) << 24;
+          tmp >>= 16;
+          _regbuf[1] = (tmp & 0xFF) << 8 | (tmp >> 8) << 24;
+          dc_h();
+          memcpy((void*)spi_w0_reg, _regbuf, _len_setwindow >> 2);
+        }
+        *spi_mosi_dlen_reg = len;
+        exec_spi();
       }
       if (_ys != ys || _ye != ye) {
         write_cmd(_cmd_raset);
         _ys = ys;
         _ye = ye;
-        auto tmp = _rowstart;
-        write_data(fp(ys + tmp, ye + tmp), len);
+        uint32_t tmp = _rowstart;
+
+        tmp = fp(ys + tmp, ye + tmp);
+        if (_spi_dlen == 8) {
+          dc_h();
+          *spi_w0_reg = tmp;
+        } else if (_spi_dlen == 16) {
+          _regbuf[0] = (tmp & 0xFF) << 8 | (tmp >> 8) << 24;
+          tmp >>= 16;
+          _regbuf[1] = (tmp & 0xFF) << 8 | (tmp >> 8) << 24;
+          dc_h();
+          memcpy((void*)spi_w0_reg, _regbuf, _len_setwindow >> 2);
+        }
+        *spi_mosi_dlen_reg = len;
+        exec_spi();
       }
     }
 
@@ -1155,6 +1191,8 @@ namespace lgfx
     static constexpr int _spi_mosi = get_spi_mosi<CFG, -1>::value;
     static constexpr int _spi_miso = get_spi_miso<CFG, -1>::value;
     static constexpr int _spi_sclk = get_spi_sclk<CFG, -1>::value;
+    static constexpr int _spi_dlen = get_spi_dlen<CFG,  8>::value;
+
     static constexpr spi_host_device_t _spi_host = get_spi_host<CFG, VSPI_HOST>::value;
     static constexpr uint8_t _spi_port = (_spi_host == HSPI_HOST) ? 2 : 3;  // FSPI=1  HSPI=2  VSPI=3;
 
