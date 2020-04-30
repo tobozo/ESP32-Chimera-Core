@@ -7,7 +7,7 @@
   #include <SD.h>
 
   #include "lgfx/lgfx_common.hpp"  // common include (always include)
-  #include "Fonts/gfxfont.hpp"      // GFX font support (optional)
+  #include "Fonts/lgfx_fonts.hpp"
   #include "lgfx/utility/lgfx_tjpgd.h" // JPEG decode support (optional)
   #include "lgfx/utility/lgfx_pngle.h" // PNG decode support (optional)
   #include "lgfx/lgfx_sprite.hpp"   // sprite class (optional)
@@ -295,8 +295,6 @@
         SPI.writePixels((uint8_t*)colors , len * 2);
       }
       void progressBar(int x, int y, int w, int h, uint8_t val);
-
-      #define setFont setFreeFont
 
       void qrcode(const char *string, uint16_t x = 50, uint16_t y = 10, uint8_t width = 220, uint8_t version = 6);
       void qrcode(const String &string, uint16_t x = 50, uint16_t y = 10, uint8_t width = 220, uint8_t version = 6);
