@@ -18,11 +18,15 @@
 
   #include "lgfx/lgfx_sprite.hpp"         // sprite class (optional)
 
+  #include "lgfx/panel/panel_HX8357.hpp"
   #include "lgfx/panel/panel_ILI9163.hpp"
-  #include "lgfx/panel/panel_ILI9341.hpp"   // M5Stack / ODROID-GO / ESP-WROVER-KIT4.1
+  #include "lgfx/panel/panel_ILI9341.hpp"   // and ILI9342 / M5Stack / ODROID-GO / ESP-WROVER-KIT4.1
+  #include "lgfx/panel/panel_ILI9486.hpp"
+  #include "lgfx/panel/panel_ILI9488.hpp"
   #include "lgfx/panel/panel_SSD1351.hpp"
   #include "lgfx/panel/panel_ST7789.hpp"    // LilyGO TTGO T-Watch
   #include "lgfx/panel/panel_ST7735.hpp"    // M5StickC
+
   #include "lgfx/platforms/lgfx_spi_esp32.hpp"
 
   //  #include "lgfx/utility/In_eSPI.h"
