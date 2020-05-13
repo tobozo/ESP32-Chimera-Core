@@ -16,6 +16,9 @@
 
 #include "Button.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 /*----------------------------------------------------------------------*
  * Button(pin, puEnable, invert, dbTime) instantiates a button object.  *
  * pin      Is the Arduino pin the button is connected to.              *
@@ -195,3 +198,6 @@ uint8_t Button::wasAxisPressed(void)
 }
 
 #endif
+
+
+#pragma GCC diagnostic pop

@@ -130,12 +130,20 @@
     #include "utility/battery.h"
 #endif
 
+#if defined(ARDUINO_M5Stick_C) // M5Stick C
+    #include "utility/AXP192.h"
+    #include "utility/RTC.h"
+#endif
+
     class M5Stack
     {
       public:
         M5Stack();
         void begin(bool LCDEnable = true, bool SDEnable = SD_ENABLE, bool SerialEnable = true, bool I2CEnable = false, bool ScreenShotEnable = false);
         void update();
+
+        void sd_begin(void);
+        void sd_end(void);
 
         // Button API
         #define DEBOUNCE_MS 10
@@ -159,15 +167,23 @@
         SPEAKER Speaker;
 
         // LCD
-        M5Display Lcd = M5Display();
-        void setJpgRenderer( bool legacy = true );
+        M5Display Lcd; // = M5Display();
+//        void setJpgRenderer( bool legacy = true );
 
         ScreenShotService ScreenShot;
 
         //Power
         POWER Power;
 
+#if defined(ARDUINO_M5Stick_C) // M5Stick C
 
+        //!Power
+        AXP192 Axp = AXP192();
+
+        //!RTC
+        RTC Rtc;
+
+#endif
 
         // UART
         // HardwareSerial Serial0 = HardwareSerial(0);

@@ -57,11 +57,11 @@ bool ScreenShotService::begin( bool ifPsram ) {
   }
   if( ifPsram && psramInit() ) {
     log_w("Will attempt to allocate psram for screenshots");
-    rgbBuffer = (uint8_t*)ps_calloc( (_tft->width()*_tft->height()*3)+1, sizeof( uint8_t ) );
+    rgbBuffer = (uint8_t*)ps_calloc( (_tft->width()*8*3)+1, sizeof( uint8_t ) );
   } else {
     log_w("Will attempt to allocate ram for screenshots");
     // attempt to allocate anyway, and use BMP stream on failure
-    rgbBuffer = (uint8_t*)calloc( (_tft->width()*_tft->height()*3)+1, sizeof( uint8_t ) );
+    rgbBuffer = (uint8_t*)calloc( (_tft->width()*8*3)+1, sizeof( uint8_t ) );
   }
   if( rgbBuffer != NULL ) {
     log_w( "ScreenShot Service can use JPG capture" );
@@ -84,7 +84,8 @@ bool ScreenShotService::displayCanReadPixels() {
   uint16_t value_out;
   __attribute__((unused)) byte testnum = 0;
 
-  log_w( "Testing display#%04x", TFT_DRIVER );
+  log_w( "Testing display readpixel" );
+//  log_w( "Testing display#%04x", TFT_DRIVER );
 
   _tft->drawPixel( 30, 30, value_in ); //  <----- Test color
   value_out = _tft->readPixel( 30,30 );
@@ -111,15 +112,20 @@ void ScreenShotService::snap( const char* name, bool displayAfter ) {
   return;
 }
 
+static void jpeg_encoder_callback(uint32_t y, uint32_t h, unsigned char* rgbBuffer, void* device)
+{
+  auto tft = (M5Display*)device;
+  tft->readRectRGB( 0, y, tft->width(), h, rgbBuffer );
+}
 
 void ScreenShotService::snapJPG( const char* name, bool displayAfter ) {
   if( !jpegCapture ) return;
 
   genFileName( name, "jpg" );
 
-  _tft->readRectRGB( 0, 0, _tft->width(), _tft->height(), rgbBuffer );
+//  _tft->readRectRGB( 0, 0, _tft->width(), _tft->height(), rgbBuffer );
 
-  if ( !JPEGEncoder.encodeToFile( fileName, _tft->width(), _tft->height(), 3 /*3=RGB,4=RGBA*/, rgbBuffer ) ) {
+  if ( !JPEGEncoder.encodeToFile( fileName, _tft->width(), _tft->height(), 3 /*3=RGB,4=RGBA*/, rgbBuffer, &jpeg_encoder_callback, _tft ) ) {
     log_e( "[ERROR] Could not write JPG file to: %s", fileName );
   } else {
     Serial.printf( "Screenshot saved as %s\n", fileName );
@@ -181,9 +187,9 @@ void ScreenShotService::genFileName( const char* name, const char* extension ) {
 
 void ScreenShotService::snapAnimation() {
   for( byte i = 0; i<16; i++ ) {
-    _tft->drawRect(0, 0, _tft->width()-1, _tft->height()-1, WHITE);
+    _tft->drawRect(0, 0, _tft->width()-1, _tft->height()-1, TFT_WHITE);
     delay(20);
-    _tft->drawRect(0, 0, _tft->width()-1, _tft->height()-1, BLACK);
+    _tft->drawRect(0, 0, _tft->width()-1, _tft->height()-1, TFT_BLACK);
     delay(20);
   }
   _tft->clear();

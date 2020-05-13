@@ -221,8 +221,8 @@ void JPEG_Encoder::begin( bool ifPsram ) {
 //
 //  RETURN:
 //      0 on error. 1 on success.
-int JPEG_Encoder::encodeToFile( const char* dest_path, const int width, const int height, const int numComponents, const unsigned char* src_data ) {
-  int res = encodeToFileAtQuality( dest_path, 3/*2*/, width, height, numComponents, src_data );
+int JPEG_Encoder::encodeToFile( const char* dest_path, const int width, const int height, const int numComponents, unsigned char* src_data, jpeg_encoder_callback_t fp, void* device ) {
+  int res = encodeToFileAtQuality( dest_path, 3/*2*/, width, height, numComponents, src_data, fp, device );
   return res;
 }
 
@@ -232,7 +232,7 @@ int JPEG_Encoder::encodeToFile( const char* dest_path, const int width, const in
 //  how to handle (or ignore) `context`. The callback receives an array `data`
 //  of `size` bytes, which can be written directly to a file. There is no need
 //  to free the data.
-int JPEG_Encoder::encodeWithFunc( writeFunc* func, fs::File jpegFile, const int quality, const int width, const int height, const int numComponents, const unsigned char* src_data ) {
+int JPEG_Encoder::encodeWithFunc( writeFunc* func, fs::File jpegFile, const int quality, const int width, const int height, const int numComponents, unsigned char* src_data, jpeg_encoder_callback_t fp, void* device ) {
   if ( quality < 1 || quality > 3 ) {
     tje_log( "[ERROR] -- Valid 'quality' values are 1 (lowest), 2, or 3 (highest)\n" );
     return 0;
@@ -269,7 +269,7 @@ int JPEG_Encoder::encodeWithFunc( writeFunc* func, fs::File jpegFile, const int 
   wc.func = func;
   state.writeContext = wc;
   huffExpand( &state );
-  int result = encodeMain( &state, src_data, width, height, numComponents );
+  int result = encodeMain( &state, src_data, fp, device, width, height, numComponents );
   return result;
 }
 
@@ -667,7 +667,7 @@ void JPEG_Encoder::huffExpand( TJEState* state ) {
 }
 
 
-int JPEG_Encoder::encodeMain( TJEState* state, const unsigned char* src_data, const int width, const int height, const int srcNumComponents ) {
+int JPEG_Encoder::encodeMain( TJEState* state, unsigned char* src_data, jpeg_encoder_callback_t fp, void* device, const int width, const int height, const int srcNumComponents ) {
   if ( srcNumComponents != 3 && srcNumComponents != 4 ) {
     return 0;
   }
@@ -794,11 +794,12 @@ int JPEG_Encoder::encodeMain( TJEState* state, const unsigned char* src_data, co
   uint32_t location = 0;
   for ( int y = 0; y < height; y += 8 ) {
     for ( int x = 0; x < width; x += 8 ) {
+      fp(y, 8, src_data, device);
       // Block loop: ====
       for ( int off_y = 0; off_y < 8; ++off_y ) {
         for ( int off_x = 0; off_x < 8; ++off_x ) {
           int block_index = ( off_y * 8 + off_x );
-          int src_index = ( ( ( y + off_y ) * width ) + ( x + off_x ) ) * srcNumComponents;
+          int src_index = ( ( off_y * width ) + ( x + off_x ) ) * srcNumComponents;
           int col = x + off_x;
           int row = y + off_y;
           if( row >= height ) {
@@ -887,13 +888,13 @@ static void writeCallback( fs::File jpegFile, void* data, int size ) {
 //
 //  RETURN:
 //      0 on error. 1 on success.
-int JPEG_Encoder::encodeToFileAtQuality( const char* dest_path, const int quality, const int width, const int height, const int numComponents, const unsigned char* src_data ) {
+int JPEG_Encoder::encodeToFileAtQuality( const char* dest_path, const int quality, const int width, const int height, const int numComponents, unsigned char* src_data, jpeg_encoder_callback_t fp, void* device ) {
   jpegFile = _fileSystem->open( dest_path, FILE_WRITE );
   if ( !jpegFile ) {
     tje_log( "Could not open file for writing." );
     return 0;
   }
-  /*int result = */encodeWithFunc( writeCallback, jpegFile, quality, width, height, numComponents, src_data );
+  /*int result = */encodeWithFunc( writeCallback, jpegFile, quality, width, height, numComponents, src_data, fp, device );
   jpegFile.close();
   return _fileSystem->exists( dest_path );
 }

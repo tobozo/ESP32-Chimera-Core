@@ -37,7 +37,7 @@ void BMP_Encoder::init( M5Display *tft, fs::FS &fileSystem  ) {
 bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const int imageH ) {
   byte colorByteH, colorByteL;
 
-  bmpBuffer = (uint8_t*)calloc( imageW*3, sizeof( uint8_t ) );
+  rgbBuffer = (RGBColor*)calloc( imageW+1, sizeof( RGBColor ) );
   fs::File outFile = _fileSystem->open( filename, "w" );  // <-----fs:: added for compatibility with SdFat ------
 
   if( ! outFile ) {
@@ -50,8 +50,14 @@ bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const in
     'B', 'M', 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0
   };
   // 54 = std total "old" Windows BMP file header size = 14 + 40
-
-  unsigned long fileSize = 2ul * imageH * imageW + 54; // pix data + 54 byte hdr
+  int rowSize = 4 * ((3*imageW + 3)/4);      // how many bytes in the row (used to create padding)
+  //unsigned long fileSize = 2ul * imageH * imageW + 54; // pix data + 54 byte hdr
+  int fileSize = 54 + imageH*rowSize;        // headers (54 bytes) + pixel data
+  // create padding (based on the number of pixels in a row
+  unsigned char bmpPad[rowSize - 3*imageW];
+  for (int i=0; i<sizeof(bmpPad); i++) {         // fill with 0s
+    bmpPad[i] = 0;
+  }
 
   bmFlHdr[ 2] = (unsigned char)(fileSize      ); // all ints stored little-endian
   bmFlHdr[ 3] = (unsigned char)(fileSize >>  8); // i.e., LSB first
@@ -60,7 +66,7 @@ bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const in
 
   //info header
   unsigned char bmInHdr[40] = {
-    40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 16, 0
+    40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 24, 0
   };
   // 40 = info header size
   //  1 = num of color planes
@@ -79,21 +85,15 @@ bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const in
   outFile.write(bmInHdr, sizeof(bmInHdr));
 
   for ( int i = imageH - 1; i >= 0; i-- ) {
-    _tft->readRectRGB( 0, i, imageW, 1, bmpBuffer ); // capture a whole line
+    _tft->readRectRGB( 0, i, imageW, 1, rgbBuffer ); // capture a whole line
     for ( int j = 0; j < imageW; j++ ) {
-      uint16_t rgb = _tft->color565( bmpBuffer[j*3], bmpBuffer[(j*3)+1], bmpBuffer[(j*3)+2] );
-      colorByteH = ( rgb & 0xFF00 ) >> 8;
-      colorByteL = rgb & 0x00FF;
-      //RGB565 to RGB555 conversion... 555 is default for uncompressed BMP
-      //this conversion is from ...Arduino forum topic=177361.0
-      colorByteL = ( colorByteH << 7 ) | ( ( colorByteL & 0xC0 ) >> 1 ) | ( colorByteL & 0x1f );
-      colorByteH = colorByteH >> 1;
-      outFile.write( colorByteL );
-      outFile.write( colorByteH );
-      //vTaskDelay(1);
+      outFile.write(rgbBuffer[j].b);
+      outFile.write(rgbBuffer[j].g);
+      outFile.write(rgbBuffer[j].r);
     }
+    outFile.write(bmpPad, (4-(imageW*3)%4)%4);
   }
   outFile.close();
-  free( bmpBuffer );
+  free( rgbBuffer );
   return _fileSystem->exists( filename );
 }

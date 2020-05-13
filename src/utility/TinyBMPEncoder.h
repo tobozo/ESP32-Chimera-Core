@@ -40,7 +40,7 @@ class BMP_Encoder {
 
   private:
 
-    uint8_t *bmpBuffer = NULL;
+    RGBColor *rgbBuffer = NULL;
     M5Display *_tft;
     fs::FS * _fileSystem;
 

@@ -58,6 +58,7 @@ void loop() {
 
   genCount = NUMGEN;
 
+  M5.Lcd.startWrite();
   drawGrid();
 
   //Compute generations
@@ -73,6 +74,7 @@ void loop() {
     }
 
   }
+  M5.Lcd.endWrite();
 }
 
 //Draws the grid on the display

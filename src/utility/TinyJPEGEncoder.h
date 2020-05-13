@@ -184,9 +184,11 @@ typedef enum {
 
 #pragma pack(pop)
 
+typedef void (*jpeg_encoder_callback_t)(uint32_t y, uint32_t h, unsigned char* rgb_buffer, void* device);
 
 class JPEG_Encoder {
   public:
+    
 
     fs::File jpegFile;
     fs::FS * _fileSystem;
@@ -196,13 +198,13 @@ class JPEG_Encoder {
 
     void       init( fs::FS &fileSystem );
     void       begin( bool ifPsram = true );
-    int        encodeToFile( const char* dest_path, const int width, const int height, const int numComponents, const unsigned char* src_data );
-    int        encodeWithFunc( writeFunc* func, fs::File jpegFile, const int quality, const int width, const int height, const int numComponents, const unsigned char* src_data );
+    int        encodeToFile( const char* dest_path, const int width, const int height, const int numComponents, unsigned char* src_data, jpeg_encoder_callback_t fp, void* device );
+    int        encodeWithFunc( writeFunc* func, fs::File jpegFile, const int quality, const int width, const int height, const int numComponents, unsigned char* src_data, jpeg_encoder_callback_t fp, void* device );
 
   private:
 
-    int        encodeMain( TJEState* state, const unsigned char* src_data, const int width, const int height, const int srcNumComponents );
-    int        encodeToFileAtQuality( const char* dest_path, const int quality, const int width, const int height, const int numComponents, const unsigned char* src_data );
+    int        encodeMain( TJEState* state, unsigned char* src_data, jpeg_encoder_callback_t fp, void* device, const int width, const int height, const int srcNumComponents );
+    int        encodeToFileAtQuality( const char* dest_path, const int quality, const int width, const int height, const int numComponents, unsigned char* src_data, jpeg_encoder_callback_t fp, void* device );
     void       encodeAndWriteMCU( TJEState*, float*, float*, uint8_t*, uint16_t*, uint8_t*, uint16_t*, int*, uint32_t*, uint32_t* );
     void       write( TJEState* state, const void* data, size_t num_bytes, size_t num_elements );
     void       write_DQT( TJEState* state, const uint8_t* matrix, uint8_t id );
