@@ -25,6 +25,10 @@ Contributors:
 #include <cmath>
 #include <stdarg.h>
 
+#if defined (ARDUINO)
+#include <Print.h>
+#endif
+
 namespace lgfx
 {
   enum attribute_t
@@ -128,6 +132,11 @@ namespace lgfx
         }
         return true;
       }
+      if (uniCode == 0x20) {
+        metrics->width = metrics->x_advance = metrics->y_advance * 2 / 7;
+        metrics->x_offset = 0;
+        return true;
+      }
       return false;
     }
 
@@ -166,11 +175,11 @@ namespace lgfx
       gxAdvance =  (uint8_t*)heap_alloc_psram( gCount );    // xAdvance - to move x cursor
       gdX       =   (int8_t*)heap_alloc_psram( gCount );    // offset for bitmap left edge relative to cursor X
 
-      if (gBitmap  ) gBitmap   = (uint32_t*)heap_alloc( gCount * 4); // seek pointer to glyph bitmap in the file
-      if (gUnicode ) gUnicode  = (uint16_t*)heap_alloc( gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
-      if (gWidth   ) gWidth    =  (uint8_t*)heap_alloc( gCount );    // Width of glyph
-      if (gxAdvance) gxAdvance =  (uint8_t*)heap_alloc( gCount );    // xAdvance - to move x cursor
-      if (gdX      ) gdX       =   (int8_t*)heap_alloc( gCount );    // offset for bitmap left edge relative to cursor X
+      if (nullptr == gBitmap  ) gBitmap   = (uint32_t*)heap_alloc( gCount * 4); // seek pointer to glyph bitmap in the file
+      if (nullptr == gUnicode ) gUnicode  = (uint16_t*)heap_alloc( gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
+      if (nullptr == gWidth   ) gWidth    =  (uint8_t*)heap_alloc( gCount );    // Width of glyph
+      if (nullptr == gxAdvance) gxAdvance =  (uint8_t*)heap_alloc( gCount );    // xAdvance - to move x cursor
+      if (nullptr == gdX      ) gdX       =   (int8_t*)heap_alloc( gCount );    // offset for bitmap left edge relative to cursor X
 
       if (!gUnicode
        || !gBitmap
@@ -198,12 +207,12 @@ namespace lgfx
         uint16_t height = __builtin_bswap32(buffer[1]); // Height of glyph
         if ((unicode > 0xFF) || ((unicode > 0x20) && (unicode < 0xA0) && (unicode != 0x7F))) {
           int16_t dY =  (int16_t)__builtin_bswap32(buffer[4]); // y delta from baseline
-//ESP_LOGI("LGFX", "unicode:%x  dY:%d", unicode, dY);
-          if (maxAscent < dY) {
+//Serial.printf("LGFX:unicode:%x  dY:%d\r\n", unicode, dY);
+          if (maxAscent < dY && unicode != 0x3000) {
             maxAscent = dY;
           }
-          if (maxDescent < (height - dY)) {
-//ESP_LOGI("LGFX", "maxDescent:%d", maxDescent);
+          if (maxDescent < (height - dY) && unicode != 0x3000) {
+//Serial.printf("LGFX:maxDescent:%d\r\n", maxDescent);
             maxDescent = height - dY;
           }
         }
@@ -214,7 +223,7 @@ namespace lgfx
 
       yAdvance = maxAscent + maxDescent;
 
-//ESP_LOGI("LGFX", "maxDescent:%d", maxDescent);
+//Serial.printf("LGFX:maxDescent:%d\r\n", maxDescent);
       return true;
     }
   };
@@ -222,7 +231,11 @@ namespace lgfx
 //----------------------------------------------------------------------------
 
   template <class Base>
-  class LGFX_Font_Support : public Base {
+  class LGFX_Font_Support : public Base
+#if defined (ARDUINO)
+  , public Print
+#endif
+  {
   public:
     virtual ~LGFX_Font_Support() { unloadFont(); }
 
@@ -444,11 +457,13 @@ namespace lgfx
     }
 
 
-#if defined (ARDUINO) && defined (FS_H)
+#if defined (ARDUINO)
+ #if defined (FS_H) || defined (__SEEED_FS__)
     void loadFont(const char *path, fs::FS &fs) {
       _font_file.setFS(fs);
       loadFont(path);
     }
+ #endif
 #endif
 
     void loadFont(const uint8_t* array) {
@@ -471,13 +486,16 @@ namespace lgfx
       this->prepareTmpTransaction(&_font_file);
       _font_file.preRead();
 
-      bool result = _font_file.open(path, "rb");
+      bool result = _font_file.open(path, "r");
       if (!result) {
         std::string filename = "/";
         if (path[0] == '/') filename = path;
         else filename += path;
-        filename += ".vlw";
-        result = _font_file.open(filename.c_str(), "rb");
+        int len = strlen(path);
+        if (memcmp(&path[len - 4], ".vlw", 4)) {
+          filename += ".vlw";
+        }
+        result = _font_file.open(filename.c_str(), "r");
       }
       auto font = new VLWfont();
       this->_dynamic_font = font;
@@ -536,6 +554,7 @@ namespace lgfx
 // print & text support
 //----------------------------------------------------------------------------
 // Arduino Print.h compatible
+  #if !defined (ARDUINO)
     size_t print(const char str[])      { return write(str); }
     size_t print(char c)                { return write(c); }
     size_t print(int  n, int base = 10) { return print((long)n, base); }
@@ -567,12 +586,10 @@ namespace lgfx
     size_t println(unsigned long n, int base = 10) { size_t t = print(n,base); return println() + t; }
     size_t println(double        n, int digits= 2) { size_t t = print(n, digits); return println() + t; }
 
-  #if defined (ARDUINO)
     size_t print(const String &s) { return write(s.c_str(), s.length()); }
     size_t print(const __FlashStringHelper *s)   { return print(reinterpret_cast<const char *>(s)); }
     size_t println(const String &s)              { size_t t = print(s); return println() + t; }
     size_t println(const __FlashStringHelper *s) { size_t t = print(s); return println() + t; }
-  #endif
 
     size_t printf(const char * format, ...)  __attribute__ ((format (printf, 2, 3)))
     {
@@ -603,6 +620,7 @@ namespace lgfx
 
     size_t write(const char* str)                 { return (!str) ? 0 : write((const uint8_t*)str, strlen(str)); }
     size_t write(const char *buf, size_t size)    { return write((const uint8_t *) buf, size); }
+  #endif
     size_t write(const uint8_t *buf, size_t size) { size_t n = 0; this->startWrite(); while (size--) { n += write(*buf++); } this->endWrite(); return n; }
     size_t write(uint8_t utf8)
     {
@@ -1263,33 +1281,35 @@ namespace lgfx
     {
       auto me = (LGFX_Font_Support*)lgfxbase;
       auto font = (const VLWfont*)me->_font;
-
-      uint16_t gNum = 0;
-      if (!font->getUnicodeIndex(code, &gNum)) {
-        return 0;
-      }
-
       auto file = font->_fontData;
 
-      file->preRead();
+      uint32_t buffer[6] = {0};
+      uint16_t gNum = 0;
 
-      file->seek(28 + gNum * 28);  // headerPtr
-      uint32_t buffer[6];
-      file->read((uint8_t*)buffer, 24);
-      uint32_t h        = __builtin_bswap32(buffer[0]); // Height of glyph
-      uint32_t w        = __builtin_bswap32(buffer[1]); // Width of glyph
-      uint32_t xAdvance = __builtin_bswap32(buffer[2]) * style->size_x; // xAdvance - to move x cursor
+      if (code == 0x20) {
+        gNum = 0xFFFF;
+        buffer[2] = __builtin_bswap32(font->spaceWidth);
+      } else if (!font->getUnicodeIndex(code, &gNum)) {
+        return 0;
+      } else {
+        file->preRead();
+        file->seek(28 + gNum * 28);
+        file->read((uint8_t*)buffer, 24);
+        file->seek(font->gBitmap[gNum]);
+      }
+      int32_t h        = __builtin_bswap32(buffer[0]); // Height of glyph
+      int32_t w        = __builtin_bswap32(buffer[1]); // Width of glyph
+      int32_t xAdvance = __builtin_bswap32(buffer[2]) * style->size_x; // xAdvance - to move x cursor
       int32_t xoffset   = (int32_t)((int8_t)__builtin_bswap32(buffer[4])) * style->size_x; // x delta from cursor
       int32_t dY        = (int16_t)__builtin_bswap32(buffer[3]); // y delta from baseline
       int32_t yoffset = ((int32_t)font->maxAscent - dY) * (int32_t)style->size_y;
 
       uint8_t pbuffer[w * h];
       uint8_t* pixel = pbuffer;
-
-      file->seek(font->gBitmap[gNum]);  // headerPtr
-      file->read(pixel, w * h);
-
-      file->postRead();
+      if (gNum != 0xFFFF) {
+        file->read(pixel, w * h);
+        file->postRead();
+      }
 
       me->startWrite();
 
@@ -1303,8 +1323,8 @@ namespace lgfx
       }
       me->_filled_x = right;
 
-      y += yoffset;
       x += xoffset;
+      y += yoffset;
       int32_t l = 0;
       int32_t bx = x;
       int32_t bw = w * style->size_x;
@@ -1312,7 +1332,7 @@ namespace lgfx
       if (x < clip_left) { l = -((x - clip_left) / style->size_x); bw += (x - clip_left); bx = clip_left; }
       int32_t clip_right = me->_clip_r + 1;
       if (bw > clip_right - bx) bw = clip_right - bx;
-      if (bw > 0 && (y <= me->_clip_b) && (me->_clip_t < (y + h * style->size_y))) {
+      if (bw >= 0 && (y <= me->_clip_b) && (me->_clip_t < (int32_t)(y + h * style->size_y))) {
         int32_t fore_r = ((style->fore_rgb888>>16)&0xFF);
         int32_t fore_g = ((style->fore_rgb888>> 8)&0xFF);
         int32_t fore_b = ((style->fore_rgb888)    &0xFF);
@@ -1329,39 +1349,40 @@ namespace lgfx
               me->writeFillRect(left, y + h * style->size_y, right - left, tmp);
           }
 
-          int32_t back_r = ((style->back_rgb888>>16)&0xFF);
-          int32_t back_g = ((style->back_rgb888>> 8)&0xFF);
-          int32_t back_b = ((style->back_rgb888)    &0xFF);
           int32_t r = (clip_right - x + style->size_x - 1) / style->size_x;
           if (r > w) r = w;
-          do {
-            if (right > left) {
-              me->setRawColor(colortbl[0]);
-              me->writeFillRect(left, y, right - left, style->size_y);
-            }
-            int32_t i = l;
+          if (l < r) {
+            int32_t back_r = ((style->back_rgb888>>16)&0xFF);
+            int32_t back_g = ((style->back_rgb888>> 8)&0xFF);
+            int32_t back_b = ((style->back_rgb888)    &0xFF);
             do {
-              while (pixel[i] != 0xFF) {
-                if (pixel[i] != 0) {
-                  int32_t p = 1 + (uint32_t)pixel[i];
-                  me->setColor(color888( ( fore_r * p + back_r * (257 - p)) >> 8
-                                       , ( fore_g * p + back_g * (257 - p)) >> 8
-                                       , ( fore_b * p + back_b * (257 - p)) >> 8 ));
-                  me->writeFillRect(i * style->size_x + x, y, style->size_x, style->size_y);
-                }
-                if (++i == r) break;
+              if (right > left) {
+                me->setRawColor(colortbl[0]);
+                me->writeFillRect(left, y, right - left, style->size_y);
               }
-              if (i == r) break;
-              int32_t dl = 1;
-              while (i + dl != r && pixel[i + dl] == 0xFF) { ++dl; }
-              me->setRawColor(colortbl[1]);
-              me->writeFillRect(x + i * style->size_x, y, dl * style->size_x, style->size_y);
-              i += dl;
-            } while (i != r);
-            pixel += w;
-            y += style->size_y;
-          } while (--h);
-
+              int32_t i = l;
+              do {
+                while (pixel[i] != 0xFF) {
+                  if (pixel[i] != 0) {
+                    int32_t p = 1 + (uint32_t)pixel[i];
+                    me->setColor(color888( ( fore_r * p + back_r * (257 - p)) >> 8
+                                         , ( fore_g * p + back_g * (257 - p)) >> 8
+                                         , ( fore_b * p + back_b * (257 - p)) >> 8 ));
+                    me->writeFillRect(i * style->size_x + x, y, style->size_x, style->size_y);
+                  }
+                  if (++i == r) break;
+                }
+                if (i == r) break;
+                int32_t dl = 1;
+                while (i + dl != r && pixel[i + dl] == 0xFF) { ++dl; }
+                me->setRawColor(colortbl[1]);
+                me->writeFillRect(x + i * style->size_x, y, dl * style->size_x, style->size_y);
+                i += dl;
+              } while (i != r);
+              pixel += w;
+              y += style->size_y;
+            } while (--h);
+          }
         } else { // alpha blend mode
 
           int32_t xshift = (bx - x) % style->size_x;
