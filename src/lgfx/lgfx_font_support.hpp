@@ -32,9 +32,14 @@ Contributors:
 
 namespace lgfx
 {
-  enum attribute_t
-  { cp437_switch = 1
-  , utf8_switch  = 2
+  struct TextStyle {
+    std::uint32_t fore_rgb888 = 0xFFFFFFU;
+    std::uint32_t back_rgb888 = 0;
+    std::int_fast8_t size_x = 1;
+    std::int_fast8_t size_y = 1;
+    textdatum_t datum = textdatum_t::top_left;
+    bool utf8 = true;
+    bool cp437 = false;
   };
 
 /*
@@ -252,8 +257,9 @@ namespace lgfx
     void setCursor( std::int16_t x, std::int16_t y, std::uint8_t font) { _filled_x = 0; _cursor_x = x; _cursor_y = y; _font = fontdata[font]; }
     void setTextSize(std::uint8_t s) { setTextSize(s,s); }
     void setTextSize(std::uint8_t sx, std::uint8_t sy) { _text_style.size_x = (sx > 0) ? sx : 1; _text_style.size_y = (sy > 0) ? sy : 1; }
-    void setTextDatum(std::uint8_t datum) { _text_style.datum = (textdatum_t)datum; }
     void setTextDatum(textdatum_t datum) { _text_style.datum = datum; }
+    [[deprecated("use textdatum_t")]]
+    void setTextDatum(std::uint8_t datum) { _text_style.datum = (textdatum_t)datum; }
     void setTextPadding(std::uint16_t padding_x) { _padding_x = padding_x; }
     void setTextWrap( bool wrapX, bool wrapY = false) { _textwrap_x = wrapX; _textwrap_y = wrapY; }
     void setTextScroll(bool scroll) { _textscroll = scroll; if (_cursor_x < this->_sx) { _cursor_x = this->_sx; } if (_cursor_y < this->_sy) { _cursor_y = this->_sy; } }
@@ -434,7 +440,6 @@ namespace lgfx
 
     void cp437(bool enable = true) { _text_style.cp437 = enable; }  // AdafruitGFX compatible.
 
-    void setAttribute(std::uint8_t attr_id, std::uint8_t param) { setAttribute((attribute_t)attr_id, param); }
     void setAttribute(attribute_t attr_id, std::uint8_t param) {
       switch (attr_id) {
         case cp437_switch:
@@ -644,10 +649,10 @@ namespace lgfx
         std::int_fast16_t xo = _font_metrics.x_offset  * _text_style.size_x;
         std::int_fast16_t w  = std::max(xo + _font_metrics.width * _text_style.size_x, _font_metrics.x_advance * _text_style.size_x);
         if (_textscroll || _textwrap_x) {
-          std::int32_t llimit = _textscroll ? this->_sx : 0;
+          std::int32_t llimit = _textscroll ? this->_sx : this->_clip_l;
           if (_cursor_x < llimit - xo) _cursor_x = llimit - xo;
           else {
-            std::int32_t rlimit = _textscroll ? this->_sx + this->_sw : this->_width;
+            std::int32_t rlimit = _textscroll ? this->_sx + this->_sw : (this->_clip_r + 1);
             if (_cursor_x + w > rlimit) {
               _filled_x = llimit;
               _cursor_x = llimit - xo;
@@ -656,7 +661,7 @@ namespace lgfx
           }
         }
 
-        std::int_fast16_t h  = _font_metrics.height    * _text_style.size_y;
+        std::int_fast16_t h  = _font_metrics.height * _text_style.size_y;
 
         std::int_fast16_t ydiff = 0;
         if (_text_style.datum & middle_left) {          // vertical: middle
@@ -678,12 +683,12 @@ namespace lgfx
             }
           }
         } else if (_textwrap_y) {
-          if (y + h > this->_height) {
+          if (y + h > (this->_clip_b + 1)) {
             _filled_x = 0;
             _cursor_x = - xo;
             y = 0;
           } else
-          if (y < 0) y = 0;
+          if (y < this->_clip_t) y = this->_clip_t;
         }
         _cursor_y = y - ydiff;
         y -= _font_metrics.y_offset  * _text_style.size_y;
