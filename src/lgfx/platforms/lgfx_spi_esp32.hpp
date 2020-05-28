@@ -20,19 +20,40 @@ Contributors:
 #ifndef LGFX_SPI_ESP32_HPP_
 #define LGFX_SPI_ESP32_HPP_
 
+#include <cstring>
 #include <type_traits>
+
+#include <driver/periph_ctrl.h>
+#include <driver/rtc_io.h>
+#include <driver/spi_common.h>
 #include <esp_heap_caps.h>
 #include <freertos/task.h>
-#include <driver/spi_common.h>
+#include <soc/rtc.h>
+#include <soc/spi_reg.h>
+#include <soc/spi_struct.h>
 
 #if defined (ARDUINO) // Arduino ESP32
  #include <SPI.h>
+ #include <driver/periph_ctrl.h>
+ #include <soc/periph_defs.h>
+ #include <esp32-hal-cpu.h>
 #else
  #include <esp_log.h>
  #include <driver/spi_master.h>
  #if ESP_IDF_VERSION_MAJOR > 3
   #include <driver/spi_common_internal.h>
  #endif
+
+  static std::uint32_t getApbFrequency()
+  {
+    rtc_cpu_freq_config_t conf;
+    rtc_clk_cpu_freq_get_config(&conf);
+    if (conf.freq_mhz >= 80){
+      return 80 * 1000000;
+    }
+    return (conf.source_freq_mhz * 1000000) / conf.div;
+  }
+
 #endif
 
 #include "esp32_common.hpp"
@@ -324,9 +345,8 @@ namespace lgfx
 
 //----------------------------------------------------------------------------
   protected:
-//    template<class T> static PanelCommon* createPanel(const T&) { return new T; }
-//    template<class T> static PanelCommon* createPanelFromConfig(decltype(T::panel)*) { return createPanel(T::panel); }
-//    template<class T> static PanelCommon* createPanelFromConfig(...) { return nullptr; }
+
+    bool isReadable_impl(void) const override { return _panel->spi_read; }
 
     void postSetPanel(void)
     {
@@ -336,9 +356,10 @@ namespace lgfx
       fpGetWindowAddr = _len_setwindow == 32 ? PanelCommon::getWindowAddr32 : PanelCommon::getWindowAddr16;
 
       std::int32_t spi_dc = _panel->spi_dc;
+      _mask_reg_dc = (spi_dc < 0) ? 0 : (1 << (spi_dc & 31));
+
       _gpio_reg_dc_h = get_gpio_hi_reg(spi_dc);
       _gpio_reg_dc_l = get_gpio_lo_reg(spi_dc);
-      _mask_reg_dc = (spi_dc < 0) ? 0 : (1 << (spi_dc & 31));
       dc_h();
       lgfxPinMode(spi_dc, pin_mode_t::output);
 
@@ -754,7 +775,7 @@ namespace lgfx
               memcpy(buf, src, len);
               write_bytes(buf, len, true);
             } else {
-              write_bytes(src, len, false);
+              write_bytes(src, len, use_dma);
             }
           } else {
             auto add = param->src_width * bytes;
@@ -793,7 +814,7 @@ namespace lgfx
             auto buf = get_dmabuffer(w * bytes);
             std::int32_t len = fp_copy(buf, 0, w - i, param);
             setWindow_impl(x + i, y, x + i + len - 1, y);
-            write_bytes(buf, len * bytes, use_dma);
+            write_bytes(buf, len * bytes, true);
             if (w == (i += len)) break;
           }
           param->src_x = src_x;
@@ -1188,6 +1209,31 @@ namespace lgfx
     virtual void cs_h_impl(void) {}
     virtual void cs_l_impl(void) {}
 //*/
+
+    static std::uint32_t FreqToClockDiv(std::uint32_t fapb, std::uint32_t hz)
+    {
+      if (hz > ((fapb >> 2) * 3)) {
+        return SPI_CLK_EQU_SYSCLK;
+      }
+      std::uint32_t besterr = fapb;
+      std::uint32_t halfhz = hz >> 1;
+      std::uint32_t bestn = 0;
+      std::uint32_t bestpre = 0;
+      for (std::uint32_t n = 2; n <= 64; n++) {
+        std::uint32_t pre = ((fapb / n) + halfhz) / hz;
+        if (pre == 0) pre = 1;
+        else if (pre > 8192) pre = 8192;
+
+        int errval = abs((std::int32_t)(fapb / (pre * n) - hz));
+        if (errval < besterr) {
+          besterr = errval;
+          bestn = n - 1;
+          bestpre = pre - 1;
+          if (!besterr) break;
+        }
+      }
+      return bestpre << 18 | bestn << 12 | ((bestn-1)>>1) << 6 | bestn;
+    }
 
     static constexpr int _dma_channel= get_dma_channel<CFG,  0>::value;
     static constexpr int _spi_mosi = get_spi_mosi<CFG, -1>::value;

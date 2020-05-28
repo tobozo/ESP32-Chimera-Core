@@ -35,7 +35,6 @@ void BMP_Encoder::init( M5Display *tft, fs::FS &fileSystem  ) {
 }
 
 bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const int imageH ) {
-  byte colorByteH, colorByteL;
 
   rgbBuffer = (RGBColor*)calloc( imageW+1, sizeof( RGBColor ) );
   fs::File outFile = _fileSystem->open( filename, "w" );  // <-----fs:: added for compatibility with SdFat ------

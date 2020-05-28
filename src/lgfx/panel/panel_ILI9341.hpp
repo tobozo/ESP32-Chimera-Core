@@ -19,12 +19,6 @@ namespace lgfx
 
   protected:
 
-//    enum colmod_t
-//    { RGB565_2BYTE = 0x55
-//    , RGB666_3BYTE = 0x66
-//    };
-//    std::uint8_t getColMod(std::uint8_t bpp) const override { return (bpp > 16) ? RGB666_3BYTE : RGB565_2BYTE; }
-
     struct CMD : public PanelIlitekCommon::CommandCommon
     {
       static constexpr std::uint8_t FRMCTR1 = 0xB1;
@@ -170,12 +164,12 @@ namespace lgfx
       gpio_rst = 0x0207; // PORTC  7  (PORTC=0x0200 |  7=0x0007)
       gpio_bl  = 0x0205; // PORTC  5  (PORTC=0x0200 |  5=0x0005)
       freq_fill  = 100000000;
-      freq_write =  50000000;
+      freq_write =  60000000;
       freq_read  =  20000000;
       rotation = 1;
     }
 
-    std::uint8_t currentBrightness = 255;
+    std::uint8_t currentBrightness = 127;
     std::uint8_t maxBrightness = 255;
 
     void init(void) override

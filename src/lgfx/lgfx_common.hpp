@@ -21,8 +21,7 @@ Contributors:
 #define LGFX_COMMON_HPP_
 
 #include <type_traits>
-#include <algorithm>
-#include <string.h>
+#include <cstring>
 #include <cstdint>
 
 enum jpeg_div_t {
@@ -35,7 +34,68 @@ enum jpeg_div_t {
 
 namespace lgfx
 {
-  static constexpr float deg_to_rad = 0.017453292519943295769236907684886;
+  namespace colors  // Colour enumeration
+  {
+    static constexpr int TFT_BLACK       = 0x0000;      /*   0,   0,   0 */
+    static constexpr int TFT_NAVY        = 0x000F;      /*   0,   0, 128 */
+    static constexpr int TFT_DARKGREEN   = 0x03E0;      /*   0, 128,   0 */
+    static constexpr int TFT_DARKCYAN    = 0x03EF;      /*   0, 128, 128 */
+    static constexpr int TFT_MAROON      = 0x7800;      /* 128,   0,   0 */
+    static constexpr int TFT_PURPLE      = 0x780F;      /* 128,   0, 128 */
+    static constexpr int TFT_OLIVE       = 0x7BE0;      /* 128, 128,   0 */
+    static constexpr int TFT_LIGHTGREY   = 0xD69A;      /* 211, 211, 211 */
+    static constexpr int TFT_DARKGREY    = 0x7BEF;      /* 128, 128, 128 */
+    static constexpr int TFT_BLUE        = 0x001F;      /*   0,   0, 255 */
+    static constexpr int TFT_GREEN       = 0x07E0;      /*   0, 255,   0 */
+    static constexpr int TFT_CYAN        = 0x07FF;      /*   0, 255, 255 */
+    static constexpr int TFT_RED         = 0xF800;      /* 255,   0,   0 */
+    static constexpr int TFT_MAGENTA     = 0xF81F;      /* 255,   0, 255 */
+    static constexpr int TFT_YELLOW      = 0xFFE0;      /* 255, 255,   0 */
+    static constexpr int TFT_WHITE       = 0xFFFF;      /* 255, 255, 255 */
+    static constexpr int TFT_ORANGE      = 0xFDA0;      /* 255, 180,   0 */
+    static constexpr int TFT_GREENYELLOW = 0xB7E0;      /* 180, 255,   0 */
+    static constexpr int TFT_PINK        = 0xFE19;      /* 255, 192, 203 */ //Lighter pink, was 0xFC9F      
+    static constexpr int TFT_BROWN       = 0x9A60;      /* 150,  75,   0 */
+    static constexpr int TFT_GOLD        = 0xFEA0;      /* 255, 215,   0 */
+    static constexpr int TFT_SILVER      = 0xC618;      /* 192, 192, 192 */
+    static constexpr int TFT_SKYBLUE     = 0x867D;      /* 135, 206, 235 */
+    static constexpr int TFT_VIOLET      = 0x915C;      /* 180,  46, 226 */
+    static constexpr int TFT_TRANSPARENT = 0x0120;
+  }
+
+  namespace textdatum
+  {
+    enum textdatum_t : std::uint8_t
+    //  0:left   1:centre   2:right
+    //  0:top    4:middle   8:bottom   16:baseline
+    { top_left        =  0  // Top left (default)
+    , top_center      =  1  // Top center
+    , top_centre      =  1  // Top center
+    , top_right       =  2  // Top right
+    , middle_left     =  4  // Middle left
+    , middle_center   =  5  // Middle center
+    , middle_centre   =  5  // Middle center
+    , middle_right    =  6  // Middle right
+    , bottom_left     =  8  // Bottom left
+    , bottom_center   =  9  // Bottom center
+    , bottom_centre   =  9  // Bottom center
+    , bottom_right    = 10  // Bottom right
+    , baseline_left   = 16  // Baseline left (Line the 'A' character would sit on)
+    , baseline_center = 17  // Baseline center
+    , baseline_centre = 17  // Baseline center
+    , baseline_right  = 18  // Baseline right
+    };
+  };
+  using namespace textdatum;
+
+  namespace attribute
+  {
+    enum attribute_t
+    { cp437_switch = 1
+    , utf8_switch  = 2
+    };
+  }
+  using namespace attribute;
 
   enum color_depth_t : std::uint8_t
   { palette_1bit   =  1 //   2 color
@@ -47,9 +107,6 @@ namespace lgfx
   , rgb888_3Byte   = 24 // RRRRRRRR GGGGGGGG BBBBBBBB
   , argb8888_4Byte = 32 // AAAAAAAA RRRRRRRR GGGGGGGG BBBBBBBB
   };
-
-
-
 
   __attribute__ ((always_inline)) inline static std::uint8_t  color332(std::uint8_t r, std::uint8_t g, std::uint8_t b) { return (r >> 5) << 5 | (g >> 5) << 2 | b >> 6; }
   __attribute__ ((always_inline)) inline static std::uint16_t color565(std::uint8_t r, std::uint8_t g, std::uint8_t b) { return (r >> 3) <<11 | (g >> 2) << 5 | b >> 3; }
@@ -95,7 +152,7 @@ namespace lgfx
   struct rgb888_t;    // 24bpp
   struct argb8888_t;  // 32bpp
   struct swap565_t;   // 16bpp
-  struct bgr666_t;    // 18bpp
+  struct bgr666_t;    // 18bpp (24bpp xxRRRRRRxxGGGGGGxxBBBBBB (for OLED SSD1351)
   struct bgr888_t;    // 24bpp
 
 
@@ -403,6 +460,56 @@ namespace lgfx
     inline operator bool() const { return raw & 0x00FFFFFF; }
   };
 
+  struct get_depth_impl {
+  template<typename T> static constexpr std::integral_constant<color_depth_t, T::depth> check(decltype(T::depth)*);
+  template<typename T> static constexpr std::integral_constant<color_depth_t, (color_depth_t)(sizeof(T) << 3) > check(...);
+  };
+  template<typename T> class get_depth : public decltype(get_depth_impl::check<T>(nullptr)) {};
+
+  template <typename TSrc>
+  static auto get_fp_convert_src(color_depth_t dst_depth, bool has_palette) -> std::uint32_t(*)(std::uint32_t)
+  {
+    if (std::is_same<TSrc, rgb332_t>::value || std::is_same<TSrc, std::uint8_t>::value) {
+      switch (dst_depth) {
+      case rgb888_3Byte: return convert_rgb332_to_bgr888;
+      case rgb666_3Byte: return convert_rgb332_to_bgr666;
+      case rgb565_2Byte: return convert_rgb332_to_swap565;
+      case rgb332_1Byte: return has_palette
+                              ? convert_uint32_to_palette8
+                              : no_convert;
+      default: break;
+      }
+    } else if (std::is_same<TSrc, rgb565_t>::value || std::is_same<TSrc, std::uint16_t>::value || std::is_same<TSrc, int>::value) {
+      switch (dst_depth) {
+      case rgb888_3Byte: return convert_rgb565_to_bgr888;
+      case rgb666_3Byte: return convert_rgb565_to_bgr666;
+      case rgb565_2Byte: return convert_rgb565_to_swap565;
+      case rgb332_1Byte: return has_palette
+                              ? convert_uint32_to_palette8
+                              : convert_rgb565_to_rgb332;
+      default: break;
+      }
+    } else if (std::is_same<TSrc, rgb888_t>::value || std::is_same<TSrc, std::uint32_t>::value) {
+      switch (dst_depth) {
+      case rgb888_3Byte: return convert_rgb888_to_bgr888;
+      case rgb666_3Byte: return convert_rgb888_to_bgr666;
+      case rgb565_2Byte: return convert_rgb888_to_swap565;
+      case rgb332_1Byte: return has_palette
+                              ? convert_uint32_to_palette8
+                              : convert_rgb888_to_rgb332;
+      default: break;
+      }
+    }
+
+    switch (dst_depth) {
+    case palette_4bit: return convert_uint32_to_palette4;
+    case palette_2bit: return convert_uint32_to_palette2;
+    case palette_1bit: return convert_uint32_to_palette1;
+    default:           return no_convert;
+    }
+  }
+
+
   struct color_conv_t
   {
 //    std::uint32_t (*convert_bgr888)(std::uint32_t) = convert_bgr888_to_swap565;
@@ -418,7 +525,7 @@ namespace lgfx
     color_conv_t() = default;
     color_conv_t(const color_conv_t&) = default;
 
-    void setColorDepth(color_depth_t bpp, bool hasPalette = false) {
+    void setColorDepth(color_depth_t bpp, bool has_palette = false) {
       x_mask = 0;
       if (     bpp > 18) { bpp = rgb888_3Byte; bytes = 3; bits = 24; }
       else if (bpp > 16) { bpp = rgb666_3Byte; bytes = 3; bits = 24; }
@@ -430,6 +537,10 @@ namespace lgfx
 
       colormask = (1 << bits) - 1;
       depth = bpp;
+      convert_rgb888 = get_fp_convert_src<rgb888_t>(bpp, has_palette);
+      convert_rgb565 = get_fp_convert_src<rgb565_t>(bpp, has_palette);
+      convert_rgb332 = get_fp_convert_src<rgb332_t>(bpp, has_palette);
+/*
       switch (bpp) {
       case rgb888_3Byte:
 //        convert_bgr888 = no_convert;
@@ -451,7 +562,7 @@ namespace lgfx
         convert_rgb332 = convert_rgb332_to_swap565;
         break;
       case rgb332_1Byte:
-        if (!hasPalette) {
+        if (!has_palette) {
 //          convert_bgr888 = convert_bgr888_to_rgb332;
           convert_rgb888 = convert_rgb888_to_rgb332;
           convert_rgb565 = convert_rgb565_to_rgb332;
@@ -482,6 +593,7 @@ namespace lgfx
         convert_rgb332 = convert_uint32_to_palette1;
         break;
       }
+//*/
     }
 
 #define TYPECHECK(dType) template < typename T, typename std::enable_if < (sizeof(T) == sizeof(dType)) && (std::is_signed<T>::value == std::is_signed<dType>::value), std::nullptr_t >::type=nullptr >
@@ -956,6 +1068,7 @@ namespace lgfx
 
     __attribute__ ((always_inline)) inline void preRead(void) { if (fp_pre_read) fp_pre_read(parent); }
     __attribute__ ((always_inline)) inline void postRead(void) { if (fp_post_read) fp_post_read(parent); }
+    __attribute__ ((always_inline)) inline bool hasParent(void) const { return parent; }
     void* parent = nullptr;
     void (*fp_pre_read)(void*) = nullptr;
     void (*fp_post_read)(void*) = nullptr;
@@ -982,6 +1095,12 @@ namespace lgfx
 //----------------------------------------------------------------------------
 }
 
+using namespace lgfx::colors;
+using namespace lgfx::textdatum;
+using namespace lgfx::attribute;
+
+
+typedef lgfx::bgr888_t RGBColor;
 
 #if defined (ESP32) || (CONFIG_IDF_TARGET_ESP32) || (ESP_PLATFORM)
 

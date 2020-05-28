@@ -8,6 +8,22 @@
 #endif
 
 namespace lgfx {
+  void BaseFont::getDefaultMetric(FontMetrics *metrics) const
+  {
+    metrics->width    = width;
+    metrics->x_advance = width;
+    metrics->x_offset  = 0;
+    metrics->height    = height;
+    metrics->y_advance = height;
+    metrics->y_offset  = 0;
+    metrics->baseline  = baseline;
+  }
+  void BDFfont::getDefaultMetric(FontMetrics *metrics) const
+  {
+    BaseFont::getDefaultMetric(metrics);
+    metrics->y_advance = y_advance;
+  }
+
   bool GLCDfont::updateFontMetric(FontMetrics*, std::uint16_t uniCode) const {
     return uniCode < 256;
   }
@@ -182,9 +198,9 @@ namespace fonts {
 namespace lgfx
 {
   // deprecated array.
-  PROGMEM const IFont* fontdata [] = {
+  const IFont* fontdata [] = {
     &fonts::Font0,  // GLCD font (Font 0)
-    &fonts::Font0,  // GLCD font (or GFX font)
+    &fonts::Font0,  // Font 1 current unused
     &fonts::Font2,
     &fonts::Font0,  // Font 3 current unused
     &fonts::Font4,
