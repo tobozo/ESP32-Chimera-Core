@@ -60,7 +60,7 @@ void TouchButton::drawButton(String label, boolean inverted, uint16_t margin) {
   _gfx->setTextColor(text);
   _gfx->setTextSize(_textsize);
 
-  uint8_t tempdatum = _gfx->getTextDatum();
+  textdatum_t tempdatum = _gfx->getTextDatum();
   _gfx->setTextDatum(ML_DATUM);
   if (label == "")
   _gfx->drawString(_label, _x1 + margin, _y1 + (_h/2));
@@ -89,7 +89,7 @@ void TouchButton::drawButton(boolean inverted) {
   _gfx->setTextColor(text);
   _gfx->setTextSize(_textsize);
 
-  uint8_t tempdatum = _gfx->getTextDatum();
+  textdatum_t tempdatum = _gfx->getTextDatum();
   _gfx->setTextDatum(MC_DATUM);
   _gfx->drawString(_label, _x1 + (_w/2), _y1 + (_h/2));
   _gfx->setTextDatum(tempdatum);

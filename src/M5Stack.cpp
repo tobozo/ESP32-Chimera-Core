@@ -6,21 +6,21 @@
 M5Stack::M5Stack() : isInited(0) {
 }
 
-void M5Stack::setJpgRenderer( bool legacy ) {
-  if( legacy ) {
-    islegacyJpegDecoder = true;
-    Lcd.setJpegRenderCallBack = nullptr;
-    Lcd.jpgFlashRenderFunc    = &jpgLegacyRenderer;
-    Lcd.jpgFSRenderFunc       = &jpgLegacyRenderer;
-    Lcd.jpgStreamRenderFunc   = &jpgLegacyRenderer;
-  } else {
-    islegacyJpegDecoder = false;
-    Lcd.setJpegRenderCallBack = &jpgCallBackSetter;
-    Lcd.jpgFlashRenderFunc    = &jpgRenderer;
-    Lcd.jpgFSRenderFunc       = &jpgRenderer;
-    Lcd.jpgStreamRenderFunc   = &jpgRenderer;
-  }
-}
+//void M5Stack::setJpgRenderer( bool legacy ) {
+//  if( legacy ) {
+//    islegacyJpegDecoder = true;
+//    Lcd.setJpegRenderCallBack = nullptr;
+//    Lcd.jpgFlashRenderFunc    = &jpgLegacyRenderer;
+//    Lcd.jpgFSRenderFunc       = &jpgLegacyRenderer;
+//    Lcd.jpgStreamRenderFunc   = &jpgLegacyRenderer;
+//  } else {
+//    islegacyJpegDecoder = false;
+//    Lcd.setJpegRenderCallBack = &jpgCallBackSetter;
+//    Lcd.jpgFlashRenderFunc    = &jpgRenderer;
+//    Lcd.jpgFSRenderFunc       = &jpgRenderer;
+//    Lcd.jpgStreamRenderFunc   = &jpgRenderer;
+//  }
+//}
 
 
 
@@ -41,44 +41,38 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Serial.print("M5Stack initializing...");
   }
 
+  // TF Card
+  if (SDEnable == true) {
+    sd_begin();
+  }
+
   // LCD INIT
   if (LCDEnable == true) {
     log_d("Enabling LCD");
     Lcd.begin();
 
     // provide consistent getWidth()/getHeight() to both Sprite and TFT image decoding
-    Lcd.setWidthGetter        = &setWidthGetter;
-    Lcd.setHeightGetter       = &setHeightGetter;
-    //Lcd.setColorPusher        = &setColorPusher;
-    Lcd.setWindowSetter       = &setWindowSetter;
-    //Lcd.setColorWriter        = &setColorWriter;
-    Lcd.setColorWriterArray   = &setColorWriterArray;
-    Lcd.setRgb565Converter    = &setRgb565Converter;
-    Lcd.setTransactionStarter = &setTransactionStarter;
-    Lcd.setTransactionEnder   = &setTransactionEnder;
-
-    setJpgRenderer( true );
-
-    Lcd.setPngRenderCallBack  = &pngCallBackSetter;
-    Lcd.pngFlashRenderFunc    = &pngRenderer;
-    Lcd.pngFSRenderFunc       = &pngRenderer;
-    Lcd.pngStreamRenderFunc   = &pngRenderer;
+//    Lcd.setWidthGetter        = &setWidthGetter;
+//    Lcd.setHeightGetter       = &setHeightGetter;
+//    //Lcd.setColorPusher        = &setColorPusher;
+//    Lcd.setWindowSetter       = &setWindowSetter;
+//    //Lcd.setColorWriter        = &setColorWriter;
+//    Lcd.setColorWriterArray   = &setColorWriterArray;
+//    Lcd.setRgb565Converter    = &setRgb565Converter;
+//    Lcd.setTransactionStarter = &setTransactionStarter;
+//    Lcd.setTransactionEnder   = &setTransactionEnder;
+//
+//    setJpgRenderer( true );
+//
+//    Lcd.setPngRenderCallBack  = &pngCallBackSetter;
+//    Lcd.pngFlashRenderFunc    = &pngRenderer;
+//    Lcd.pngFSRenderFunc       = &pngRenderer;
+//    Lcd.pngStreamRenderFunc   = &pngRenderer;
 
     if( ScreenShotEnable == true ) {
        ScreenShot.init( &Lcd, M5STACK_SD );
        ScreenShot.begin();
     }
-  }
-
-  // TF Card
-  if (SDEnable == true) {
-    #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
-      log_d("Enabling SD from TFCARD_CS_PIN");
-      M5STACK_SD.begin(TFCARD_CS_PIN, SPI, 40000000);
-    #else
-      log_d("Enabling SD_MMC");
-      M5STACK_SD.begin();
-    #endif
   }
 
   // TONE
@@ -96,6 +90,11 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   pinMode(BUTTON_JOY_Y_PIN, INPUT_PULLDOWN);
   pinMode(BUTTON_JOY_X_PIN, INPUT_PULLDOWN);
 #endif
+#if defined(ARDUINO_M5Stick_C) // M5Stick C
+  Axp.begin();
+  Rtc.begin();
+#endif
+
 
   // Set wakeup button
   Power.setWakeupButton(BUTTON_A_PIN);
@@ -151,6 +150,32 @@ void M5Stack::setWakeupButton(uint8_t button) {
   */
 void M5Stack::powerOFF() {
   M5.Power.deepSleep();
+}
+
+void M5Stack::sd_begin(void)
+{
+  #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
+
+    log_d("Enabling SD from TFCARD_CS_PIN");
+
+    M5STACK_SD.end();
+    SPI.end();
+    SPI.begin();
+    M5STACK_SD.begin(TFCARD_CS_PIN, SPI, 20000000);
+
+    if ( lgfx::LGFX_Config::spi_host == HSPI_HOST ) {
+      Lcd.setSPIShared(false);
+    }
+  #else
+    log_d("Enabling SD_MMC");
+    M5STACK_SD.begin();
+    Lcd.setSPIShared(false);
+  #endif
+}
+
+void M5Stack::sd_end(void)
+{
+  M5STACK_SD.end();
 }
 
 M5Stack M5;

@@ -1,5 +1,7 @@
 # ESP32-Chimera-Core Library
 
+[![arduino-library-badge](https://www.ardu-badge.com/badge/ESP32-Chimera-Core.svg?)](https://www.ardu-badge.com/ESP32-Chimera-Core)
+
 ![Illustration By Jacopo Ligozzi](https://user-images.githubusercontent.com/1893754/71980273-ed9bb100-321f-11ea-8982-49702af29c9f.png)
 
 
@@ -18,7 +20,6 @@ Support coming soon:
   - [M5StickC](https://m5stack.com/collections/m5-core/products/stick-c)
   - [M5Atom](https://m5stack.com/collections/m5-core/products/atom-matrix-esp32-development-kit)
 
-
 It also implements a set of extra features:
 
   - Zero-config automatic device selection based on the Arduino Boards menu selection
@@ -26,10 +27,29 @@ It also implements a set of extra features:
   - I2C Scanner
 
 
+GFX implementation is a courtesy of @lovyan03 who did a marvelous work of integrating his
+[LovyanGFX](https://github.com/lovyan03/LovyanGFX) library into his own [ESP32-Chimera-Core fork](https://github.com/lovyan03/ESP32-Chimera-Core).
+
+[LovyanGFX](https://github.com/lovyan03/LovyanGFX) is an optimized display driver maintained by [@lovyan03](https://github.com/lovyan03/),
+it brings an average 30% speed improvement along with more flexibility towards adding custom boards.
+
+This is still beta quality, most examples will fail due to the minor syntax changes, but the tradeoff is really worth it!
+
+See [LovyanGFX Readme](https://github.com/lovyan03/LovyanGFX/blob/master/README.md) for an overview of those minor changes
+along with the new features such as shapes, arcs, polygon drawing and filling, and much more ...
+
+
 # Usage
 
-  - Download the latest release and unzip it in the `~/Arduino/libraries` folder.
   - Delete the `~/Arduino/M5Stack` folder to prevent any confusion at compilation (you can still restore it later using the Library Manager)
+
+then choose between managed install:
+
+  - Get it from the Arduino Library Manager
+
+or manual install:
+
+  - Download the [latest release](https://github.com/tobozo/ESP32-Chimera-Core/releases) and unzip it in the `~/Arduino/libraries` folder.
   - You're done!
 
 # Developers
