@@ -277,7 +277,7 @@
   //        SPI.write16(color);
   //      }
       inline void writePixels(uint16_t * colors, uint32_t len){
-        SPI.writePixels((uint8_t*)colors , len * 2);
+        pushColors(colors, len, true);
       }
       void progressBar(int x, int y, int w, int h, uint8_t val);
 
