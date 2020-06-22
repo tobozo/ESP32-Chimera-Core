@@ -1,7 +1,5 @@
 #include "M5Display.h"
 
-M5Display::M5Display() : LGFX() {}
-
 void M5Display::drawBitmap(int16_t x0, int16_t y0, int16_t w, int16_t h, const uint16_t *data) {
   bool swap = getSwapBytes();
   setSwapBytes(true);
