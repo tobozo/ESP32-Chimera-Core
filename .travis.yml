@@ -14,7 +14,7 @@ before_install:
 
   # TODO: undo
   # remove submodules, we don't want those to be actually tested for compliance
-  - git submodule status | rm -Rf `cut -d ' ' -f 3`
+  # - git submodule status | rm -Rf `cut -d ' ' -f 3`
 
   # Formatting checks:
   # Check for files starting with a blank line
@@ -95,3 +95,13 @@ notifications:
       - https://www.travisbuddy.com/
     on_success: never
     on_failure: always
+    
+deploy:
+  provider: releases
+  api_key: "$GH_TOKEN"
+  file_glob: true
+  file: /home/travis/build/tobozo/ESP32-Chimera-Core/*
+  skip_cleanup: true
+  draft: true
+  #on:
+  #  tags: true
