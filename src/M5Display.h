@@ -27,7 +27,7 @@
 #include "lgfx/panel/Panel_ST7789.hpp"    // LilyGO TTGO T-Watch
 #include "lgfx/panel/Panel_ST7735.hpp"    // M5StickC
 
-#include "lgfx/platforms/lgfx_spi_esp32.hpp"
+#include "lgfx/platforms/LGFX_SPI_ESP32.hpp"
 
 //  #include "lgfx/utility/In_eSPI.h"
 //  #include "utility/In_eSPI.h"
