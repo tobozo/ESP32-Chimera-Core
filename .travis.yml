@@ -95,12 +95,15 @@ notifications:
       - https://www.travisbuddy.com/
     on_success: never
     on_failure: always
-    
+
+before_deploy:
+- cd /home/travis/build/tobozo/
+- tar -zcf ${TRAVIS_BUILD_DIR}${TRAVIS_TAG}.tar.gz ESP32-Chimera-Core
+
 deploy:
   provider: releases
   api_key: "$GH_TOKEN"
-  file_glob: true
-  file: /home/travis/build/tobozo/ESP32-Chimera-Core/*
+  file: ${TRAVIS_BUILD_DIR}${TRAVIS_TAG}.tar.gz
   skip_cleanup: true
   draft: true
   #on:
