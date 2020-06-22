@@ -39,6 +39,7 @@ namespace lgfx
                          __attribute__ ((always_inline)) inline void setRawColor(std::uint32_t c) { _color.raw = c; }
 
     template<typename T> __attribute__ ((always_inline)) inline void setBaseColor(T c) { _base_rgb888 = convert_to_rgb888(c); }
+    std::uint32_t getBaseColor(void) const { return _base_rgb888; }
 
                          inline void clear      ( void )          { _color.raw = 0;  fillRect(0, 0, _width, _height); }
     template<typename T> inline void clear      ( const T& color) { setColor(color); fillRect(0, 0, _width, _height); }
@@ -125,6 +126,9 @@ namespace lgfx
     __attribute__ ((always_inline)) inline std::int32_t height       (void) const { return _height; }
     __attribute__ ((always_inline)) inline color_depth_t getColorDepth(void) const { return _write_conv.depth; }
     __attribute__ ((always_inline)) inline color_conv_t* getColorConverter(void) { return &_write_conv; }
+    __attribute__ ((always_inline)) inline bgr888_t* getPalette(void) const { return _palette; }
+    __attribute__ ((always_inline)) inline std::uint32_t getPaletteCount(void) const { return _palette_count; }
+    __attribute__ ((always_inline)) inline std::int_fast8_t getRotation(void) const { return getRotation_impl(); }
     __attribute__ ((always_inline)) inline bool hasPalette    (void) const { return _palette_count; }
     __attribute__ ((always_inline)) inline bool isSPIShared(void) const { return _spi_shared; }
     __attribute__ ((always_inline)) inline bool isReadable(void) const { return isReadable_impl(); }
@@ -218,9 +222,13 @@ namespace lgfx
       endWrite();
     }
     template <typename T>
-    void pushColors(const T *src, std::int32_t len)
+    void pushColors(const T *data, std::int32_t len)
     {
-      pixelcopy_t p(src, _write_conv.depth, get_depth<T>::value, _palette_count);
+      pixelcopy_t p(data, _write_conv.depth, get_depth<T>::value, _palette_count, nullptr);
+      if (std::is_same<rgb565_t, T>::value || std::is_same<rgb888_t, T>::value) {
+        p.no_convert = false;
+        p.fp_copy = pixelcopy_t::get_fp_normalcopy<T>(_write_conv.depth);
+      }
       startWrite();
       pushColors_impl(len, &p);
       endWrite();
@@ -278,33 +286,29 @@ namespace lgfx
     template<typename T> void pushImage( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const T* data)
     {
       pixelcopy_t p(data, _write_conv.depth, get_depth<T>::value, _palette_count, nullptr);
-      if (std::is_same<rgb565_t, T>::value) {
+      if (std::is_same<rgb565_t, T>::value || std::is_same<rgb888_t, T>::value) {
         p.no_convert = false;
-        p.fp_copy = pixelcopy_t::get_fp_normalcopy<rgb565_t>(_write_conv.depth);
-      }
-      if (std::is_same<rgb888_t, T>::value) {
-        p.no_convert = false;
-        p.fp_copy = pixelcopy_t::get_fp_normalcopy<rgb888_t>(_write_conv.depth);
+        p.fp_copy = pixelcopy_t::get_fp_normalcopy<T>(_write_conv.depth);
       }
       if (p.fp_copy==nullptr) { p.fp_copy = pixelcopy_t::get_fp_normalcopy<T>(_write_conv.depth); }
       push_image(x, y, w, h, &p);
     }
 
-    template<typename T, typename U> void pushImage( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const T* data, const U& transparent)
+    template<typename T, typename U>
+    void pushImage( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const T* data, const U& transparent)
     {
       uint32_t tr = (std::is_same<T, U>::value)
                   ? transparent
                   : get_fp_convert_src<U>(get_depth<T>::value, false)(transparent);
       pixelcopy_t p(data, _write_conv.depth, get_depth<T>::value, _palette_count, nullptr, tr);
-      if (std::is_same<rgb565_t, T>::value) {
-        p.transp = getSwap16(tr);
+      if (std::is_same<rgb565_t, T>::value || std::is_same<rgb888_t, T>::value) {
+        if (std::is_same<rgb565_t, T>::value) {
+          p.transp = getSwap16(tr);
+        } else {
+          p.transp = getSwap24(tr);
+        }
         p.no_convert = false;
-        p.fp_copy = pixelcopy_t::get_fp_normalcopy<rgb565_t>(_write_conv.depth);
-      }
-      if (std::is_same<rgb888_t, T>::value) {
-        p.transp = getSwap24(tr);
-        p.no_convert = false;
-        p.fp_copy = pixelcopy_t::get_fp_normalcopy<rgb888_t>(_write_conv.depth);
+        p.fp_copy = pixelcopy_t::get_fp_normalcopy<T>(_write_conv.depth);
       }
       if (p.fp_copy==nullptr) { p.fp_copy = pixelcopy_t::get_fp_normalcopy<T>(_write_conv.depth); }
       if (p.fp_skip==nullptr) { p.fp_skip = pixelcopy_t::normalskip<T>; }
@@ -349,24 +353,28 @@ namespace lgfx
       }
     }
 
-    template<typename T> void pushImage( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const void* data, const std::uint8_t bits, const T* palette) {
+    template<typename T>
+    void pushImage( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const void* data, const std::uint8_t bits, const T* palette) {
       pixelcopy_t p(data, _write_conv.depth, (color_depth_t)bits, _palette_count, palette);
       p.fp_copy = pixelcopy_t::get_fp_palettecopy<T>(_write_conv.depth);
       push_image(x, y, w, h, &p);
     }
-    template<typename T> void pushImage( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const void* data, std::uint32_t transparent, const std::uint8_t bits, const T* palette) {
+    template<typename T>
+    void pushImage( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const void* data, std::uint32_t transparent, const std::uint8_t bits, const T* palette) {
       pixelcopy_t p(data, _write_conv.depth, (color_depth_t)bits, _palette_count, palette, transparent );
       p.fp_copy = pixelcopy_t::get_fp_palettecopy<T>(_write_conv.depth);
       push_image(x, y, w, h, &p);
     }
 
-    template<typename T> void pushImageDMA( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const T* data)
+    template<typename T>
+    void pushImageDMA( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const T* data)
     {
       pixelcopy_t p(data, _write_conv.depth, get_depth<T>::value, _palette_count, nullptr  );
       push_image(x, y, w, h, &p, true);
     }
 
-    template<typename T> void pushImageDMA( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const void* data, const std::uint8_t bits, const T* palette)
+    template<typename T>
+    void pushImageDMA( std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const void* data, const std::uint8_t bits, const T* palette)
     {
       pixelcopy_t p(data, _write_conv.depth, (color_depth_t)bits, _palette_count, palette);
       push_image(x, y, w, h, &p, true);
@@ -381,6 +389,7 @@ namespace lgfx
       }
       push_image(x, y, w, h, &p, true);
     }
+
     void pushImageDMA(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, const void* data)
     {
       pixelcopy_t p(data, _write_conv.depth, rgb888_3Byte, _palette_count, nullptr);
@@ -510,7 +519,8 @@ namespace lgfx
     virtual void pushColors_impl(std::int32_t length, pixelcopy_t* param) = 0;
     virtual void pushBlock_impl(std::int32_t len) = 0;
     virtual void setWindow_impl(std::int32_t xs, std::int32_t ys, std::int32_t xe, std::int32_t ye) = 0;
-    virtual bool isReadable_impl(void) const { return true; }
+    virtual bool isReadable_impl(void) const = 0;
+    virtual std::int_fast8_t getRotation_impl(void) const = 0;
 
     static void tmpBeginTransaction(void* lgfx) {
       auto me = (LGFXBase*)lgfx;
