@@ -37,7 +37,7 @@ namespace colors  // Color definitions for backwards compatibility with old sket
 
 using namespace colors;
 
-class M5Display : public LGFX {
+class M5Display : public TFT_eSPI {
   public:
     template<typename T> 
     void clearDisplay(T color=0) { fillScreen(color); }
