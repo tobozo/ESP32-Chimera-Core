@@ -3,7 +3,7 @@
 #if defined( ARDUINO_LOLIN_D32_PRO )
   #define TFT_WIDTH 240
   #define TFT_HEIGHT 320
-#elif defined ( ARDUINO_ESP32_DEV )
+#elif defined ( ARDUINO_ESP32_DEV ) || defined( ARDUINO_ESP32_WROVER_KIT )
   #define TFT_WIDTH 240
   #define TFT_HEIGHT 320
 #elif defined(ARDUINO_ODROID_ESP32)

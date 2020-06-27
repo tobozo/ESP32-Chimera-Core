@@ -78,8 +78,8 @@ Sketch compilation can eventually be tuned-up to a specific device by using macr
         #warning ODROID DETECTED !!
       #elif defined( ARDUINO_TTGO_T1 )
         #warning Lilygo TTGO-TS DETECTED !!
-      #elif defined ( ARDUINO_ESP32_DEV )
-        #warning WROVER DETECTED !!
+      #elif defined ( ARDUINO_ESP32_WROVER_KIT )
+        #warning ESP32 WROVER Kit DETECTED !!
       #else
         #warning NOTHING DETECTED !!
       #endif
