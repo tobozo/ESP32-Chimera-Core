@@ -11,7 +11,7 @@
   #define BUTTON_C_PIN  -1  // BUTTON_MENU
 
 
-#elif defined(ARDUINO_ESP32_DEV)
+#elif defined(ARDUINO_ESP32_DEV) || defined( ARDUINO_ESP32_WROVER_KIT )
 
   #define TFT_LED_PIN   14
   #define TFT_DC_PIN    21

@@ -6,7 +6,9 @@
 #include <SPIFFS.h>
 #include <SD.h>
 
-#include "LovyanGFX/src/LGFX_TFT_eSPI.hpp"
+//#include "LovyanGFX/src/LGFX_TFT_eSPI.hpp"
+#include <LGFX_TFT_eSPI.hpp>
+
 
 #ifdef TOUCH_CS
   #include "utility/TouchButton.h"
@@ -37,7 +39,7 @@ namespace colors  // Color definitions for backwards compatibility with old sket
 
 using namespace colors;
 
-class M5Display : public LGFX {
+class M5Display : public TFT_eSPI {
   public:
     template<typename T> 
     void clearDisplay(T color=0) { fillScreen(color); }

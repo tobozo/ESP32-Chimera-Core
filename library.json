@@ -10,7 +10,12 @@
     "type": "git",
     "url": "https://github.com/tobozo/ESP32-Chimera-Core.git"
   },
-  "version": "1.0.2",
+  "dependencies": [
+    {
+      "name": "LovyanGFX"
+    }
+  ],
+  "version": "1.0.3",
   "framework": "arduino",
   "platforms": "espressif32"
 }
