@@ -15,7 +15,7 @@
       "name": "LovyanGFX"
     }
   ],
-  "version": "1.0.2",
+  "version": "1.0.3",
   "framework": "arduino",
   "platforms": "espressif32"
 }
