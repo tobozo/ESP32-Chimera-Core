@@ -6,7 +6,9 @@
 #include <SPIFFS.h>
 #include <SD.h>
 
-#include "LovyanGFX/src/LGFX_TFT_eSPI.hpp"
+//#include "LovyanGFX/src/LGFX_TFT_eSPI.hpp"
+#include <LGFX_TFT_eSPI.hpp>
+
 
 #ifdef TOUCH_CS
   #include "utility/TouchButton.h"
