@@ -52,6 +52,7 @@ before_install:
 
   # Install the library from the repository
   - install_library
+  - install_library "LovyanGFX"
   - install_package "esp32:esp32" "https://dl.espressif.com/dl/package_esp32_index.json" #  # esp32:esp32:m5stack-core-esp32
   - pip install pyserial
 
@@ -71,7 +72,7 @@ script:
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_FillArcSpiral/TFT_FillArcSpiral.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_Mandlebrot/TFT_Mandlebrot.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_Spiro/TFT_Spiro.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
-  
+
   #- if [ "$TRAVIS_BRANCH" != "master" ]; then echo "This commit was made against the $TRAVIS_BRANCH, skipping examples compilation"; exit 0; fi
   #- if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then echo "This is a pull request, skipping examples compilation"; exit 0; fi
   # compile all examples (will result in timeout if too many sketches are found)
@@ -95,7 +96,7 @@ notifications:
       - https://www.travisbuddy.com/
     on_success: never
     on_failure: always
-    
+
 deploy:
   provider: releases
   api_key: "$GH_TOKEN"
