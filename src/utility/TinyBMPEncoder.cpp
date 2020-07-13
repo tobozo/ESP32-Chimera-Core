@@ -84,10 +84,13 @@ bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const in
   memset(&buf[rowSize - 4], 0, 4);
   for ( int i = imageH - 1; i >= 0; i-- ) {
     _tft->readRectRGB( 0, i, imageW, 1, rgbBuffer ); // capture a whole line
-    int j = 0;
-    do {
-      buf[j] |= buf[j] >> 6; // convert 18bit to 24bit ( 0xFC to 0xFF )
-    } while (++j < rowSize);
+    for ( int j = 0; j < imageW; j++ ) {
+      // change color order and convert 18bit to 24bit ( 0xFC to 0xFF )
+      auto b = rgbBuffer[j].b;
+      rgbBuffer[j].b = rgbBuffer[j].r | rgbBuffer[j].r >> 6;
+      rgbBuffer[j].g = rgbBuffer[j].g | rgbBuffer[j].g >> 6;
+      rgbBuffer[j].r = b | b >> 6;
+    }
     outFile.write((uint8_t*)rgbBuffer, rowSize);
   }
   outFile.close();
