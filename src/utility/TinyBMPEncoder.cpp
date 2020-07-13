@@ -49,14 +49,10 @@ bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const in
     'B', 'M', 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0
   };
   // 54 = std total "old" Windows BMP file header size = 14 + 40
-  int rowSize = 4 * ((3*imageW + 3)/4);      // how many bytes in the row (used to create padding)
+  int rowSize = ((3*imageW + 3) >> 2) << 2;      // how many bytes in the row (used to create padding)
   //unsigned long fileSize = 2ul * imageH * imageW + 54; // pix data + 54 byte hdr
   int fileSize = 54 + imageH*rowSize;        // headers (54 bytes) + pixel data
-  // create padding (based on the number of pixels in a row
-  unsigned char bmpPad[rowSize - 3*imageW];
-  for (int i=0; i<sizeof(bmpPad); i++) {         // fill with 0s
-    bmpPad[i] = 0;
-  }
+  memset(&rgbBuffer[rowSize - 4], 0, 4);
 
   bmFlHdr[ 2] = (unsigned char)(fileSize      ); // all ints stored little-endian
   bmFlHdr[ 3] = (unsigned char)(fileSize >>  8); // i.e., LSB first
@@ -83,14 +79,14 @@ bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const in
   outFile.write(bmFlHdr, sizeof(bmFlHdr));
   outFile.write(bmInHdr, sizeof(bmInHdr));
 
+  uint8_t* buf = (uint8_t*)rgbBuffer;
   for ( int i = imageH - 1; i >= 0; i-- ) {
     _tft->readRectRGB( 0, i, imageW, 1, rgbBuffer ); // capture a whole line
-    for ( int j = 0; j < imageW; j++ ) {
-      outFile.write(rgbBuffer[j].b);
-      outFile.write(rgbBuffer[j].g);
-      outFile.write(rgbBuffer[j].r);
-    }
-    outFile.write(bmpPad, (4-(imageW*3)%4)%4);
+    int j = 0;
+    do {
+      buf[j] |= buf[j] >> 6; // convert 18bit to 24bit ( 0xFC to 0xFF )
+    } while (++j < rowSize);
+    outFile.write((uint8_t*)rgbBuffer, rowSize);
   }
   outFile.close();
   free( rgbBuffer );
