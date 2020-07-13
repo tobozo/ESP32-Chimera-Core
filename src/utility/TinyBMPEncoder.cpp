@@ -52,7 +52,6 @@ bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const in
   int rowSize = ((3*imageW + 3) >> 2) << 2;      // how many bytes in the row (used to create padding)
   //unsigned long fileSize = 2ul * imageH * imageW + 54; // pix data + 54 byte hdr
   int fileSize = 54 + imageH*rowSize;        // headers (54 bytes) + pixel data
-  memset(&rgbBuffer[rowSize - 4], 0, 4);
 
   bmFlHdr[ 2] = (unsigned char)(fileSize      ); // all ints stored little-endian
   bmFlHdr[ 3] = (unsigned char)(fileSize >>  8); // i.e., LSB first
@@ -80,6 +79,9 @@ bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const in
   outFile.write(bmInHdr, sizeof(bmInHdr));
 
   uint8_t* buf = (uint8_t*)rgbBuffer;
+
+  // set zero to padding area
+  memset(&buf[rowSize - 4], 0, 4);
   for ( int i = imageH - 1; i >= 0; i-- ) {
     _tft->readRectRGB( 0, i, imageW, 1, rgbBuffer ); // capture a whole line
     int j = 0;
