@@ -46,10 +46,6 @@ class M5Display : public TFT_eSPI {
 
     void display() {}
 
-    inline void writePixels(uint16_t * colors, uint32_t len){
-      pushColors(colors, len, true);
-    }
-
     void progressBar(int x, int y, int w, int h, uint8_t val);
 
     void drawBitmap(int16_t x0, int16_t y0, int16_t w, int16_t h, const uint16_t *data);
