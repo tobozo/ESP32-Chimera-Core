@@ -38,7 +38,7 @@ void M5Stack::setTouchSpiShared( int32_t csPin, int32_t IRQPin ) {
 void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEnable, bool ScreenShotEnable) {
   // Correct init once
   if (isInited == true) {
-    log_d("M5 Already inited");
+    log_d("ESP32-Chimera-Core Already inited");
     return;
   } else {
     isInited = true;
@@ -49,7 +49,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Serial.begin(115200);
     Serial.flush();
     delay(50);
-    Serial.print("M5Stack initializing...");
+    Serial.print("ESP32-Chimera-Core initializing...");
   }
 
   // TF Card
