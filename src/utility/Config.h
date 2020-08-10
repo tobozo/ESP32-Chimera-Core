@@ -1,17 +1,37 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-#if defined( ARDUINO_LOLIN_D32_PRO )
 
-  //#warning "USING LoLin D32 Pro setup with Touch enabled for ESP32Marauder"
+#if defined( LGFX_ONLY ) // LGFX config loaded externally
+
   #define SPEAKER_PIN   -1
-  #define SD_ENABLE     0
+  #define SD_ENABLE      0
+  #define BUTTON_A_PIN  -1
+  #define BUTTON_B_PIN  -1
+  #define BUTTON_C_PIN  -1
+
+  //#undef LGFX_AUTODETECT
+
+#elif defined(ARDUINO_ESP32_DEV)
+
+  //#warning "Disabling touch, buttons, etc"
+  #define SPEAKER_PIN   -1
+  #define SD_ENABLE      0
   #define BUTTON_A_PIN  -1
   #define BUTTON_B_PIN  -1
   #define BUTTON_C_PIN  -1  // BUTTON_MENU
 
+#elif defined( ARDUINO_LOLIN_D32_PRO )
 
-#elif defined(ARDUINO_ESP32_DEV) || defined( ARDUINO_ESP32_WROVER_KIT )
+  //#warning "USING LoLin D32 Pro setup with Touch enabled for ESP32Marauder"
+  #define SPEAKER_PIN   -1
+  #define SD_ENABLE      0
+  #define BUTTON_A_PIN  -1
+  #define BUTTON_B_PIN  -1
+  #define BUTTON_C_PIN  -1 // BUTTON_MENU
+  #define TOUCH_CS      21 // enable touch
+
+#elif defined( ARDUINO_ESP32_WROVER_KIT )
 
   #define TFT_LED_PIN   14
   #define TFT_DC_PIN    21
@@ -42,6 +62,7 @@
   #define BUTTON_B_PIN 18
   #define BUTTON_C_PIN 19
 
+
 #elif defined(ARDUINO_T) || defined( ARDUINO_T_Watch ) // TTGO T-Watch
 
   #define TFCARD_CS_PIN 13
@@ -51,6 +72,7 @@
   #define BUTTON_A_PIN  36
   #define BUTTON_B_PIN  -1
   #define BUTTON_C_PIN  -1
+
 
 #elif defined(ARDUINO_TTGO_T1)
 
@@ -70,6 +92,7 @@
   #define BUTTON_A_PIN  39
   #define BUTTON_B_PIN  34
   #define BUTTON_C_PIN  35
+
 
 #elif defined(ARDUINO_ODROID_ESP32)
 
@@ -95,6 +118,7 @@
   #define BUTTON_JOY_Y_PIN  35
   #define BUTTON_JOY_X_PIN  34
 
+
 #elif defined(ARDUINO_M5Stick_C) // M5Stick C
 
   #define SPEAKER_PIN   -1
@@ -115,7 +139,9 @@
   #define BUTTON_C_PIN  -1
   #define SD_ENABLE      0
 
+
 #else // m5stack classic/fire
+
   #define TFT_LED_PIN  32
   #define TFT_DC_PIN   27
   #define TFT_CS_PIN   14
@@ -130,6 +156,7 @@
   #define BUTTON_A_PIN 39
   #define BUTTON_B_PIN 38
   #define BUTTON_C_PIN 37
+
 
 #endif
 

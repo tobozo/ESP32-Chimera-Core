@@ -22,6 +22,17 @@ M5Stack::M5Stack() : isInited(0) {
 //  }
 //}
 
+#ifdef TOUCH_CS
+
+void M5Stack::setTouchSpiShared( int32_t csPin, int32_t IRQPin ) {
+  if( ts == nullptr ) {
+    ts = new XPT2046_Touchscreen(csPin, IRQPin);
+    Lcd.initTouch( ts );
+  }
+  // TODO: also implement FT5206_Clas
+}
+
+#endif
 
 
 void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEnable, bool ScreenShotEnable) {
@@ -49,6 +60,9 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   // LCD INIT
   if (LCDEnable == true) {
     log_d("Enabling LCD");
+    #if defined(PANEL_INIT)
+      panelInit()
+    #endif
     Lcd.begin();
 
     // provide consistent getWidth()/getHeight() to both Sprite and TFT image decoding
@@ -73,6 +87,17 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
        ScreenShot.init( &Lcd, M5STACK_SD );
        ScreenShot.begin();
     }
+
+    #if defined( TOUCH_CS )
+      delay(100);
+      //ts = new XPT2046_Touchscreen(21);
+      if(ts != nullptr ) {
+        ts->begin();
+        ts->setRotation(0);
+      }
+    #endif
+
+
   }
 
   // TONE

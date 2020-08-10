@@ -7,6 +7,9 @@
 
 //#include "In_eSPI.h"
 //#include <Arduino.h>
+#ifndef _TOUCH_BUTTON_H
+#define _TOUCH_BUTTON_H
+
 #include "../M5Display.h"
 
 class TouchButton {
@@ -41,3 +44,5 @@ class TouchButton {
 
   boolean  currstate, laststate;
 };
+
+#endif

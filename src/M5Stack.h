@@ -121,6 +121,9 @@
 
     #include "M5Display.h"
     #include "utility/Config.h"
+    #ifdef TOUCH_CS
+      #include "utility/TouchButton.h"
+    #endif
     #include "utility/Button.h"
     #include "utility/Speaker.h"
     #include "utility/Power.h"
@@ -144,6 +147,8 @@
 
         void sd_begin(void);
         void sd_end(void);
+
+        void setTouchSpiShared( int32_t csPin, int32_t IRQPin=255 );
 
         // Button API
         #define DEBOUNCE_MS 10
@@ -174,6 +179,10 @@
 
         //Power
         POWER Power;
+#ifdef TOUCH_CS
+        // TODO: also implement FT5206_Class
+        XPT2046_Touchscreen* ts = nullptr;
+#endif
 
 #if defined(ARDUINO_M5Stick_C) // M5Stick C
 
