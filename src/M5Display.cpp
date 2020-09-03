@@ -42,7 +42,7 @@ void M5Display::progressBar(int x, int y, int w, int h, uint8_t val) {
 
 
 
-#ifdef TOUCH_CS
+#if 0 // ifdef TOUCH_CS
 
 /***************************************************************************************
 ** Function name:           getTouchRaw

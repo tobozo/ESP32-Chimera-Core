@@ -7,7 +7,7 @@
 #include <SD.h>
 
 #include "utility/Config.h"
-#ifdef TOUCH_CS
+#if 0 // ifdef TOUCH_CS
   #include "utility/Touch_Drivers/XPT2046/XPT2046.h"
 #endif
 
@@ -60,7 +60,7 @@ class M5Display : public TFT_eSPI {
     void drawBitmap(int16_t x0, int16_t y0, int16_t w, int16_t h, uint8_t *data);
     void drawBitmap(int16_t x0, int16_t y0, int16_t w, int16_t h, const uint16_t *data, uint16_t transparent);
 
-#ifdef TOUCH_CS
+#if 0 // ifdef TOUCH_CS
   // TOUCH
 
   public:

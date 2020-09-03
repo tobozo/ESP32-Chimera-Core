@@ -22,7 +22,7 @@ M5Stack::M5Stack() : isInited(0) {
 //  }
 //}
 
-#ifdef TOUCH_CS
+#if 0 //def TOUCH_CS
 
 void M5Stack::setTouchSpiShared( int32_t csPin, int32_t IRQPin ) {
   if( ts == nullptr ) {
@@ -127,7 +127,11 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   // I2C init
   if (I2CEnable == true) {
     log_d("Enabling I2C");
-    Wire.begin(SDA, SCL);
+    if (M5.Lcd.getBoard() != lgfx::board_M5StackCore2) {
+      Wire.begin(SDA, SCL);
+    } else {
+      Wire.begin(32, 33);
+    }
     I2C.scan();
   }
 
@@ -138,10 +142,22 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
 void M5Stack::update() {
   //Button update
-  BtnA.read();
-  BtnB.read();
-  BtnC.read();
+  if (M5.Lcd.getBoard() == lgfx::board_M5StackCore2) {
+    int32_t x, y;
+    int idx = -1;
 
+    if (M5.Lcd.getTouchRaw(&x, &y) && y > 240) {
+      idx = x / (320 / 3);
+    }
+
+    BtnA.setState(idx != 0);
+    BtnB.setState(idx != 1);
+    BtnC.setState(idx != 2);
+  } else {
+    BtnA.read();
+    BtnB.read();
+    BtnC.read();
+  }
   //Speaker update
   Speaker.update();
 #ifdef ARDUINO_ODROID_ESP32
