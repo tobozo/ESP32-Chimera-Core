@@ -53,11 +53,14 @@ Button::Button(uint8_t pin, uint8_t invert, uint32_t dbTime) {
  * does debouncing, captures and maintains times, previous states, etc. *
  *----------------------------------------------------------------------*/
 uint8_t Button::read(void) {
+  return setState(digitalRead(_pin));
+}
+
+uint8_t Button::setState(uint8_t pinVal)
+{
   static uint32_t ms;
-  static uint8_t pinVal;
 
   ms = millis();
-  pinVal = digitalRead(_pin);
   if (_invert != 0) pinVal = !pinVal;
   if (ms - _lastChange < _dbTime) {
     _lastTime = _time;

@@ -24,6 +24,7 @@ class Button {
   public:
     Button(uint8_t pin, uint8_t invert, uint32_t dbTime);
     uint8_t read();
+    uint8_t setState(uint8_t);
     uint8_t isPressed();
     uint8_t isReleased();
     uint8_t wasPressed();
