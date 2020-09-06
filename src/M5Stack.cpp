@@ -146,13 +146,13 @@ void M5Stack::update() {
     int32_t x, y;
     int idx = -1;
 
-    if (M5.Lcd.getTouchRaw(&x, &y) && y > 240) {
+    if (M5.Lcd.getTouchRaw(&x, &y) && y >= 256) {
       idx = x / (320 / 3);
     }
 
-    BtnA.setState(idx != 0);
-    BtnB.setState(idx != 1);
-    BtnC.setState(idx != 2);
+    BtnA.setState(idx == 0);
+    BtnB.setState(idx == 1);
+    BtnC.setState(idx == 2);
   } else {
     BtnA.read();
     BtnB.read();
