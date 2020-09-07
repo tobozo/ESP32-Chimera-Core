@@ -100,6 +100,11 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   }
 
+  // TF Card ( reinit )
+  if (SDEnable == true && M5STACK_SD.cardSize() == 0) {
+    sd_begin();
+  }
+
   // TONE
   // Speaker.begin();
 #ifdef ARDUINO_DDUINO32_XS
@@ -147,7 +152,7 @@ void M5Stack::update() {
     int idx = -1;
 
     if (M5.Lcd.getTouchRaw(&x, &y) && y >= 256) {
-      idx = x / (320 / 3);
+      idx = x * 3 / 320;
     }
 
     BtnA.setState(idx == 0);
@@ -200,8 +205,6 @@ void M5Stack::sd_begin(void)
     log_d("Enabling SD from TFCARD_CS_PIN");
 
     M5STACK_SD.end();
-    SPI.end();
-    SPI.begin();
     M5STACK_SD.begin(TFCARD_CS_PIN, SPI, 20000000);
 
     if ( lgfx::LGFX_Config::spi_host == HSPI_HOST ) {
