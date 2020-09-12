@@ -101,6 +101,10 @@
   // #endif
   #define _CHIMERA_CORE_
 
+  // Swap any type, this was removed by LGFX but still needed
+  template <typename T> static inline void
+  swap_coord(T& a, T& b) { T t = a; a = b; b = t; }
+
   #if defined(ESP32)
 
     // #define MPU9250_INSDE
@@ -134,8 +138,12 @@
 #endif
 
 #if defined(ARDUINO_M5Stick_C) // M5Stick C
-    #include "utility/AXP192.h"
-    #include "utility/RTC.h"
+    #include "utility/drivers/M5StickC/AXP192.h"
+    #include "utility/drivers/M5StickC/RTC.h"
+#elif defined( ARDUINO_M5STACK_Core2 ) // M5Core2
+    #include "utility/drivers/M5Core2/Touch_M5Core2.h"
+    #include "utility/drivers/M5Core2/AXP192_M5Core2.h"
+    #include "utility/drivers/M5Core2/RTC_M5Core2.h"
 #endif
 
     class M5Stack
@@ -180,6 +188,7 @@
         //Power
         POWER Power;
 #ifdef TOUCH_CS
+
         // TODO: also implement FT5206_Class
         XPT2046_Touchscreen* ts = nullptr;
 #endif
@@ -191,6 +200,17 @@
 
         //!RTC
         RTC Rtc;
+
+#elif defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
+
+
+        //!Power
+        AXP192_M5Core2 Axp = AXP192_M5Core2();
+
+        //!RTC
+        RTC_M5Core2 Rtc;
+
+        Touch_M5Core2 Touch;
 
 #endif
 

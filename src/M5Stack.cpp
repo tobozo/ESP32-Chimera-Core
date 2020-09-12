@@ -52,10 +52,18 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Serial.print("ESP32-Chimera-Core initializing...");
   }
 
+#if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
+  // I2C init
+  if (I2CEnable == true) {
+    Wire.begin(32, 33);
+  }
+  Axp.begin();
+#else
   // TF Card
   if (SDEnable == true) {
     sd_begin();
   }
+#endif
 
   // LCD INIT
   if (LCDEnable == true) {
@@ -97,8 +105,16 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
       }
     #endif
 
-
   }
+
+#if  defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
+  // Touch init
+  Touch.begin(); // Touch begin after AXP begin. (Reset at the start of AXP)
+  // TF Card
+  if (SDEnable == true) {
+    SD.begin(TFCARD_CS_PIN, SPI, 40000000);
+  }
+#endif
 
   // TF Card ( reinit )
   if (SDEnable == true && M5STACK_SD.cardSize() == 0) {
@@ -120,15 +136,17 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   pinMode(BUTTON_JOY_Y_PIN, INPUT_PULLDOWN);
   pinMode(BUTTON_JOY_X_PIN, INPUT_PULLDOWN);
 #endif
+
 #if defined(ARDUINO_M5Stick_C) // M5Stick C
   Axp.begin();
   Rtc.begin();
 #endif
 
-
   // Set wakeup button
   Power.setWakeupButton(BUTTON_A_PIN);
 
+
+#if !defined( ARDUINO_M5STACK_Core2 )
   // I2C init
   if (I2CEnable == true) {
     log_d("Enabling I2C");
@@ -139,10 +157,16 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     }
     I2C.scan();
   }
+#endif
 
   if (SerialEnable == true) {
     Serial.println("OK");
   }
+
+#if defined( ARDUINO_M5STACK_Core2 )
+  Rtc.begin();
+#endif
+
 }
 
 void M5Stack::update() {

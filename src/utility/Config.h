@@ -72,6 +72,7 @@
   #define BUTTON_A_PIN  36
   #define BUTTON_B_PIN  -1
   #define BUTTON_C_PIN  -1
+  #define TOUCH_CS      21 // enable touch
 
 
 #elif defined(ARDUINO_TTGO_T1)
@@ -139,6 +140,24 @@
   #define BUTTON_C_PIN  -1
   #define SD_ENABLE      0
 
+#elif defined( ARDUINO_M5STACK_Core2  ) // M5Core2
+
+  #define TFT_LED_PIN  -1
+  #define TFT_DC_PIN   15
+  #define TFT_CS_PIN    5
+  #define TFT_MOSI_PIN 23
+  #define TFT_CLK_PIN  18
+  #define TFT_RST_PIN  -1
+  #define TFT_MISO_PIN 38
+
+  #undef TOUCH_CS // using I2C touch
+
+  #define TFCARD_CS_PIN 4
+  #define SD_ENABLE     0
+  #define SPEAKER_PIN  25
+  #define BUTTON_A_PIN -1
+  #define BUTTON_B_PIN -1
+  #define BUTTON_C_PIN -1
 
 #else // m5stack classic/fire
 
