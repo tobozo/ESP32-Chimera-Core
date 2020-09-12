@@ -151,6 +151,7 @@
   #define TFT_MISO_PIN 38
 
   #undef TOUCH_CS // using I2C touch
+  #define TFCARD_SPI_FREQ 40000000
 
   #define TFCARD_CS_PIN 4
   #define SD_ENABLE     0
@@ -208,5 +209,11 @@
 #if !defined(TFCARD_CS_PIN)
  #define TFCARD_CS_PIN SS
 #endif
+
+#if !defined(TFCARD_SPI_FREQ)
+  #define TFCARD_SPI_FREQ 20000000
+#endif
+
+
 
 #endif // _CONFIG_H_

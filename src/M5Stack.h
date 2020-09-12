@@ -159,7 +159,7 @@
         void begin(bool LCDEnable = true, bool SDEnable = SD_ENABLE, bool SerialEnable = true, bool I2CEnable = false, bool ScreenShotEnable = false);
         void update();
 
-        void sd_begin(void);
+        bool sd_begin(void);
         void sd_end(void);
 
         void setTouchSpiShared( int32_t csPin, int32_t IRQPin=255 );

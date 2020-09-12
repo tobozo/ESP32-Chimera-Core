@@ -99,10 +99,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 #if  defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
   // Touch init
   Touch.begin(); // Touch begin after AXP begin. (Reset at the start of AXP)
-  // TF Card
-  if (SDEnable == true) {
-    SD.begin(TFCARD_CS_PIN, SPI, 40000000);
-  }
+
 #endif
 
   // TF Card ( reinit )
@@ -217,23 +214,25 @@ void M5Stack::powerOFF() {
 #endif
 
 
-void M5Stack::sd_begin(void)
+bool M5Stack::sd_begin(void)
 {
+  bool ret = false;
   #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
 
-    log_d("Enabling SD from TFCARD_CS_PIN");
+    log_w("Enabling SD from TFCARD_CS_PIN #%d at %d Hz", TFCARD_CS_PIN, TFCARD_SPI_FREQ);
 
     M5STACK_SD.end();
-    M5STACK_SD.begin(TFCARD_CS_PIN, SPI, 20000000);
+    ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);
 
     if ( lgfx::LGFX_Config::spi_host == HSPI_HOST ) {
       Lcd.setSPIShared(false);
     }
   #else
     log_d("Enabling SD_MMC");
-    M5STACK_SD.begin();
+    ret = M5STACK_SD.begin();
     Lcd.setSPIShared(false);
   #endif
+  return ret;
 }
 
 void M5Stack::sd_end(void)
