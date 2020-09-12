@@ -22,18 +22,6 @@ M5Stack::M5Stack() : isInited(0) {
 //  }
 //}
 
-#if 0 //def TOUCH_CS
-
-void M5Stack::setTouchSpiShared( int32_t csPin, int32_t IRQPin ) {
-  if( ts == nullptr ) {
-    ts = new XPT2046_Touchscreen(csPin, IRQPin);
-    Lcd.initTouch( ts );
-  }
-  // TODO: also implement FT5206_Clas
-}
-
-#endif
-
 
 void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEnable, bool ScreenShotEnable) {
   // Correct init once
@@ -97,6 +85,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     }
 
     #if defined( TOUCH_CS )
+      // TODO: deprecate this
       delay(100);
       //ts = new XPT2046_Touchscreen(21);
       if(ts != nullptr ) {
@@ -142,9 +131,10 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   Rtc.begin();
 #endif
 
+#if defined HAS_POWER
   // Set wakeup button
   Power.setWakeupButton(BUTTON_A_PIN);
-
+#endif
 
 #if !defined( ARDUINO_M5STACK_Core2 )
   // I2C init
@@ -200,6 +190,8 @@ void M5Stack::update() {
 #endif
 }
 
+#if defined HAS_POWER
+
 /**
   * Function has been move to Power class.(for compatibility)
   * This name will be removed in a future release.
@@ -221,6 +213,9 @@ void M5Stack::setWakeupButton(uint8_t button) {
 void M5Stack::powerOFF() {
   M5.Power.deepSleep();
 }
+
+#endif
+
 
 void M5Stack::sd_begin(void)
 {

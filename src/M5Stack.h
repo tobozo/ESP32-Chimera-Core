@@ -126,6 +126,7 @@
     #include "M5Display.h"
     #include "utility/Config.h"
     #ifdef TOUCH_CS
+      // TODO: deprecate this
       #include "utility/TouchButton.h"
     #endif
     #include "utility/Button.h"
@@ -163,8 +164,13 @@
 
         void setTouchSpiShared( int32_t csPin, int32_t IRQPin=255 );
 
-        // Button API
+
+#if defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
+        #define DEBOUNCE_MS 1
+#else
         #define DEBOUNCE_MS 10
+#endif
+        // Button API
         Button BtnA = Button(BUTTON_A_PIN, true, DEBOUNCE_MS);
         Button BtnB = Button(BUTTON_B_PIN, true, DEBOUNCE_MS);
         Button BtnC = Button(BUTTON_C_PIN, true, DEBOUNCE_MS);
@@ -190,11 +196,14 @@
 
         ScreenShotService ScreenShot;
 
-        //Power
-        POWER Power;
-#ifdef TOUCH_CS
 
-        // TODO: also implement FT5206_Class
+        // TODO: remove this when Axp is available
+        //Power
+
+
+
+#ifdef TOUCH_CS
+        // TODO: deprecate this
         XPT2046_Touchscreen* ts = nullptr;
 #endif
 
@@ -205,6 +214,7 @@
 
         //!RTC
         RTC Rtc;
+
 
 #elif defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
 
@@ -219,6 +229,10 @@
         // accel/gyro
         MPU6886_M5Core2 IMU = MPU6886_M5Core2();
 
+
+#else
+        #define HAS_POWER
+        POWER Power;
 #endif
 
         // UART
@@ -233,6 +247,7 @@
         // I2C
         CommUtil I2C = CommUtil();
 
+#if defined HAS_POWER
         /**
         * Function has been move to Power class.(for compatibility)
         * This name will be removed in a future release.
@@ -241,6 +256,15 @@
         void setWakeupButton(uint8_t button);
         void powerOFF();
 
+#else
+        /**
+        * Function has been move to Power class.(for compatibility)
+        * This name will be removed in a future release.
+        */
+        void setPowerBoostKeepOn(bool en) __attribute__((deprecated));
+        void setWakeupButton(uint8_t button) __attribute__((deprecated));
+        void powerOFF() __attribute__((deprecated));
+#endif
       private:
           bool isInited;
     };
