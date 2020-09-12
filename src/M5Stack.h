@@ -132,6 +132,11 @@
     #include "utility/Speaker.h"
     #include "utility/Power.h"
     #include "utility/CommUtil.h"
+
+    #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2
+      #include "utility/drivers/M5Core2/MPU6886_M5Core2.h"
+    #endif
+
     #include "utility/ScreenShot.h"
 #ifdef ARDUINO_ODROID_ESP32
     #include "utility/battery.h"
@@ -203,7 +208,6 @@
 
 #elif defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
 
-
         //!Power
         AXP192_M5Core2 Axp = AXP192_M5Core2();
 
@@ -211,6 +215,9 @@
         RTC_M5Core2 Rtc;
 
         Touch_M5Core2 Touch;
+
+        // accel/gyro
+        MPU6886_M5Core2 IMU = MPU6886_M5Core2();
 
 #endif
 
