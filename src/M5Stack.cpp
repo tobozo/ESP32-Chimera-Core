@@ -40,18 +40,18 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Serial.print("ESP32-Chimera-Core initializing...");
   }
 
-#if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
-  // I2C init
-  if (I2CEnable == true) {
-    Wire.begin(32, 33);
-  }
-  Axp.begin();
-#else
-  // TF Card
-  if (SDEnable == true) {
-    sd_begin();
-  }
-#endif
+  #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
+    // I2C init
+    if (I2CEnable == true) {
+      Wire.begin(32, 33);
+    }
+    Axp.begin();
+  #else
+    // TF Card
+    if (SDEnable == true) {
+      sd_begin();
+    }
+  #endif
 
   // LCD INIT
   if (LCDEnable == true) {
@@ -60,24 +60,6 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
       panelInit()
     #endif
     Lcd.begin();
-
-    // provide consistent getWidth()/getHeight() to both Sprite and TFT image decoding
-//    Lcd.setWidthGetter        = &setWidthGetter;
-//    Lcd.setHeightGetter       = &setHeightGetter;
-//    //Lcd.setColorPusher        = &setColorPusher;
-//    Lcd.setWindowSetter       = &setWindowSetter;
-//    //Lcd.setColorWriter        = &setColorWriter;
-//    Lcd.setColorWriterArray   = &setColorWriterArray;
-//    Lcd.setRgb565Converter    = &setRgb565Converter;
-//    Lcd.setTransactionStarter = &setTransactionStarter;
-//    Lcd.setTransactionEnder   = &setTransactionEnder;
-//
-//    setJpgRenderer( true );
-//
-//    Lcd.setPngRenderCallBack  = &pngCallBackSetter;
-//    Lcd.pngFlashRenderFunc    = &pngRenderer;
-//    Lcd.pngFSRenderFunc       = &pngRenderer;
-//    Lcd.pngStreamRenderFunc   = &pngRenderer;
 
     if( ScreenShotEnable == true ) {
        ScreenShot.init( &Lcd, M5STACK_SD );
@@ -96,11 +78,11 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   }
 
-#if  defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
-  // Touch init
-  Touch.begin(); // Touch begin after AXP begin. (Reset at the start of AXP)
+  #if  defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
+    // Touch init
+    Touch.begin(); // Touch begin after AXP begin. (Reset at the start of AXP)
 
-#endif
+  #endif
 
   // TF Card ( reinit )
   if (SDEnable == true && M5STACK_SD.cardSize() == 0) {
@@ -109,50 +91,50 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   // TONE
   // Speaker.begin();
-#ifdef ARDUINO_DDUINO32_XS
-  pinMode(BUTTON_A_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_B_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_C_PIN, INPUT_PULLUP);
-#endif
-#ifdef ARDUINO_ODROID_ESP32
-  pinMode(BUTTON_MENU_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_VOLUME_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_SELECT_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_START_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_JOY_Y_PIN, INPUT_PULLDOWN);
-  pinMode(BUTTON_JOY_X_PIN, INPUT_PULLDOWN);
-#endif
+  #ifdef ARDUINO_DDUINO32_XS
+    pinMode(BUTTON_A_PIN, INPUT_PULLUP);
+    pinMode(BUTTON_B_PIN, INPUT_PULLUP);
+    pinMode(BUTTON_C_PIN, INPUT_PULLUP);
+  #endif
+  #ifdef ARDUINO_ODROID_ESP32
+    pinMode(BUTTON_MENU_PIN, INPUT_PULLUP);
+    pinMode(BUTTON_VOLUME_PIN, INPUT_PULLUP);
+    pinMode(BUTTON_SELECT_PIN, INPUT_PULLUP);
+    pinMode(BUTTON_START_PIN, INPUT_PULLUP);
+    pinMode(BUTTON_JOY_Y_PIN, INPUT_PULLDOWN);
+    pinMode(BUTTON_JOY_X_PIN, INPUT_PULLDOWN);
+  #endif
 
-#if defined(ARDUINO_M5Stick_C) // M5Stick C
-  Axp.begin();
-  Rtc.begin();
-#endif
+  #if defined(ARDUINO_M5Stick_C) // M5Stick C
+    Axp.begin();
+    Rtc.begin();
+  #endif
 
-#if defined HAS_POWER
-  // Set wakeup button
-  Power.setWakeupButton(BUTTON_A_PIN);
-#endif
+  #if defined HAS_POWER
+    // Set wakeup button
+    Power.setWakeupButton(BUTTON_A_PIN);
+  #endif
 
-#if !defined( ARDUINO_M5STACK_Core2 )
-  // I2C init
-  if (I2CEnable == true) {
-    log_d("Enabling I2C");
-    if (M5.Lcd.getBoard() != lgfx::board_M5StackCore2) {
-      Wire.begin(SDA, SCL);
-    } else {
-      Wire.begin(32, 33);
+  #if !defined( ARDUINO_M5STACK_Core2 )
+    // I2C init
+    if (I2CEnable == true) {
+      log_d("Enabling I2C");
+      if (M5.Lcd.getBoard() != lgfx::board_M5StackCore2) {
+        Wire.begin(SDA, SCL);
+      } else {
+        Wire.begin(32, 33);
+      }
+      I2C.scan();
     }
-    I2C.scan();
-  }
-#endif
+  #endif
 
   if (SerialEnable == true) {
     Serial.println("OK");
   }
 
-#if defined( ARDUINO_M5STACK_Core2 )
-  Rtc.begin();
-#endif
+  #if defined( ARDUINO_M5STACK_Core2 )
+    Rtc.begin();
+  #endif
 
 }
 
@@ -176,40 +158,40 @@ void M5Stack::update() {
   }
   //Speaker update
   Speaker.update();
-#ifdef ARDUINO_ODROID_ESP32
-  BtnMenu.read();
-  BtnVolume.read();
-  BtnSelect.read();
-  BtnStart.read();
-  JOY_Y.readAxis();
-  JOY_X.readAxis();
-  battery.update();
-#endif
+  #ifdef ARDUINO_ODROID_ESP32
+    BtnMenu.read();
+    BtnVolume.read();
+    BtnSelect.read();
+    BtnStart.read();
+    JOY_Y.readAxis();
+    JOY_X.readAxis();
+    battery.update();
+  #endif
 }
 
 #if defined HAS_POWER
 
-/**
-  * Function has been move to Power class.(for compatibility)
-  * This name will be removed in a future release.
-  */
-void M5Stack::setPowerBoostKeepOn(bool en) {
-  M5.Power.setPowerBoostKeepOn(en);
-}
-/**
-  * Function has been move to Power class.(for compatibility)
-  * This name will be removed in a future release.
-  */
-void M5Stack::setWakeupButton(uint8_t button) {
-  M5.Power.setWakeupButton(button);
-}
-/**
-  * Function has been move to Power class.(for compatibility)
-  * This name will be removed in a future release.
-  */
-void M5Stack::powerOFF() {
-  M5.Power.deepSleep();
-}
+  /**
+    * Function has been move to Power class.(for compatibility)
+    * This name will be removed in a future release.
+    */
+  void M5Stack::setPowerBoostKeepOn(bool en) {
+    M5.Power.setPowerBoostKeepOn(en);
+  }
+  /**
+    * Function has been move to Power class.(for compatibility)
+    * This name will be removed in a future release.
+    */
+  void M5Stack::setWakeupButton(uint8_t button) {
+    M5.Power.setWakeupButton(button);
+  }
+  /**
+    * Function has been move to Power class.(for compatibility)
+    * This name will be removed in a future release.
+    */
+  void M5Stack::powerOFF() {
+    M5.Power.deepSleep();
+  }
 
 #endif
 
@@ -219,7 +201,7 @@ bool M5Stack::sd_begin(void)
   bool ret = false;
   #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
 
-    log_w("Enabling SD from TFCARD_CS_PIN #%d at %d Hz", TFCARD_CS_PIN, TFCARD_SPI_FREQ);
+    log_d("Enabling SD from TFCARD_CS_PIN #%d at %d Hz", TFCARD_CS_PIN, TFCARD_SPI_FREQ);
 
     M5STACK_SD.end();
     ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);

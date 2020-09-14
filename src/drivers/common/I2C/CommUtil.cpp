@@ -6,7 +6,7 @@
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html           *
  *----------------------------------------------------------------------*/
 #include "CommUtil.h"
-#include "../M5Stack.h"
+#include "../../../M5Stack.h"
 
 extern M5Stack M5;
 

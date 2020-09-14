@@ -3,7 +3,7 @@
 #ifndef M5Faces_h
   #define M5Faces_h
 
-  #include "M5Stack.h"
+  #include "../../M5Stack.h"
 
   class M5Faces {
     public:

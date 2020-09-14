@@ -32,7 +32,7 @@
 
 
 //#pragma message ("Screenshots support enabled !!")
-#include "M5Display.h"
+#include "../M5Display.h"
 #include "TinyJPEGEncoder.h"
 #include "TinyBMPEncoder.h"
 

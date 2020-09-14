@@ -56,7 +56,7 @@
 #ifndef __TINY_JPEG_ENCODER__
 #define __TINY_JPEG_ENCODER__
 
-#include "M5Display.h"
+#include "../M5Display.h"
 // C std lib
 #include <assert.h>
 #include <inttypes.h>
@@ -188,7 +188,7 @@ typedef void (*jpeg_encoder_callback_t)(uint32_t y, uint32_t h, unsigned char* r
 
 class JPEG_Encoder {
   public:
-    
+
 
     fs::File jpegFile;
     fs::FS * _fileSystem;

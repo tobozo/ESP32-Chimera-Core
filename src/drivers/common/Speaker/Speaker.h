@@ -2,7 +2,7 @@
   #define _SPEAKER_H_
 
   #include "Arduino.h"
-  #include "Config.h"
+  #include "../../../Config.h"
 
   #ifdef __cplusplus
     extern "C"

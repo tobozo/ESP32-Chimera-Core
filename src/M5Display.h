@@ -6,7 +6,7 @@
 #include <SPIFFS.h>
 #include <SD.h>
 
-#include "utility/Config.h"
+//#include "utility/Config.h"
 
 #define LGFX_AUTODETECT
 #include <LGFX_TFT_eSPI.hpp>

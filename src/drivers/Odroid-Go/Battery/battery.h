@@ -9,7 +9,7 @@
 #define LIBRARIES_ODROID_GO_SRC_UTILITY_BATTERY_H_
 
 #include "Arduino.h"
-#include "Config.h"
+//#include "Config.h"
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
 
