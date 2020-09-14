@@ -48,12 +48,13 @@ before_install:
   - set_sketchbook_folder "$SKETCHBOOK_FOLDER"
 
   #- install_ide '("1.8.0" "1.8.10" "1.8.11")'
-  - install_ide '("1.8.10" "newest")'
+  - install_ide '("1.8.12" "newest")'
 
   # Install the library from the repository
   - install_library
   - install_library "LovyanGFX"
-  - install_package "esp32:esp32" "https://dl.espressif.com/dl/package_esp32_index.json" #  # esp32:esp32:m5stack-core-esp32
+  - install_package "esp32:esp32" "https://dl.espressif.com/dl/package_esp32_index.json" # esp32:esp32:m5stack-core-esp32
+  - install_package "m5stack:esp32" "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json" # m5stack:esp32:m5stack-core2
   - pip install pyserial
 
 script:
@@ -65,13 +66,19 @@ script:
   # compile at least one basic example
   # TODO: test different boards (odroid, wrover)
   # - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
-  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/Cellular_Automata/Cellular_Automata.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
-  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/Sprite/Sprite_scroll_16bit/Sprite_scroll_16bit.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
-  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/Sprite/Sprite_scroll_8bit/Sprite_scroll_8bit.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
-  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_ArcFill/TFT_ArcFill.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
-  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_FillArcSpiral/TFT_FillArcSpiral.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
-  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_Mandlebrot/TFT_Mandlebrot.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
-  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_Spiro/TFT_Spiro.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
+  #- build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/Cellular_Automata/Cellular_Automata.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
+  #- build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/Sprite/Sprite_scroll_16bit/Sprite_scroll_16bit.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
+  #- build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/Sprite/Sprite_scroll_8bit/Sprite_scroll_8bit.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
+  #- build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_ArcFill/TFT_ArcFill.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
+  #- build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_FillArcSpiral/TFT_FillArcSpiral.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
+  #- build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_Mandlebrot/TFT_Mandlebrot.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
+  #- build_sketch "${TRAVIS_BUILD_DIR}/examples/Advanced/Display/TFT_Spiro/TFT_Spiro.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "oldest" "newest"
+
+  # multiple devices tests
+  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "newest"
+  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:m5stick-c" "false" "newest"
+  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:odroid_go" "false" "newest"
+  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "m5stack:esp32:m5stack-core2" "false" "newest"
 
   #- if [ "$TRAVIS_BRANCH" != "master" ]; then echo "This commit was made against the $TRAVIS_BRANCH, skipping examples compilation"; exit 0; fi
   #- if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then echo "This is a pull request, skipping examples compilation"; exit 0; fi
