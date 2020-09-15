@@ -29,7 +29,8 @@
   #define BUTTON_A_PIN  -1
   #define BUTTON_B_PIN  -1
   #define BUTTON_C_PIN  -1 // BUTTON_MENU
-  #define TOUCH_CS      21 // enable touch
+  //#define TOUCH_CS      21 // enable touch
+  #define TFCARD_CS_PIN  4
 
 #elif defined( ARDUINO_ESP32_WROVER_KIT )
 

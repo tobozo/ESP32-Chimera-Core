@@ -169,8 +169,7 @@
         bool sd_begin(void);
         void sd_end(void);
 
-        void setTouchSpiShared( int32_t csPin, int32_t IRQPin=255 );
-
+        //void setTouchSpiShared( int32_t csPin, int32_t IRQPin=255 );
 
         #if defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
           #define DEBOUNCE_MS 1
@@ -203,7 +202,7 @@
 
         #ifdef TOUCH_CS
           // TODO: deprecate this
-          XPT2046_Touchscreen* ts = nullptr;
+          //XPT2046_Touchscreen* ts = nullptr;
         #endif
 
         #if defined(ARDUINO_M5Stick_C) // M5Stick C
