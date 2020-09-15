@@ -65,14 +65,80 @@
 
 #elif defined(ARDUINO_T) || defined( ARDUINO_T_Watch ) // TTGO T-Watch
 
-  #define TFCARD_CS_PIN 13
+  //#define TFCARD_CS_PIN 13
 
-  #define SPEAKER_PIN  -1
-  #define SD_ENABLE     1
-  #define BUTTON_A_PIN  36
-  #define BUTTON_B_PIN  -1
-  #define BUTTON_C_PIN  -1
-  #define TOUCH_CS      21 // enable touch
+  #define SPEAKER_PIN         -1
+  #define BUTTON_A_PIN        36
+  #define BUTTON_B_PIN        -1
+  #define BUTTON_C_PIN        -1
+
+  #define TFCARD_CS_PIN       13
+  #define TFCARD_MISO_PIN      2
+  #define TFCARD_MOSI_PIN     15
+  #define TFCARD_SCLK_PIN     14
+  #define SEN_SDA             21
+  #define SEN_SCL             22
+
+  #define UART_TX             33
+  #define UART_RX             34
+
+  #define TOUCH_SDA           23
+  #define TOUCH_SCL           32
+  #define TOUCH_INT           38
+
+  #define SPEAKER_PIN          4
+
+  // TODO: use LGFX Touch autodetect where possible
+  //#define TOUCH_CS      21 // enable touch
+
+  #if defined(LILYGO_WATCH_2019_WITH_TOUCH)
+    // #include "board/twatch2019_with_touch.h"
+    #warning "Selected LILYGO_WATCH_2019_WITH_TOUCH"
+    #define SD_ENABLE            1
+    #define LILYGO_WATCH_HAS_BMA423
+    #define LILYGO_WATCH_HAS_AXP202
+    #define LILYGO_WATCH_HAS_BACKLIGHT
+    #define LILYGO_WATCH_HAS_BUTTON
+  #elif defined(LILYGO_WATCH_2019_NO_TOUCH)
+    #warning "Selected LILYGO_WATCH_2019_NO_TOUCH"
+    #define SD_ENABLE            1
+    //#undef TFCARD_CS_PIN
+    //#include "board/twatch2019_with_not_touch.h"
+    #define LILYGO_WATCH_HAS_BMA423
+    #define LILYGO_WATCH_HAS_AXP202
+    #define LILYGO_WATCH_HAS_BACKLIGHT
+    #define LILYGO_WATCH_HAS_BUTTON
+  #elif defined(LILYGO_WATCH_BLOCK) // should be called "brick" :-)
+    #warning "Selected LILYGO_WATCH_BLOCK"
+    #define SD_ENABLE            0
+    //#include "board/twatch_block.h"
+    #define LILYGO_WATCH_HAS_AXP202
+    #define LILYGO_WATCH_HAS_BUTTON
+    #define LILYGO_WATCH_HAS_MPU6050
+  #else // defaulting to LILYGO_WATCH_2020
+    #define SD_ENABLE            0
+    #undef  SPEAKER_PIN
+    #define SPEAKER_PIN  -1
+    #if defined(BOARD_HAS_PSRAM)
+      #warning "Defaulting to LILYGO_WATCH_2020_V1"
+      //#include "board/twatch2020_v1.h"
+      #define LILYGO_WATCH_HAS_MOTOR
+      #define LILYGO_WATCH_HAS_BMA423
+      #define LILYGO_WATCH_HAS_AXP202
+      #define LILYGO_WATCH_HAS_IRREMOTE
+      //#define LILYGO_WATCH_HAS_BACKLIGHT
+    #else
+      #warning "Defaulting to LILYGO_WATCH_2020_V2"
+      //#include "board/twatch2020_v2.h"
+      #define TOUCH_RST                   4 // !! 2020_v2 only
+      #define LILYGO_WATCH_HAS_BMA423
+      #define LILYGO_WATCH_HAS_AXP202
+      #define LILYGO_WATCH_HAS_IRREMOTE
+      #define LILYGO_WATCH_HAS_BACKLIGHT
+      #define LILYGO_WATCH_HAS_GPS
+    #endif
+
+  #endif
 
 
 #elif defined(ARDUINO_TTGO_T1)

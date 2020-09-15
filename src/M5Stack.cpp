@@ -134,8 +134,11 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   #if defined( ARDUINO_M5STACK_Core2 )
     Rtc.begin();
+  #elif defined( ARDUINO_T_Watch )
+    #if defined( LILYGO_WATCH_HAS_PCF8563 )
+      Rtc = new PCF8563_Class(I2C);
+    #endif
   #endif
-
 }
 
 void M5Stack::update() {
@@ -196,19 +199,41 @@ void M5Stack::update() {
 #endif
 
 
+#if defined( ARDUINO_T_Watch )
+  SPIClass *sdhander = nullptr;
+#endif
+
 bool M5Stack::sd_begin(void)
 {
   bool ret = false;
   #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
 
-    log_d("Enabling SD from TFCARD_CS_PIN #%d at %d Hz", TFCARD_CS_PIN, TFCARD_SPI_FREQ);
+    #if defined( ARDUINO_T_Watch )
 
-    M5STACK_SD.end();
-    ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);
+      if( SD_ENABLE == 0 ) return true;
 
-    if ( lgfx::LGFX_Config::spi_host == HSPI_HOST ) {
-      Lcd.setSPIShared(false);
-    }
+      if (!sdhander) {
+        sdhander = new SPIClass(HSPI);
+        sdhander->begin(TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN);
+      }
+      if (!SD.begin(TFCARD_CS_PIN, *sdhander)) {
+        log_e("SD Card Mount Failed");
+        return false;
+      }
+      return true;
+
+    #else
+
+      log_d("Enabling SD from TFCARD_CS_PIN #%d at %d Hz", TFCARD_CS_PIN, TFCARD_SPI_FREQ);
+
+      M5STACK_SD.end();
+      ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);
+
+      if ( lgfx::LGFX_Config::spi_host == HSPI_HOST ) {
+        Lcd.setSPIShared(false);
+      }
+
+    #endif
   #else
     log_d("Enabling SD_MMC");
     ret = M5STACK_SD.begin();

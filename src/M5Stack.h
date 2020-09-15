@@ -153,6 +153,10 @@
       #include "drivers/M5Core2/FT6336U/Touch_M5Core2.h"
       #include "drivers/M5Core2/AXP192/AXP192_M5Core2.h"
       #include "drivers/M5Core2/BM8563/RTC_M5Core2.h"
+    #elif defined( ARDUINO_T_Watch )
+      #if defined( LILYGO_WATCH_HAS_PCF8563 )
+        #include "drivers/TWatch/rtc/pcf8563.h"
+      #endif
     #endif
 
     class M5Stack
@@ -219,6 +223,12 @@
           #ifdef MPU9250_INSDE
             MPU9250 IMU2 = MPU9250();
           #endif
+
+        #elif defined( ARDUINO_T_Watch )
+          #if defined( LILYGO_WATCH_HAS_PCF8563 )
+            PCF8563_Class *Rtc  = nullptr;
+          #endif
+
         #else
           #define HAS_POWER
           POWER Power;

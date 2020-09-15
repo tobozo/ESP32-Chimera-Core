@@ -1,4 +1,4 @@
-#include <M5Stack.h>
+#include <ESP32-Chimera-Core.h>
 
 // the setup routine runs once when M5Stack starts up
 void setup() {
