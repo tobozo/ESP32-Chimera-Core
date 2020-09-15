@@ -6,13 +6,11 @@
 #include <SPIFFS.h>
 #include <SD.h>
 
-//#include "LovyanGFX/src/LGFX_TFT_eSPI.hpp"
+//#include "utility/Config.h"
+
+#define LGFX_AUTODETECT
 #include <LGFX_TFT_eSPI.hpp>
 
-
-#ifdef TOUCH_CS
-  #include "utility/TouchButton.h"
-#endif
 
 namespace colors  // Color definitions for backwards compatibility with old sketches
 {
@@ -41,7 +39,7 @@ using namespace colors;
 
 class M5Display : public TFT_eSPI {
   public:
-    template<typename T> 
+    template<typename T>
     void clearDisplay(T color=0) { fillScreen(color); }
 
     void display() {}
@@ -53,5 +51,7 @@ class M5Display : public TFT_eSPI {
     void drawBitmap(int16_t x0, int16_t y0, int16_t w, int16_t h, uint16_t *data);
     void drawBitmap(int16_t x0, int16_t y0, int16_t w, int16_t h, uint8_t *data);
     void drawBitmap(int16_t x0, int16_t y0, int16_t w, int16_t h, const uint16_t *data, uint16_t transparent);
+
 };
+
 #endif

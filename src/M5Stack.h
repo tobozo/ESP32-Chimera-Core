@@ -101,9 +101,13 @@
   // #endif
   #define _CHIMERA_CORE_
 
+  // Swap any type, this was removed by LGFX but still needed
+  template <typename T> static inline void
+  swap_coord(T& a, T& b) { T t = a; a = b; b = t; }
+
   #if defined(ESP32)
 
-    // #define MPU9250_INSDE
+    //#define MPU9250_INSDE // M5Core2 : enable this only if plugging a secondary MPU !
     #include "gitTagVersion.h"
     #include <Arduino.h>
     #include <Wire.h>
@@ -120,20 +124,40 @@
     #endif
 
     #include "M5Display.h"
-    #include "utility/Config.h"
-    #include "utility/Button.h"
-    #include "utility/Speaker.h"
-    #include "utility/Power.h"
-    #include "utility/CommUtil.h"
-    #include "utility/ScreenShot.h"
-#ifdef ARDUINO_ODROID_ESP32
-    #include "utility/battery.h"
-#endif
+    #include "Config.h"
 
-#if defined(ARDUINO_M5Stick_C) // M5Stick C
-    #include "utility/AXP192.h"
-    #include "utility/RTC.h"
-#endif
+    #include "helpers/TouchButton.h"
+    #include "helpers/ScreenShot.h"
+
+    #include "drivers/common/Button/Button.h"
+    #include "drivers/common/Speaker/Speaker.h"
+    #include "drivers/common/IP5306/Power.h"
+    #include "drivers/common/I2C/CommUtil.h"
+
+    // allow multiple MPU
+    #if defined( MPU9250_INSDE )
+      #include "drivers/M5Stack/MPU9250/MPU9250.h"
+    #endif
+    #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2
+      #include "drivers/M5Core2/MPU6886/MPU6886_M5Core2.h"
+    #endif
+
+    #ifdef ARDUINO_ODROID_ESP32
+      #include "drivers/Odroid-Go/Battery/battery.h"
+    #endif
+
+    #if defined(ARDUINO_M5Stick_C) // M5Stick C
+      #include "drivers/M5StickC/AXP192.h"
+      #include "drivers/M5StickC/RTC.h"
+    #elif defined( ARDUINO_M5STACK_Core2 ) // M5Core2
+      #include "drivers/M5Core2/FT6336U/Touch_M5Core2.h"
+      #include "drivers/M5Core2/AXP192/AXP192_M5Core2.h"
+      #include "drivers/M5Core2/BM8563/RTC_M5Core2.h"
+    #elif defined( ARDUINO_T_Watch )
+      #if defined( LILYGO_WATCH_HAS_PCF8563 )
+        #include "drivers/TWatch/rtc/pcf8563.h"
+      #endif
+    #endif
 
     class M5Stack
     {
@@ -142,69 +166,103 @@
         void begin(bool LCDEnable = true, bool SDEnable = SD_ENABLE, bool SerialEnable = true, bool I2CEnable = false, bool ScreenShotEnable = false);
         void update();
 
-        void sd_begin(void);
+        bool sd_begin(void);
         void sd_end(void);
 
+        void setTouchSpiShared( int32_t csPin, int32_t IRQPin=255 );
+
+
+        #if defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
+          #define DEBOUNCE_MS 1
+        #else
+          #define DEBOUNCE_MS 10
+        #endif
         // Button API
-        #define DEBOUNCE_MS 10
         Button BtnA = Button(BUTTON_A_PIN, true, DEBOUNCE_MS);
         Button BtnB = Button(BUTTON_B_PIN, true, DEBOUNCE_MS);
         Button BtnC = Button(BUTTON_C_PIN, true, DEBOUNCE_MS);
 
-#ifdef ARDUINO_ODROID_ESP32
+        #ifdef ARDUINO_ODROID_ESP32
         #define DEBOUNCE_MS_XY 5
-        Button JOY_Y = Button(BUTTON_JOY_Y_PIN, true, DEBOUNCE_MS_XY);
-        Button JOY_X = Button(BUTTON_JOY_X_PIN, true, DEBOUNCE_MS_XY);
-        Button BtnMenu = Button(BUTTON_MENU_PIN, true, DEBOUNCE_MS);
-        Button BtnVolume = Button(BUTTON_VOLUME_PIN, true, DEBOUNCE_MS);
-        Button BtnSelect = Button(BUTTON_SELECT_PIN, true, DEBOUNCE_MS);
-        Button BtnStart = Button(BUTTON_START_PIN, true, DEBOUNCE_MS);
+          Button JOY_Y = Button(BUTTON_JOY_Y_PIN, true, DEBOUNCE_MS_XY);
+          Button JOY_X = Button(BUTTON_JOY_X_PIN, true, DEBOUNCE_MS_XY);
+          Button BtnMenu = Button(BUTTON_MENU_PIN, true, DEBOUNCE_MS);
+          Button BtnVolume = Button(BUTTON_VOLUME_PIN, true, DEBOUNCE_MS);
+          Button BtnSelect = Button(BUTTON_SELECT_PIN, true, DEBOUNCE_MS);
+          Button BtnStart = Button(BUTTON_START_PIN, true, DEBOUNCE_MS);
 
-        Battery battery;
-#endif
+          Battery battery;
+        #endif
 
         // SPEAKER
         SPEAKER Speaker;
-
         // LCD
-        M5Display Lcd; // = M5Display();
-//        void setJpgRenderer( bool legacy = true );
-
+        M5Display Lcd;
+        // ScreenShots !
         ScreenShotService ScreenShot;
 
-        //Power
-        POWER Power;
+        #ifdef TOUCH_CS
+          // TODO: deprecate this
+          XPT2046_Touchscreen* ts = nullptr;
+        #endif
 
-#if defined(ARDUINO_M5Stick_C) // M5Stick C
+        #if defined(ARDUINO_M5Stick_C) // M5Stick C
+          //!Power
+          AXP192 Axp = AXP192();
+          //!RTC
+          RTC Rtc;
+        #elif defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
+          //!Power
+          AXP192_M5Core2 Axp = AXP192_M5Core2();
+          //!RTC
+          RTC_M5Core2 Rtc;
+          Touch_M5Core2 Touch;
+          // accel/gyro
+          MPU6886_M5Core2 IMU = MPU6886_M5Core2();
+          // allow secondary MPU
+          #ifdef MPU9250_INSDE
+            MPU9250 IMU2 = MPU9250();
+          #endif
 
-        //!Power
-        AXP192 Axp = AXP192();
+        #elif defined( ARDUINO_T_Watch )
+          #if defined( LILYGO_WATCH_HAS_PCF8563 )
+            PCF8563_Class *Rtc  = nullptr;
+          #endif
 
-        //!RTC
-        RTC Rtc;
-
-#endif
+        #else
+          #define HAS_POWER
+          POWER Power;
+          // MPU9250
+          #ifdef MPU9250_INSDE
+            MPU9250 IMU = MPU9250();
+          #endif
+        #endif
 
         // UART
         // HardwareSerial Serial0 = HardwareSerial(0);
         // HardwareSerial Serial2 = HardwareSerial(2);
 
-        // MPU9250
-        #ifdef MPU9250_INSDE
-          MPU9250 IMU = MPU9250();
-        #endif
-
         // I2C
         CommUtil I2C = CommUtil();
 
-        /**
-        * Function has been move to Power class.(for compatibility)
-        * This name will be removed in a future release.
-        */
-        void setPowerBoostKeepOn(bool en);
-        void setWakeupButton(uint8_t button);
-        void powerOFF();
+        #if defined HAS_POWER // legacy M5Stack support
+          /**
+          * Function has been move to Power class.(for compatibility)
+          * This name will be removed in a future release.
+          */
+          void setPowerBoostKeepOn(bool en);
+          void setWakeupButton(uint8_t button);
+          void powerOFF();
 
+        #else // M5Core2
+          /**
+          * Function has been move to Power class.(for compatibility)
+          * This name will be removed in a future release.
+          */
+          void setPowerBoostKeepOn(bool en) __attribute__((deprecated));
+          void setWakeupButton(uint8_t button) __attribute__((deprecated));
+          void powerOFF() __attribute__((deprecated));
+        #endif
       private:
           bool isInited;
     };
