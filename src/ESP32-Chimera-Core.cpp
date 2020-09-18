@@ -1,7 +1,7 @@
 // Copyright (c) M5Stack. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#include "M5Stack.h"
+#include "ESP32-Chimera-Core.h"
 
 M5Stack::M5Stack() : isInited(0) {
 }
