@@ -4,15 +4,15 @@
 /**
  * \par Copyright (C), 2016-2017, M5Stack
  * \class M5Stack
- * \brief   M5Stack library.
- * @file    M5Stack.h
- * @author  M5Stack
- * @version V0.2.4
- * @date    2018/10/29
- * @brief   Header for M5Stack.cpp module
+ * \brief   A clone of M5Stack library with multiple devices support
+ * @file    ESP32-Chimera-Core
+ * @author  M5Stack, tobozo
+ * @version V1.1.0
+ * @date    2020/09/19
+ * @brief   Header for ESP32-Chimera-Core.cpp module
  *
  * \par Description
- * This file is a drive for M5Stack core.
+ * This file is a drive for M5Stack/M5Core2/Odroid-Go/TWatch (and more) core.
  *
  * \par Method List:
  *
@@ -157,6 +157,14 @@
       #if defined( LILYGO_WATCH_HAS_PCF8563 )
         #include "drivers/TWatch/rtc/pcf8563.h"
       #endif
+      #if defined HAS_TOUCH
+        // TODO: implement TWatch Touch
+      #endif
+    #endif
+
+    #ifndef HAS_TOUCH
+      // dummy Touch object for detection
+      #include "drivers/common/DummyTouch/DummyTouch.h"
     #endif
 
     class M5Stack
@@ -235,6 +243,11 @@
           #ifdef MPU9250_INSDE
             MPU9250 IMU = MPU9250();
           #endif
+        #endif
+
+
+        #ifndef HAS_TOUCH
+          touch Touch; // create dummy touch object
         #endif
 
         // UART

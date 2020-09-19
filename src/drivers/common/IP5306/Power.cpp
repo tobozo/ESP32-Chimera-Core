@@ -6,7 +6,7 @@
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html           *
  *----------------------------------------------------------------------*/
 #include "Power.h"
-#include "../../../M5Stack.h"
+#include "../../../ESP32-Chimera-Core.h"
 #include <rom/rtc.h>
 #include <esp_sleep.h>
 #include <esp_bt_main.h>

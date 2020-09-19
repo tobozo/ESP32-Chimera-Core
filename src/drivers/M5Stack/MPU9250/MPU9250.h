@@ -10,6 +10,7 @@
 
   #include <SPI.h>
   #include <Wire.h>
+  #include "../../../ESP32-Chimera-Core.h"
 
   // See also MPU-9250 Register Map and Descriptions, Revision 4.0,
   // RM-MPU-9250A-00, Rev. 1.4, 9/9/2013 for registers not listed in above

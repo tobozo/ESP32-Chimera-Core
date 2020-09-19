@@ -68,7 +68,7 @@
 
   //#define TFCARD_CS_PIN 13
 
-  #define SPEAKER_PIN         -1
+  //#define SPEAKER_PIN         -1
   #define BUTTON_A_PIN        36
   #define BUTTON_B_PIN        -1
   #define BUTTON_C_PIN        -1
@@ -100,6 +100,7 @@
     #define LILYGO_WATCH_HAS_AXP202
     #define LILYGO_WATCH_HAS_BACKLIGHT
     #define LILYGO_WATCH_HAS_BUTTON
+    #define HAS_TOUCH
   #elif defined(LILYGO_WATCH_2019_NO_TOUCH)
     #warning "Selected LILYGO_WATCH_2019_NO_TOUCH"
     #define SD_ENABLE            1
@@ -116,10 +117,12 @@
     #define LILYGO_WATCH_HAS_AXP202
     #define LILYGO_WATCH_HAS_BUTTON
     #define LILYGO_WATCH_HAS_MPU6050
+    #define HAS_TOUCH
   #else // defaulting to LILYGO_WATCH_2020
     #define SD_ENABLE            0
     #undef  SPEAKER_PIN
     #define SPEAKER_PIN  -1
+    #define HAS_TOUCH
     #if defined(BOARD_HAS_PSRAM)
       #warning "Defaulting to LILYGO_WATCH_2020_V1"
       //#include "board/twatch2020_v1.h"
@@ -218,6 +221,7 @@
   #define TFT_MISO_PIN 38
 
   #undef TOUCH_CS // using I2C touch
+  #define HAS_TOUCH
 
   #define TFCARD_CS_PIN 4
   #define SD_ENABLE     0

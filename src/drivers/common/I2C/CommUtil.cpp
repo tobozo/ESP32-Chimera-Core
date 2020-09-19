@@ -6,7 +6,7 @@
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html           *
  *----------------------------------------------------------------------*/
 #include "CommUtil.h"
-#include "../../../M5Stack.h"
+#include "../../../ESP32-Chimera-Core.h"
 
 extern M5Stack M5;
 
