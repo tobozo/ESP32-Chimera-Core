@@ -165,7 +165,7 @@
   #define BUTTON_C_PIN  35
 
 
-#elif defined(ARDUINO_ODROID_ESP32)
+#elif defined( ARDUINO_ODROID_ESP32 )
 
   #define TFT_LED_PIN       32
   #define TFT_DC_PIN        27
@@ -175,8 +175,8 @@
   #define TFT_RST_PIN       33
   #define TFT_MISO_PIN      19
   // SD card
-  #define TFCARD_CS_PIN      4
-  #define SD_ENABLE 1
+  #define TFCARD_CS_PIN     22
+  #define SD_ENABLE          1
   #define SPEAKER_PIN       26
   #define BUTTON_A_PIN      32
   #define BUTTON_B_PIN      33
