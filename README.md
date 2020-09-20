@@ -41,9 +41,10 @@ along with the new features such as shapes, arcs, polygon drawing and filling, a
 
 # Usage
 
-  - Delete the `~/Arduino/M5Stack` folder to prevent any confusion at compilation (you can still restore it later using the Library Manager)
+  ~~- Delete the `~/Arduino/M5Stack` folder to prevent any confusion at compilation (you can still restore it later using the Library Manager)~~
 
-then choose between managed install:
+
+Choose between managed install:
 
   - Get it from the Arduino Library Manager
 
@@ -54,7 +55,19 @@ or manual install:
 
 # Developers
 
-Use `#if defined(_CHIMERA_CORE_)` macros to isolate ESP32-Chimera-Core specific statements.
+Replace this:
+
+  ```C
+    #include <M5Stack.h>
+  ```
+
+by this:
+
+  ```C
+    #include <ESP32-Chimera-Core.h>
+  ```
+
+You can use `#if defined(_CHIMERA_CORE_)` macros to isolate ESP32-Chimera-Core specific statements.
 
   ```C
     #if defined(_CHIMERA_CORE_)

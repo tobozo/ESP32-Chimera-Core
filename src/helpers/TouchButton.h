@@ -10,7 +10,8 @@
 #ifndef _TOUCH_BUTTON_H
 #define _TOUCH_BUTTON_H
 
-#include "../M5Display.h"
+//#include "../M5Display.h"
+#include "../ESP32-Chimera-Core.h"
 
 class TouchButton {
 

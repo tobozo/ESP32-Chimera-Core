@@ -1,7 +1,7 @@
 // Copyright (c) M5Stack. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#include "M5Stack.h"
+#include "ESP32-Chimera-Core.h"
 
 M5Stack::M5Stack() : isInited(0) {
 }
@@ -57,7 +57,8 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   if (LCDEnable == true) {
     log_d("Enabling LCD");
     #if defined(PANEL_INIT)
-      panelInit()
+      // is that even used ?
+      panelInit();
     #endif
     Lcd.begin();
 
@@ -67,6 +68,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     }
 
     #if defined( TOUCH_CS )
+    /*
       // TODO: deprecate this
       delay(100);
       //ts = new XPT2046_Touchscreen(21);
@@ -74,6 +76,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
         ts->begin();
         ts->setRotation(0);
       }
+    */
     #endif
 
   }

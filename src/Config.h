@@ -29,7 +29,8 @@
   #define BUTTON_A_PIN  -1
   #define BUTTON_B_PIN  -1
   #define BUTTON_C_PIN  -1 // BUTTON_MENU
-  #define TOUCH_CS      21 // enable touch
+  //#define TOUCH_CS      21 // enable touch
+  #define TFCARD_CS_PIN  4
 
 #elif defined( ARDUINO_ESP32_WROVER_KIT )
 
@@ -67,7 +68,7 @@
 
   //#define TFCARD_CS_PIN 13
 
-  #define SPEAKER_PIN         -1
+  //#define SPEAKER_PIN         -1
   #define BUTTON_A_PIN        36
   #define BUTTON_B_PIN        -1
   #define BUTTON_C_PIN        -1
@@ -99,6 +100,7 @@
     #define LILYGO_WATCH_HAS_AXP202
     #define LILYGO_WATCH_HAS_BACKLIGHT
     #define LILYGO_WATCH_HAS_BUTTON
+    #define HAS_TOUCH
   #elif defined(LILYGO_WATCH_2019_NO_TOUCH)
     #warning "Selected LILYGO_WATCH_2019_NO_TOUCH"
     #define SD_ENABLE            1
@@ -115,10 +117,12 @@
     #define LILYGO_WATCH_HAS_AXP202
     #define LILYGO_WATCH_HAS_BUTTON
     #define LILYGO_WATCH_HAS_MPU6050
+    #define HAS_TOUCH
   #else // defaulting to LILYGO_WATCH_2020
     #define SD_ENABLE            0
     #undef  SPEAKER_PIN
     #define SPEAKER_PIN  -1
+    #define HAS_TOUCH
     #if defined(BOARD_HAS_PSRAM)
       #warning "Defaulting to LILYGO_WATCH_2020_V1"
       //#include "board/twatch2020_v1.h"
@@ -161,7 +165,7 @@
   #define BUTTON_C_PIN  35
 
 
-#elif defined(ARDUINO_ODROID_ESP32)
+#elif defined( ARDUINO_ODROID_ESP32 )
 
   #define TFT_LED_PIN       32
   #define TFT_DC_PIN        27
@@ -171,8 +175,8 @@
   #define TFT_RST_PIN       33
   #define TFT_MISO_PIN      19
   // SD card
-  #define TFCARD_CS_PIN      4
-  #define SD_ENABLE 1
+  #define TFCARD_CS_PIN     22
+  #define SD_ENABLE          1
   #define SPEAKER_PIN       26
   #define BUTTON_A_PIN      32
   #define BUTTON_B_PIN      33
@@ -217,6 +221,7 @@
   #define TFT_MISO_PIN 38
 
   #undef TOUCH_CS // using I2C touch
+  #define HAS_TOUCH
 
   #define TFCARD_CS_PIN 4
   #define SD_ENABLE     0

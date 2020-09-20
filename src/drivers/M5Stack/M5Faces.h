@@ -3,7 +3,7 @@
 #ifndef M5Faces_h
   #define M5Faces_h
 
-  #include "../../M5Stack.h"
+  #include "../../ESP32-Chimera-Core.h"
 
   class M5Faces {
     public:
