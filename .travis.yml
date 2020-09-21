@@ -80,7 +80,8 @@ script:
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:m5stack-core-esp32:FlashFreq=80,UploadSpeed=921600" "false" "newest"
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:m5stick-c" "false" "newest"
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:odroid_esp32" "false" "newest"
-  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "m5stack:esp32:m5stack-core2" "false" "newest"
+  #- build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "m5stack:esp32:m5stack-core2" "false" "newest"
+  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:m5stack-core2" "false" "newest"
 
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:esp32" "false" "newest"
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:d32_pro" "false" "newest"
