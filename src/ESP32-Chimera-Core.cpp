@@ -67,18 +67,6 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
        ScreenShot.begin();
     }
 
-    #if defined( TOUCH_CS )
-    /*
-      // TODO: deprecate this
-      delay(100);
-      //ts = new XPT2046_Touchscreen(21);
-      if(ts != nullptr ) {
-        ts->begin();
-        ts->setRotation(0);
-      }
-    */
-    #endif
-
   }
 
   #if  defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
@@ -211,9 +199,12 @@ bool M5Stack::sd_begin(void)
   bool ret = false;
   #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
 
-    #if defined( ARDUINO_T_Watch )
+    #if defined ( TFCARD_USE_WIRE1 ) || defined( ARDUINO_T_Watch )
 
-      if( SD_ENABLE == 0 ) return true;
+      if( sd_force_enable == 0 ) {
+        log_w("SD Disabled by config, aborting");
+        return true;
+      }
 
       if (!sdhander) {
         sdhander = new SPIClass(HSPI);
@@ -222,12 +213,14 @@ bool M5Stack::sd_begin(void)
       if (!SD.begin(TFCARD_CS_PIN, *sdhander)) {
         log_e("SD Card Mount Failed");
         return false;
+      } else {
+        log_w( "SD Card Mount Success on pins scl/miso/mosi/cs %d/%d/%d/%d", TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN );
       }
       return true;
 
     #else
 
-      log_d("Enabling SD from TFCARD_CS_PIN #%d at %d Hz", TFCARD_CS_PIN, TFCARD_SPI_FREQ);
+      log_w("Enabling SD from TFCARD_CS_PIN #%d at %d Hz", TFCARD_CS_PIN, TFCARD_SPI_FREQ);
 
       M5STACK_SD.end();
       ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);

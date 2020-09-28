@@ -92,8 +92,8 @@
  *
  */
 
-#ifndef _M5STACK_H_
-  #define _M5STACK_H_
+#ifndef _CHIMERA_CORE_H_
+  #define _CHIMERA_CORE_H_
   // create marker to ease core (legacy or chimera) detection
   // e.g.:
   // #ifdef _CHIMERA_CORE_
@@ -133,6 +133,7 @@
     #include "drivers/common/Speaker/Speaker.h"
     #include "drivers/common/IP5306/Power.h"
     #include "drivers/common/I2C/CommUtil.h"
+    #include "drivers/common/NVS/NVSUtils.h"
 
     // allow multiple MPU
     #if defined( MPU9250_INSDE )
@@ -174,6 +175,7 @@
         void begin(bool LCDEnable = true, bool SDEnable = SD_ENABLE, bool SerialEnable = true, bool I2CEnable = false, bool ScreenShotEnable = false);
         void update();
 
+        bool sd_force_enable = SD_ENABLE;
         bool sd_begin(void);
         void sd_end(void);
 
@@ -207,6 +209,8 @@
         M5Display Lcd;
         // ScreenShots !
         ScreenShotService ScreenShot;
+
+        NVSUtils NVS;
 
         #ifdef TOUCH_CS
           // TODO: deprecate this

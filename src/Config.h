@@ -77,6 +77,9 @@
   #define TFCARD_MISO_PIN      2
   #define TFCARD_MOSI_PIN     15
   #define TFCARD_SCLK_PIN     14
+
+  #define TFCARD_USE_WIRE1
+
   #define SEN_SDA             21
   #define SEN_SCL             22
 
@@ -92,7 +95,7 @@
   // TODO: use LGFX Touch autodetect where possible
   //#define TOUCH_CS      21 // enable touch
 
-  #if defined(LILYGO_WATCH_2019_WITH_TOUCH)
+  #if defined( LILYGO_WATCH_2019_WITH_TOUCH )
     // #include "board/twatch2019_with_touch.h"
     #warning "Selected LILYGO_WATCH_2019_WITH_TOUCH"
     #define SD_ENABLE            1
