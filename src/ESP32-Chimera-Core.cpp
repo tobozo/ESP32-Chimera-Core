@@ -46,6 +46,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
       Wire.begin(32, 33);
     }
     Axp.begin();
+    Axp.SetLDOEnable( 3,0 ); // turn any vibration off
   #else
     // TF Card
     if (SDEnable == true) {

@@ -212,11 +212,6 @@
 
         NVSUtils NVS;
 
-        #ifdef TOUCH_CS
-          // TODO: deprecate this
-          //XPT2046_Touchscreen* ts = nullptr;
-        #endif
-
         #if defined(ARDUINO_M5Stick_C) // M5Stick C
           //!Power
           AXP192 Axp = AXP192();
