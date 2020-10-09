@@ -32,10 +32,10 @@
 
 
 //#pragma message ("Screenshots support enabled !!")
-#include "../M5Display.h"
-#include "TinyJPEGEncoder.h"
-#include "TinyBMPEncoder.h"
-#include "FatPNGEncoder.h" // requires PSRAM
+#include "../../M5Display.h"
+#include "./JPG/TinyJPEGEncoder.h"
+#include "./BMP/TinyBMPEncoder.h"
+#include "./PNG/FatPNGEncoder.h" // requires PSRAM
 
 class ScreenShotService {
 

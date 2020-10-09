@@ -1,8 +1,8 @@
-/*
+/*\
  *
- * TinyBMPEncoder
+ * FatPNGEncoder
  *
- * Copyright 2019 tobozo http://github.com/tobozo
+ * Copyright 2020 tobozo http://github.com/tobozo
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,13 +25,14 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- */
-#ifndef __TINY_BMP_ENCODER_H
-#define __TINY_BMP_ENCODER_H
+\*/
+#ifndef __FAT_PNG_ENCODER_H
+#define __FAT_PNG_ENCODER_H
 
-#include "../M5Display.h"
 
-class BMP_Encoder {
+#include "../../../M5Display.h"
+
+class PNG_Encoder {
 
   public:
 
@@ -46,4 +47,4 @@ class BMP_Encoder {
 
 };
 
-#endif // __TINY_BMP_ENCODER_H
+#endif
