@@ -127,7 +127,7 @@
     #include "Config.h"
 
     #include "helpers/TouchButton.h"
-    #include "helpers/ScreenShot.h"
+    #include "helpers/ScreenShotService/ScreenShot.h"
 
     #include "drivers/common/Button/Button.h"
     #include "drivers/common/Speaker/Speaker.h"

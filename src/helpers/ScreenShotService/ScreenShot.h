@@ -32,9 +32,10 @@
 
 
 //#pragma message ("Screenshots support enabled !!")
-#include "../M5Display.h"
-#include "TinyJPEGEncoder.h"
-#include "TinyBMPEncoder.h"
+#include "../../M5Display.h"
+#include "./JPG/TinyJPEGEncoder.h"
+#include "./BMP/TinyBMPEncoder.h"
+#include "./PNG/FatPNGEncoder.h" // requires PSRAM
 
 class ScreenShotService {
 
@@ -53,7 +54,7 @@ class ScreenShotService {
     void snap(    const char* name = "screenshot", bool displayAfter = false );
     void snapJPG( const char* name = "screenshot", bool displayAfter = false );
     void snapBMP( const char* name = "screenshot", bool displayAfter = false );
-
+    void snapPNG( const char* name = "screenshot", bool displayAfter = false );
     bool readPixelSuccess  = false; // result of tft pixel read test
     bool jpegCapture       = true; // default yes until tested, BMP capture will be used if not enough ram is available
 
@@ -74,6 +75,10 @@ class ScreenShotService {
 
     JPEG_Encoder JPEGEncoder;
     BMP_Encoder  BMPEncoder;
+    //#ifdef BOARD_HAS_PSRAM
+    PNG_Encoder PNGEncoder;
+    //#endif
+
 
     uint8_t*    rgbBuffer      = NULL; // used for jpeg only, bmp has his own
 

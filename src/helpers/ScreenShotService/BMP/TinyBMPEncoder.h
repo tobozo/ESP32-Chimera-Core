@@ -29,7 +29,7 @@
 #ifndef __TINY_BMP_ENCODER_H
 #define __TINY_BMP_ENCODER_H
 
-#include "../M5Display.h"
+#include "../../../M5Display.h"
 
 class BMP_Encoder {
 

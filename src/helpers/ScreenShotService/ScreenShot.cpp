@@ -45,6 +45,7 @@ void ScreenShotService::init( M5Display *tft, fs::FS &fileSystem ) {
   _tft = tft;
   _fileSystem = &fileSystem;
   BMPEncoder.init( tft, fileSystem );
+  PNGEncoder.init( tft, fileSystem );
   JPEGEncoder.init( fileSystem );
 }
 
@@ -101,7 +102,7 @@ bool ScreenShotService::displayCanReadPixels() {
 
 void ScreenShotService::snap( const char* name, bool displayAfter ) {
   if( readPixelSuccess == false ) {
-    log_e( "This TFT is unsupported, or it hasn't been tested yet" );
+    log_n( "[ERROR] This TFT is unsupported, or it hasn't been tested yet" );
     return;
   }
   if( jpegCapture ) { // enough ram allocated?
@@ -120,15 +121,15 @@ static void jpeg_encoder_callback(uint32_t y, uint32_t h, unsigned char* rgbBuff
 
 void ScreenShotService::snapJPG( const char* name, bool displayAfter ) {
   if( !jpegCapture ) return;
-
   genFileName( name, "jpg" );
-
-//  _tft->readRectRGB( 0, 0, _tft->width(), _tft->height(), rgbBuffer );
-
+  uint32_t time_start = millis();
   if ( !JPEGEncoder.encodeToFile( fileName, _tft->width(), _tft->height(), 3 /*3=RGB,4=RGBA*/, rgbBuffer, &jpeg_encoder_callback, _tft ) ) {
-    log_e( "[ERROR] Could not write JPG file to: %s", fileName );
+    log_n( "[ERROR] Could not write JPG file to: %s", fileName );
   } else {
-    Serial.printf( "Screenshot saved as %s\n", fileName );
+    fs::File outFile = _fileSystem->open( fileName );
+    size_t fileSize = outFile.size();
+    outFile.close();
+    log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
     if( displayAfter ) {
       snapAnimation();
       _tft->drawJpgFile( *_fileSystem, fileName, 0, 0, _tft->width(), _tft->height(), 0, 0, JPEG_DIV_NONE );
@@ -140,13 +141,36 @@ void ScreenShotService::snapJPG( const char* name, bool displayAfter ) {
 
 void ScreenShotService::snapBMP( const char* name, bool displayAfter ) {
   genFileName( name, "bmp" );
+  uint32_t time_start = millis();
   if( !BMPEncoder.encodeToFile( fileName, _tft->width(), _tft->height() ) )  {
     log_e( "[ERROR] Could not write BMP file to: %s", fileName );
   } else {
-    Serial.printf( "Screenshot saved as %s\n", fileName );
+    fs::File outFile = _fileSystem->open( fileName );
+    size_t fileSize = outFile.size();
+    outFile.close();
+    log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
     if( displayAfter ) {
       snapAnimation();
       _tft->drawBmpFile( *_fileSystem, fileName, 0, 0 );
+      delay(5000);
+    }
+  }
+}
+
+
+void ScreenShotService::snapPNG( const char* name, bool displayAfter ) {
+  genFileName( name, "png" );
+  uint32_t time_start = millis();
+  if( !PNGEncoder.encodeToFile( fileName, _tft->width(), _tft->height() ) )  {
+    log_e( "[ERROR] Could not write PNG file to: %s", fileName );
+  } else {
+    fs::File outFile = _fileSystem->open( fileName );
+    size_t fileSize = outFile.size();
+    outFile.close();
+    log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
+    if( displayAfter ) {
+      snapAnimation();
+      _tft->drawPngFile( *_fileSystem, fileName, 0, 0 );
       delay(5000);
     }
   }
