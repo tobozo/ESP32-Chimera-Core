@@ -37,6 +37,7 @@ class BMP_Encoder {
 
     void init( M5Display *tft, fs::FS &fileSystem  );
     bool encodeToFile( const char* filename, const int imageW, const int imageH );
+    bool encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH );
 
   private:
 

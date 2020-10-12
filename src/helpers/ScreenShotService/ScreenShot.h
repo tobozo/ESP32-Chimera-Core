@@ -36,6 +36,7 @@
 #include "./JPG/TinyJPEGEncoder.h"
 #include "./BMP/TinyBMPEncoder.h"
 #include "./PNG/FatPNGEncoder.h" // requires PSRAM
+#include "./GIF/TinyGIFEncoder.h"
 
 class ScreenShotService {
 
@@ -55,12 +56,17 @@ class ScreenShotService {
     void snapJPG( const char* name = "screenshot", bool displayAfter = false );
     void snapBMP( const char* name = "screenshot", bool displayAfter = false );
     void snapPNG( const char* name = "screenshot", bool displayAfter = false );
+    void snapGIF( const char* name = "screenshot", bool displayAfter = false );
+    void setWindow( uint32_t x=0, uint32_t y=0, uint32_t w=0, uint32_t h=0 );
     bool readPixelSuccess  = false; // result of tft pixel read test
     bool jpegCapture       = true; // default yes until tested, BMP capture will be used if not enough ram is available
 
   private:
 
+    uint32_t _x=0, _y=0, _w=0, _h=0;
+
     bool        _begun         = false; // prevent begin() from being called more than once
+    bool        _inited        = false; // prevent memory to be allocated more than once
 
     char        fileName[255]  = {0};
     char        folderName[32] = {0};
@@ -75,10 +81,8 @@ class ScreenShotService {
 
     JPEG_Encoder JPEGEncoder;
     BMP_Encoder  BMPEncoder;
-    //#ifdef BOARD_HAS_PSRAM
-    PNG_Encoder PNGEncoder;
-    //#endif
-
+    PNG_Encoder  PNGEncoder;
+    GIF_Encoder  GIFEncoder;
 
     uint8_t*    rgbBuffer      = NULL; // used for jpeg only, bmp has his own
 
