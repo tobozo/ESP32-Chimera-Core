@@ -126,6 +126,7 @@
     #include "M5Display.h"
     #include "Config.h"
 
+    #include "helpers/Memory.h"
     #include "helpers/TouchButton.h"
     #include "helpers/ScreenShotService/ScreenShot.h"
 
@@ -134,6 +135,7 @@
     #include "drivers/common/IP5306/Power.h"
     #include "drivers/common/I2C/CommUtil.h"
     #include "drivers/common/NVS/NVSUtils.h"
+
 
     // allow multiple MPU
     #if defined( MPU9250_INSDE )
