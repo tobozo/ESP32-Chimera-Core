@@ -35,6 +35,10 @@ void BMP_Encoder::init( M5Display *tft, fs::FS &fileSystem  ) {
 }
 
 bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const int imageH ) {
+  return encodeToFile( filename, 0, 0, imageW, imageH );
+}
+
+bool BMP_Encoder::encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH ) {
 
   rgbBuffer = (RGBColor*)calloc( imageW+1, sizeof( RGBColor ) );
   fs::File outFile = _fileSystem->open( filename, "w" );  // <-----fs:: added for compatibility with SdFat ------
@@ -83,7 +87,7 @@ bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const in
   // set zero to padding area
   memset(&buf[rowSize - 4], 0, 4);
   for ( int i = imageH - 1; i >= 0; i-- ) {
-    _tft->readRectRGB( 0, i, imageW, 1, rgbBuffer ); // capture a whole line
+    _tft->readRectRGB( imageX, imageY+i, imageW, 1, rgbBuffer ); // capture a whole line
     for ( int j = 0; j < imageW; j++ ) {
       // change color order and convert 18bit to 24bit ( 0xFC to 0xFF )
       auto b = rgbBuffer[j].b;

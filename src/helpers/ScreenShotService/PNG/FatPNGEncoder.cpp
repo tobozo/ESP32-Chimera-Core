@@ -39,27 +39,57 @@ void PNG_Encoder::init( M5Display *tft, fs::FS &fileSystem  ) {
   }
 }
 
+
 bool PNG_Encoder::encodeToFile( const char* filename, const int imageW, const int imageH ) {
+  return encodeToFile( filename, 0, 0, imageW, imageH );
+}
+
+
+
+
+
+
+typedef uint8_t *(*png_encoder_get_row_func)(uint8_t *pImage, int flip, int w, int h, int y, int bpl, void *target);
+
+static RGBColor *rgbBuffer = NULL;
+static uint32_t png_encoder_xoffset = 0;
+static uint32_t png_encoder_yoffset = 0;
+
+static uint8_t *png_encoder_get_row( uint8_t *pImage, int flip, int w, int h, int y, int bpl, void *target ) {
+  auto tft = (M5Display*)target;
+  uint32_t ypos = (flip ? (h - 1 - y) : y);
+  tft->readRectRGB( png_encoder_xoffset, png_encoder_yoffset+ypos, w, 1, pImage );
+  log_n("[Free:%6d] Reading %d pixels line at [%d:%d]", ESP.getFreeHeap(), w, png_encoder_xoffset, png_encoder_yoffset+ypos );
+  return (uint8_t*)pImage;
+}
+
+
+bool PNG_Encoder::encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH ) {
+
+  png_encoder_xoffset = imageX;
+  png_encoder_yoffset = imageY;
+  png_encoder_get_row_func get_row_func = &png_encoder_get_row;
 
   if( !psramInit() ) {
-    log_n("[ERROR] No PSRAM found, aborting");
-    return false;
+    log_n("[WARNING] No PSRAM found");
+    //return false;
+    // TODO: evaluate free ram before calling malloc
+    rgbBuffer = (RGBColor*)malloc( (imageW*3)+1 );
+  } else {
+    rgbBuffer = (RGBColor*)ps_malloc( (imageW*3)+1 );
   }
-
-  rgbBuffer = (RGBColor*)ps_malloc( (imageW*imageH*3)+1 );
 
   if (!rgbBuffer) {
     log_n( "[ERROR]  Can't malloc() image pixels, aborting" );
     return false;
   }
 
-  _tft->readRectRGB(0, 0, imageW, imageH, rgbBuffer );
-
   size_t png_data_size = 0;
   uint32_t time_start = millis();
   bool success = false;
 
-  void *PNGDataPtr = tdefl_write_image_to_png_file_in_memory_ex(rgbBuffer, imageW, imageH, 3, &png_data_size, 6, 0);
+  //void *PNGDataPtr = tdefl_write_image_to_png_file_in_memory_ex(rgbBuffer, imageW, imageH, 3, &png_data_size, 6, 0);
+  void *PNGDataPtr = tdefl_write_image_to_png_file_in_memory_ex_with_cb(rgbBuffer, imageW, imageH, 3, &png_data_size, 6, 0, (tdefl_get_png_row_func)get_row_func, _tft);
 
   if (!PNGDataPtr) {
     log_n("[ERROR] PNG Encoding failed, bad PSRAM ?\n");

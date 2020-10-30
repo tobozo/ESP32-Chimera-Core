@@ -38,10 +38,10 @@ class PNG_Encoder {
 
     void init( M5Display *tft, fs::FS &fileSystem  );
     bool encodeToFile( const char* filename, const int imageW, const int imageH );
+    bool encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH );
 
   private:
 
-    RGBColor *rgbBuffer = NULL;
     M5Display *_tft;
     fs::FS * _fileSystem;
 

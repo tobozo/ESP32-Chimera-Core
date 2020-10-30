@@ -26,11 +26,13 @@ public:
   void begin(void);
   void GetBm8563Time(void);
 
+  bool isrunning(void);
+
   void SetTime(RTC_TimeTypeDef* RTC_TimeStruct);
-  void SetData(RTC_DateTypeDef* RTC_DateStruct);
+  void SetDate(RTC_DateTypeDef* RTC_DateStruct);
 
   void GetTime(RTC_TimeTypeDef* RTC_TimeStruct);
-  void GetData(RTC_DateTypeDef* RTC_DateStruct);
+  void GetDate(RTC_DateTypeDef* RTC_DateStruct);
 public:
   uint8_t Second;
   uint8_t Minute;
@@ -49,12 +51,16 @@ private:
   void Bcd2asc(void);
   void DataMask();
   void Str2Time(void);
+  void WriteReg(uint8_t reg, uint8_t data);
+  uint8_t ReadReg(uint8_t reg);
 
 
   uint8_t Bcd2ToByte(uint8_t Value);
   uint8_t ByteToBcd2(uint8_t Value);
 
 private:
+
+  uint8_t BM8563_ADDR = 0x51; // M5Core2 RTC I2C address
 
   /*定义数组用来存储读取的时间数据 */
   uint8_t trdata[7];

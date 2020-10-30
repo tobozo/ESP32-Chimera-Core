@@ -42,15 +42,45 @@ ScreenShotService::~ScreenShotService() {
 }
 
 void ScreenShotService::init( M5Display *tft, fs::FS &fileSystem ) {
+  if( _inited ) return;
   _tft = tft;
   _fileSystem = &fileSystem;
   BMPEncoder.init( tft, fileSystem );
   PNGEncoder.init( tft, fileSystem );
   JPEGEncoder.init( fileSystem );
+  GIFEncoder.init( tft, fileSystem );
+  // default capture mode is full screen
+  setWindow(0, 0, _tft->width(), _tft->height() );
+  _inited = true;
 }
 
 
+void ScreenShotService::setWindow( uint32_t x, uint32_t y, uint32_t w, uint32_t h ) {
+
+  if( x >= _tft->width()-1 ) {
+    x = 0;
+  }
+  if( y >= _tft->height()-1 ) {
+    y = 0;
+  }
+  if( x+w > _tft->width() ) {
+    w = _tft->width()-x;
+  }
+  if( y+h > _tft->height() ) {
+    h = _tft->height()-y;
+  }
+  _x = x;
+  _y = y;
+  _w = w;
+  _h = h;
+
+}
+
+
+
+
 bool ScreenShotService::begin( bool ifPsram ) {
+  if( !_inited ) return false;
   if( _begun ) return true;
   if( !displayCanReadPixels() ) {
     log_e( "readPixel() test failed, screenshots are disabled" );
@@ -58,11 +88,11 @@ bool ScreenShotService::begin( bool ifPsram ) {
   }
   if( ifPsram && psramInit() ) {
     log_w("Will attempt to allocate psram for screenshots");
-    rgbBuffer = (uint8_t*)ps_calloc( (_tft->width()*8*3)+1, sizeof( uint8_t ) );
+    rgbBuffer = (uint8_t*)ps_calloc( (_w*8*3)+1, sizeof( uint8_t ) );
   } else {
     log_w("Will attempt to allocate ram for screenshots");
     // attempt to allocate anyway, and use BMP stream on failure
-    rgbBuffer = (uint8_t*)calloc( (_tft->width()*8*3)+1, sizeof( uint8_t ) );
+    rgbBuffer = (uint8_t*)calloc( (_w*8*3)+1, sizeof( uint8_t ) );
   }
   if( rgbBuffer != NULL ) {
     log_w( "ScreenShot Service can use JPG capture" );
@@ -113,17 +143,25 @@ void ScreenShotService::snap( const char* name, bool displayAfter ) {
   return;
 }
 
+// this is lame
+static uint32_t jpeg_encoder_xoffset = 0;
+static uint32_t jpeg_encoder_yoffset = 0;
+static uint32_t jpeg_encoder_w       = 0;
+
 static void jpeg_encoder_callback(uint32_t y, uint32_t h, unsigned char* rgbBuffer, void* device)
 {
   auto tft = (M5Display*)device;
-  tft->readRectRGB( 0, y, tft->width(), h, rgbBuffer );
+  tft->readRectRGB( jpeg_encoder_xoffset, jpeg_encoder_yoffset+y, jpeg_encoder_w, h, rgbBuffer );
 }
 
 void ScreenShotService::snapJPG( const char* name, bool displayAfter ) {
   if( !jpegCapture ) return;
+  jpeg_encoder_xoffset = _x;
+  jpeg_encoder_yoffset = _y;
+  jpeg_encoder_w = _w;
   genFileName( name, "jpg" );
   uint32_t time_start = millis();
-  if ( !JPEGEncoder.encodeToFile( fileName, _tft->width(), _tft->height(), 3 /*3=RGB,4=RGBA*/, rgbBuffer, &jpeg_encoder_callback, _tft ) ) {
+  if ( !JPEGEncoder.encodeToFile( fileName, _w, _h, 3 /*3=RGB,4=RGBA*/, rgbBuffer, &jpeg_encoder_callback, _tft ) ) {
     log_n( "[ERROR] Could not write JPG file to: %s", fileName );
   } else {
     fs::File outFile = _fileSystem->open( fileName );
@@ -132,7 +170,7 @@ void ScreenShotService::snapJPG( const char* name, bool displayAfter ) {
     log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
     if( displayAfter ) {
       snapAnimation();
-      _tft->drawJpgFile( *_fileSystem, fileName, 0, 0, _tft->width(), _tft->height(), 0, 0, JPEG_DIV_NONE );
+      _tft->drawJpgFile( *_fileSystem, fileName, _x, _y, _w, _h, 0, 0, JPEG_DIV_NONE );
       delay(5000);
     }
   }
@@ -142,7 +180,7 @@ void ScreenShotService::snapJPG( const char* name, bool displayAfter ) {
 void ScreenShotService::snapBMP( const char* name, bool displayAfter ) {
   genFileName( name, "bmp" );
   uint32_t time_start = millis();
-  if( !BMPEncoder.encodeToFile( fileName, _tft->width(), _tft->height() ) )  {
+  if( !BMPEncoder.encodeToFile( fileName, _x, _y, _w, _h ) )  {
     log_e( "[ERROR] Could not write BMP file to: %s", fileName );
   } else {
     fs::File outFile = _fileSystem->open( fileName );
@@ -151,7 +189,7 @@ void ScreenShotService::snapBMP( const char* name, bool displayAfter ) {
     log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
     if( displayAfter ) {
       snapAnimation();
-      _tft->drawBmpFile( *_fileSystem, fileName, 0, 0 );
+      _tft->drawBmpFile( *_fileSystem, fileName, _x, _y );
       delay(5000);
     }
   }
@@ -161,7 +199,7 @@ void ScreenShotService::snapBMP( const char* name, bool displayAfter ) {
 void ScreenShotService::snapPNG( const char* name, bool displayAfter ) {
   genFileName( name, "png" );
   uint32_t time_start = millis();
-  if( !PNGEncoder.encodeToFile( fileName, _tft->width(), _tft->height() ) )  {
+  if( !PNGEncoder.encodeToFile( fileName, _x, _y, _w, _h ) )  {
     log_e( "[ERROR] Could not write PNG file to: %s", fileName );
   } else {
     fs::File outFile = _fileSystem->open( fileName );
@@ -170,9 +208,27 @@ void ScreenShotService::snapPNG( const char* name, bool displayAfter ) {
     log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
     if( displayAfter ) {
       snapAnimation();
-      _tft->drawPngFile( *_fileSystem, fileName, 0, 0 );
+      _tft->drawPngFile( *_fileSystem, fileName, _x, _y );
       delay(5000);
     }
+  }
+}
+
+void ScreenShotService::snapGIF( const char* name, bool displayAfter ) {
+  genFileName( name, "gif" );
+  uint32_t time_start = millis();
+  if( !GIFEncoder.encodeToFile( fileName, _x, _y, _w, _h ) )  {
+    log_e( "[ERROR] Could not write GIF file to: %s", fileName );
+  } else {
+    fs::File outFile = _fileSystem->open( fileName );
+    size_t fileSize = outFile.size();
+    outFile.close();
+    log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
+    //if( displayAfter ) {
+    //  snapAnimation();
+    //  _tft->drawPngFile( *_fileSystem, fileName, 0, 0 );
+    //  delay(5000);
+    //}
   }
 }
 
