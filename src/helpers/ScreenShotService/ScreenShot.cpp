@@ -46,7 +46,9 @@ void ScreenShotService::init( M5Display *tft, fs::FS &fileSystem ) {
   _tft = tft;
   _fileSystem = &fileSystem;
   BMPEncoder.init( tft, fileSystem );
+  #if TDEFL_LESS_MEMORY==1
   PNGEncoder.init( tft, fileSystem );
+  #endif
   JPEGEncoder.init( fileSystem );
   GIFEncoder.init( tft, fileSystem );
   // default capture mode is full screen
@@ -195,7 +197,7 @@ void ScreenShotService::snapBMP( const char* name, bool displayAfter ) {
   }
 }
 
-
+#if TDEFL_LESS_MEMORY==1
 void ScreenShotService::snapPNG( const char* name, bool displayAfter ) {
   genFileName( name, "png" );
   uint32_t time_start = millis();
@@ -213,6 +215,7 @@ void ScreenShotService::snapPNG( const char* name, bool displayAfter ) {
     }
   }
 }
+#endif
 
 void ScreenShotService::snapGIF( const char* name, bool displayAfter ) {
   genFileName( name, "gif" );

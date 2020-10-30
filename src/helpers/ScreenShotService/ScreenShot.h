@@ -35,7 +35,7 @@
 #include "../../M5Display.h"
 #include "./JPG/TinyJPEGEncoder.h"
 #include "./BMP/TinyBMPEncoder.h"
-#include "./PNG/FatPNGEncoder.h" // requires PSRAM
+#include "./PNG/FatPNGEncoder.h" // requires miniz.c patched with TDEFL_LESS_MEMORY=1
 #include "./GIF/TinyGIFEncoder.h"
 
 class ScreenShotService {
@@ -55,7 +55,9 @@ class ScreenShotService {
     void snap(    const char* name = "screenshot", bool displayAfter = false );
     void snapJPG( const char* name = "screenshot", bool displayAfter = false );
     void snapBMP( const char* name = "screenshot", bool displayAfter = false );
+    #if TDEFL_LESS_MEMORY==1
     void snapPNG( const char* name = "screenshot", bool displayAfter = false );
+    #endif
     void snapGIF( const char* name = "screenshot", bool displayAfter = false );
     void setWindow( uint32_t x=0, uint32_t y=0, uint32_t w=0, uint32_t h=0 );
     bool readPixelSuccess  = false; // result of tft pixel read test
@@ -81,7 +83,9 @@ class ScreenShotService {
 
     JPEG_Encoder JPEGEncoder;
     BMP_Encoder  BMPEncoder;
+    #if TDEFL_LESS_MEMORY==1
     PNG_Encoder  PNGEncoder;
+    #endif
     GIF_Encoder  GIFEncoder;
 
     uint8_t*    rgbBuffer      = NULL; // used for jpeg only, bmp has his own
