@@ -492,24 +492,21 @@ void AXP192_M5Core2::SetBusPowerMode(uint8_t state)
     {
         data = Read8bit(0x91);
         Write1Byte(0x91, (data & 0x0F) | 0xF0);
-
+        //set GPIO0 to LDO OUTPUT , pullup N_VBUSEN to disable supply from BUS_5V
         data = Read8bit(0x90);
-        Write1Byte(0x90, (data & 0xF8) | 0x02); //set GPIO0 to LDO OUTPUT , pullup N_VBUSEN to disable supply from BUS_5V
-
-        data = Read8bit(0x91);
-
-        data = Read8bit(0x12);         //read reg 0x12
-        Write1Byte(0x12, data | 0x40); //set EXTEN to enable 5v boost
+        Write1Byte(0x90, (data & 0xF8) | 0x02);
+        //set EXTEN to enable 5v boost
+        data = Read8bit(0x10);
+        Write1Byte(0x10, data | 0x04);
     }
     else
     {
-        data = Read8bit(0x12);         //read reg 0x10
-        Write1Byte(0x12, data & 0xBF); //set EXTEN to disable 5v boost
-
-        //delay(2000);
-
+        // Set EXTEN to disable 5v boost
+        data = Read8bit(0x10);
+        Write1Byte(0x10, data & ~0x04);
+        // Set GPIO0 to float, using enternal pulldown resistor to enable VBUS supply from BUS_5V
         data = Read8bit(0x90);
-        Write1Byte(0x90, (data & 0xF8) | 0x01); //set GPIO0 to float , using enternal pulldown resistor to enable supply from BUS_5VS
+        Write1Byte(0x90, (data & 0xF8) | 0x07);
     }
 }
 
