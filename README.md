@@ -1,6 +1,7 @@
 # ESP32-Chimera-Core Library
 
 [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP32-Chimera-Core.svg?)](https://www.ardu-badge.com/ESP32-Chimera-Core)
+[![Build Status](https://travis-ci.com/tobozo/ESP32-Chimera-Core.svg?branch=master)](https://travis-ci.com/github/tobozo/ESP32-Chimera-Core)
 
 ![Illustration By Jacopo Ligozzi](https://user-images.githubusercontent.com/1893754/71980273-ed9bb100-321f-11ea-8982-49702af29c9f.png)
 

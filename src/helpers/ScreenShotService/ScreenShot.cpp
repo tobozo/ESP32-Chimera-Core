@@ -30,25 +30,26 @@
 #include "ScreenShot.h"
 
 
-ScreenShotService::ScreenShotService() {
+ScreenShotService::ScreenShotService()
+{
   // wut ?
 }
 
-ScreenShotService::~ScreenShotService() {
+ScreenShotService::~ScreenShotService()
+{
   if( _begun ) {
     free( rgbBuffer );
     _begun = false;
   }
 }
 
-void ScreenShotService::init( M5Display *tft, fs::FS &fileSystem ) {
+void ScreenShotService::init( M5Display *tft, fs::FS &fileSystem )
+{
   if( _inited ) return;
   _tft = tft;
   _fileSystem = &fileSystem;
   BMPEncoder.init( tft, fileSystem );
-  #if TDEFL_LESS_MEMORY==1
   PNGEncoder.init( tft, fileSystem );
-  #endif
   JPEGEncoder.init( fileSystem );
   GIFEncoder.init( tft, fileSystem );
   // default capture mode is full screen
@@ -57,7 +58,8 @@ void ScreenShotService::init( M5Display *tft, fs::FS &fileSystem ) {
 }
 
 
-void ScreenShotService::setWindow( uint32_t x, uint32_t y, uint32_t w, uint32_t h ) {
+void ScreenShotService::setWindow( uint32_t x, uint32_t y, uint32_t w, uint32_t h )
+{
 
   if( x >= _tft->width()-1 ) {
     x = 0;
@@ -79,9 +81,8 @@ void ScreenShotService::setWindow( uint32_t x, uint32_t y, uint32_t w, uint32_t 
 }
 
 
-
-
-bool ScreenShotService::begin( bool ifPsram ) {
+bool ScreenShotService::begin( bool ifPsram )
+{
   if( !_inited ) return false;
   if( _begun ) return true;
   if( !displayCanReadPixels() ) {
@@ -108,9 +109,8 @@ bool ScreenShotService::begin( bool ifPsram ) {
 }
 
 
-
-
-bool ScreenShotService::displayCanReadPixels() {
+bool ScreenShotService::displayCanReadPixels()
+{
   uint16_t value_initial = _tft->readPixel( 30,30 );
   uint8_t r = 64, g = 255, b = 128; // scan color
   uint16_t value_in = _tft->color565(r, g, b);
@@ -132,7 +132,8 @@ bool ScreenShotService::displayCanReadPixels() {
 }
 
 
-void ScreenShotService::snap( const char* name, bool displayAfter ) {
+void ScreenShotService::snap( const char* name, bool displayAfter )
+{
   if( readPixelSuccess == false ) {
     log_n( "[ERROR] This TFT is unsupported, or it hasn't been tested yet" );
     return;
@@ -156,7 +157,9 @@ static void jpeg_encoder_callback(uint32_t y, uint32_t h, unsigned char* rgbBuff
   tft->readRectRGB( jpeg_encoder_xoffset, jpeg_encoder_yoffset+y, jpeg_encoder_w, h, rgbBuffer );
 }
 
-void ScreenShotService::snapJPG( const char* name, bool displayAfter ) {
+
+void ScreenShotService::snapJPG( const char* name, bool displayAfter )
+{
   if( !jpegCapture ) return;
   jpeg_encoder_xoffset = _x;
   jpeg_encoder_yoffset = _y;
@@ -179,7 +182,8 @@ void ScreenShotService::snapJPG( const char* name, bool displayAfter ) {
 }
 
 
-void ScreenShotService::snapBMP( const char* name, bool displayAfter ) {
+void ScreenShotService::snapBMP( const char* name, bool displayAfter )
+{
   genFileName( name, "bmp" );
   uint32_t time_start = millis();
   if( !BMPEncoder.encodeToFile( fileName, _x, _y, _w, _h ) )  {
@@ -197,8 +201,8 @@ void ScreenShotService::snapBMP( const char* name, bool displayAfter ) {
   }
 }
 
-#if TDEFL_LESS_MEMORY==1
-void ScreenShotService::snapPNG( const char* name, bool displayAfter ) {
+void ScreenShotService::snapPNG( const char* name, bool displayAfter )
+{
   genFileName( name, "png" );
   uint32_t time_start = millis();
   if( !PNGEncoder.encodeToFile( fileName, _x, _y, _w, _h ) )  {
@@ -215,9 +219,10 @@ void ScreenShotService::snapPNG( const char* name, bool displayAfter ) {
     }
   }
 }
-#endif
 
-void ScreenShotService::snapGIF( const char* name, bool displayAfter ) {
+
+void ScreenShotService::snapGIF( const char* name, bool displayAfter )
+{
   genFileName( name, "gif" );
   uint32_t time_start = millis();
   if( !GIFEncoder.encodeToFile( fileName, _x, _y, _w, _h ) )  {
@@ -229,14 +234,15 @@ void ScreenShotService::snapGIF( const char* name, bool displayAfter ) {
     log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
     //if( displayAfter ) {
     //  snapAnimation();
-    //  _tft->drawPngFile( *_fileSystem, fileName, 0, 0 );
+    //  _tft->drawGifFile( *_fileSystem, fileName, 0, 0 );
     //  delay(5000);
     //}
   }
 }
 
 
-void ScreenShotService::checkFolder( const char* path ) {
+void ScreenShotService::checkFolder( const char* path )
+{
   *folderName = {0};
   if( path[0] =='/' ) {
     sprintf( folderName, "%s", path );
@@ -252,7 +258,8 @@ void ScreenShotService::checkFolder( const char* path ) {
 }
 
 
-void ScreenShotService::genFileName( const char* name, const char* extension ) {
+void ScreenShotService::genFileName( const char* name, const char* extension )
+{
   bool isPrefix = name[0] !='/';
   *fileName = {0};
   if( isPrefix ) {
@@ -268,7 +275,8 @@ void ScreenShotService::genFileName( const char* name, const char* extension ) {
 }
 
 
-void ScreenShotService::snapAnimation() {
+void ScreenShotService::snapAnimation()
+{
   for( byte i = 0; i<16; i++ ) {
     _tft->drawRect(0, 0, _tft->width()-1, _tft->height()-1, TFT_WHITE);
     delay(20);
