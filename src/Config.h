@@ -64,7 +64,7 @@
   #define BUTTON_C_PIN 19
 
 
-#elif defined(ARDUINO_T) || defined( ARDUINO_T_Watch ) // TTGO T-Watch
+#elif defined( ARDUINO_T_Watch ) // TTGO T-Watch
 
   //#define TFCARD_CS_PIN 13
 

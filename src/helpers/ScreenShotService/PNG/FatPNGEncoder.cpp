@@ -51,8 +51,7 @@ bool PNG_Encoder::encodeToFile( const char* filename, const int imageX, const in
 {
 
   size_t png_data_size = 0;
-  uint32_t time_start = millis();
-  bool success = false;
+  //uint32_t time_start = millis();
 
   #ifndef LOVYANGFX_VERSION
     uint8_t* PNGDataPtr = NULL;

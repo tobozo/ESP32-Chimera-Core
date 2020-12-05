@@ -205,7 +205,7 @@ bool NVSUtils::IterateNext(struct NVSIterator *it, const char **key, NVSIterator
 
 int NVSUtils::Dump( const char* searchStr)
 {
-  bool all = ( searchStr==nullptr || searchStr[0] == '\0' );
+  //bool all = ( searchStr==nullptr || searchStr[0] == '\0' );
   const char *key;
   NVSIteratorTyped typ;
 

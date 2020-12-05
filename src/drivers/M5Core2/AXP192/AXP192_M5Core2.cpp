@@ -10,44 +10,46 @@ void AXP192_M5Core2::begin(void)
     Wire1.begin(21, 22);
     Wire1.setClock(400000);
 
+    log_w("[ AXP ]");
+
     //AXP192 30H
     Write1Byte(0x30, (Read8bit(0x30) & 0x04) | 0x02);
-    Serial.printf("axp: vbus limit off\n");
+    log_d("  - VBUS limit off");
 
     //AXP192 GPIO1:OD OUTPUT
     Write1Byte(0x92, Read8bit(0x92) & 0xf8);
-    Serial.printf("axp: gpio1 init\n");
+    log_d("  - GPIO1 init");
 
     //AXP192 GPIO2:OD OUTPUT
     Write1Byte(0x93, Read8bit(0x93) & 0xf8);
-    Serial.printf("axp: gpio2 init\n");
+    log_d("  - GPIO2 init");
 
     //AXP192 RTC CHG
     Write1Byte(0x35, (Read8bit(0x35) & 0x1c) | 0xa3);
-    Serial.printf("axp: rtc battery charging enabled\n");
+    log_w("  - RTC battery charging enabled");
 
     SetESPVoltage(3350);
-    Serial.printf("axp: esp32 power voltage was set to 3.35v\n");
+    log_w("  - ESP32 power voltage was set to 3.35v");
 
     SetLcdVoltage(2800);
-    Serial.printf("axp: lcd backlight voltage was set to 2.80v\n");
+    log_w("  - TFT backlight voltage was set to 2.80v");
 
     SetLDOVoltage(2, 3300); //Periph power voltage preset (LCD_logic, SD card)
-    Serial.printf("axp: lcd logic and sdcard voltage preset to 3.3v\n");
+    log_w("  - TFT logic and SDCard voltage preset to 3.3v");
 
     SetLDOVoltage(3, 2000); //Vibrator power voltage preset
-    Serial.printf("axp: vibrator voltage preset to 2v\n");
+    log_w("  - Vibrator voltage preset to 2v");
 
     SetLDOEnable(2, true);
 
     SetCHGCurrent(kCHG_100mA);
-    //SetAxpPriphPower(1);
-    //Serial.printf("axp: lcd_logic and sdcard power enabled\n\n");
+    log_w("  - M5Go CHG Base current set to 100mA");
 
     //pinMode(39, INPUT_PULLUP);
 
     //AXP192 GPIO4
     Write1Byte(0x95, (Read8bit(0x95) & 0x72) | 0x84);
+    log_d("  - GPIO4 init");
 
     Write1Byte(0x36, 0x4C);
 
