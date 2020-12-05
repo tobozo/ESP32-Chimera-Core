@@ -1,7 +1,7 @@
 {
   "name": "ESP32-Chimera-Core",
   "description": "Alternate library M5Stack/Odroid-Go/D-Duino and possiblly other ESP32/TFT/SD bundles",
-  "keywords": "M5Stack M5Core2 Odroid-Go ttgo-ts d-duino-32-xs esp32-wrover-kit",
+  "keywords": ["ESP32-Chimera-Core", "M5Stack", "M5Core2", "Odroid-Go", "ttgo-ts", "d-duino-32-xs", "esp32-wrover-kit"],
   "authors": [
     {
       "name": "tobozo",
