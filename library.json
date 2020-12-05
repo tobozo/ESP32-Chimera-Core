@@ -3,8 +3,8 @@
   "description": "Alternate library M5Stack/Odroid-Go/D-Duino and possiblly other ESP32/TFT/SD bundles",
   "keywords": "M5Stack M5Core2 Odroid-Go ttgo-ts d-duino-32-xs esp32-wrover-kit",
   "authors": {
-    "name": "ESP32-Chimera-Core, a clone of M5Stack-core",
-    "url": "https://github.com/tobozo/ESP32-Chimera-Core"
+    "name": "tobozo",
+    "url": "https://github.com/tobozo/"
   },
   "repository": {
     "type": "git",
