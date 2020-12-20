@@ -175,7 +175,7 @@ void ScreenShotService::snapJPG( const char* name, bool displayAfter )
     log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
     if( displayAfter ) {
       snapAnimation();
-      _tft->drawJpgFile( *_fileSystem, fileName, _x, _y, _w, _h, 0, 0, JPEG_DIV_NONE );
+      _tft->drawJpgFile( *_fileSystem, fileName, _x, _y, _w, _h, 0, 0 );
       delay(5000);
     }
   }
