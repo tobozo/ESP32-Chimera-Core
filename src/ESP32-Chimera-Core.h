@@ -160,6 +160,9 @@
       #if defined( LILYGO_WATCH_HAS_PCF8563 )
         #include "drivers/TWatch/rtc/pcf8563.h"
       #endif
+      #if defined LILYGO_WATCH_HAS_AXP202
+        #include "drivers/TWatch/axp/axp20x.h"
+      #endif
       #if defined HAS_TOUCH
         // TODO: implement TWatch Touch
       #endif
@@ -235,6 +238,9 @@
         #elif defined( ARDUINO_T_Watch )
           #if defined( LILYGO_WATCH_HAS_PCF8563 )
             PCF8563_Class *Rtc  = nullptr;
+          #endif
+          #if defined LILYGO_WATCH_HAS_AXP202
+            AXP20X_Class *Axp = new AXP20X_Class();
           #endif
 
         #else

@@ -160,7 +160,7 @@
   #define TFT_MISO_PIN  -1
   // if (!SD.begin(13, 15, 2, 14)) {            //T1:13,15,2,14  T2: 23,5,19,18
   // boolean begin(uint8_t csPin = SD_CHIP_SELECT_PIN, int8_t mosi = -1, int8_t miso = -1, int8_t sck = -1);
-  #define SPEAKER_PIN 25
+  #define SPEAKER_PIN   25
   #define TFCARD_CS_PIN 13
   #define SD_ENABLE      0
   #define BUTTON_A_PIN  39
