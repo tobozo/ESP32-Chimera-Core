@@ -10,6 +10,7 @@ This library is a *substitute* of the original [M5Stack](https://github.com/m5st
 
   - [M5Stack Classic](https://m5stack.com/products/basic-core-iot-development-kit)
   - [M5Stack Fire](https://m5stack.com/collections/m5-core/products/fire-iot-development-kit)
+  - [M5Core2](https://m5stack.com/products/m5stack-core2-esp32-iot-development-kit)
   - [Odroid-Go](https://www.hardkernel.com/shop/odroid-go/)
   - [D-Duino-32-XS](https://www.tindie.com/products/lspoplove/dstike-d-duino-32-xs/)
   - [ESP32-Wrover-Kit (v4.1, v4.2, v4.3)](https://www.sparkfun.com/products/14917)
@@ -48,10 +49,12 @@ along with the new features such as shapes, arcs, polygon drawing and filling, a
 Choose between managed install:
 
   - Get it from the Arduino Library Manager
+  - Let the Arduino Library Manager download the `LovyanGFX` library dependency
 
 or manual install:
 
-  - Download the [latest release](https://github.com/tobozo/ESP32-Chimera-Core/releases) and unzip it in the `~/Arduino/libraries` folder.
+  - Download the [latest LovyanGFX display driver](https://github.com/lovyan03/LovyanGFX/releases) and unzip it in the `~/Arduino/libraries` folder.
+  - Download the [latest ESP32-Chimera-Core release](https://github.com/tobozo/ESP32-Chimera-Core/releases) and unzip it in the `~/Arduino/libraries` folder.
   - You're done!
 
 # Developers
