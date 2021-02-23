@@ -113,18 +113,21 @@
     #include <Wire.h>
     #include <SPI.h>
     #include <FS.h>
+    #include "Config.h"
 
     #if defined ( ARDUINO_ESP32_DEV ) || defined( ARDUINO_DDUINO32_XS ) || defined( ARDUINO_ESP32_WROVER_KIT )
       #include "SD_MMC.h"
       #define M5STACK_SD SD_MMC
     #else
-      #include "SD.h"
-      #define M5STACK_SD SD
-      #define USE_TFCARD_CS_PIN
+      #if defined HAS_SDCARD
+        #include "SD.h"
+        #define M5STACK_SD SD
+        #define USE_TFCARD_CS_PIN
+      #endif
     #endif
 
     #include "M5Display.h"
-    #include "Config.h"
+
 
     #include "helpers/Memory.h"
     #include "helpers/TouchButton.h"
@@ -156,7 +159,7 @@
       #include "drivers/M5Core2/FT6336U/Touch_M5Core2.h"
       #include "drivers/M5Core2/AXP192/AXP192_M5Core2.h"
       #include "drivers/M5Core2/BM8563/RTC_M5Core2.h"
-    #elif defined( ARDUINO_T_Watch )
+    #elif defined ARDUINO_TWATCH_BASE || defined ARDUINO_TWATCH_2020_V1 || defined ARDUINO_TWATCH_2020_V2 // TTGO T-Watch
       #if defined( LILYGO_WATCH_HAS_PCF8563 )
         #include "drivers/TWatch/rtc/pcf8563.h"
       #endif
@@ -235,7 +238,7 @@
             MPU9250 IMU2 = MPU9250();
           #endif
 
-        #elif defined( ARDUINO_T_Watch )
+        #elif defined ARDUINO_TWATCH_BASE || defined ARDUINO_TWATCH_2020_V1 || defined ARDUINO_TWATCH_2020_V2 // TTGO T-Watch
           #if defined( LILYGO_WATCH_HAS_PCF8563 )
             PCF8563_Class *Rtc  = nullptr;
           #endif
