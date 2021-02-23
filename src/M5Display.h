@@ -3,7 +3,7 @@
 
 #define M5STACK
 
-#include <SD.h>
+#include <FS.h>
 #define LGFX_AUTODETECT
 #include <LGFX_TFT_eSPI.hpp>
 
