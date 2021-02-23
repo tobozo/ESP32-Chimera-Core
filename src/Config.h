@@ -1,6 +1,7 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+#define HAS_SDCARD
 
 #if defined( LGFX_ONLY ) // LGFX config loaded externally
 
@@ -64,7 +65,7 @@
   #define BUTTON_C_PIN 19
 
 
-#elif defined( ARDUINO_T_Watch ) // TTGO T-Watch
+#elif defined ARDUINO_TWATCH_BASE || defined ARDUINO_TWATCH_2020_V1 || defined ARDUINO_TWATCH_2020_V2 // TTGO T-Watch
 
   //#define TFCARD_CS_PIN 13
 
@@ -97,7 +98,7 @@
 
   #if defined( LILYGO_WATCH_2019_WITH_TOUCH )
     // #include "board/twatch2019_with_touch.h"
-    #warning "Selected LILYGO_WATCH_2019_WITH_TOUCH"
+    //#warning "Selected LILYGO_WATCH_2019_WITH_TOUCH"
     #define SD_ENABLE            1
     #define LILYGO_WATCH_HAS_BMA423
     #define LILYGO_WATCH_HAS_AXP202
@@ -105,7 +106,7 @@
     #define LILYGO_WATCH_HAS_BUTTON
     #define HAS_TOUCH
   #elif defined(LILYGO_WATCH_2019_NO_TOUCH)
-    #warning "Selected LILYGO_WATCH_2019_NO_TOUCH"
+    //#warning "Selected LILYGO_WATCH_2019_NO_TOUCH"
     #define SD_ENABLE            1
     //#undef TFCARD_CS_PIN
     //#include "board/twatch2019_with_not_touch.h"
@@ -114,8 +115,9 @@
     #define LILYGO_WATCH_HAS_BACKLIGHT
     #define LILYGO_WATCH_HAS_BUTTON
   #elif defined(LILYGO_WATCH_BLOCK) // should be called "brick" :-)
-    #warning "Selected LILYGO_WATCH_BLOCK"
+    //#warning "Selected LILYGO_WATCH_BLOCK"
     #define SD_ENABLE            0
+    #undef HAS_SDCARD
     //#include "board/twatch_block.h"
     #define LILYGO_WATCH_HAS_AXP202
     #define LILYGO_WATCH_HAS_BUTTON
@@ -123,11 +125,12 @@
     #define HAS_TOUCH
   #else // defaulting to LILYGO_WATCH_2020
     #define SD_ENABLE            0
+    #undef HAS_SDCARD
     #undef  SPEAKER_PIN
     #define SPEAKER_PIN  -1
     #define HAS_TOUCH
     #if defined(BOARD_HAS_PSRAM)
-      #warning "Defaulting to LILYGO_WATCH_2020_V1"
+      //#warning "Defaulting to LILYGO_WATCH_2020_V1"
       //#include "board/twatch2020_v1.h"
       #define LILYGO_WATCH_HAS_MOTOR
       #define LILYGO_WATCH_HAS_BMA423
@@ -135,7 +138,7 @@
       #define LILYGO_WATCH_HAS_IRREMOTE
       //#define LILYGO_WATCH_HAS_BACKLIGHT
     #else
-      #warning "Defaulting to LILYGO_WATCH_2020_V2"
+      //#warning "Defaulting to LILYGO_WATCH_2020_V2"
       //#include "board/twatch2020_v2.h"
       #define TOUCH_RST                   4 // !! 2020_v2 only
       #define LILYGO_WATCH_HAS_BMA423
