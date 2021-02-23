@@ -29,7 +29,14 @@
 
 
 #include "FatPNGEncoder.h"
-#include "lgfx/utility/miniz.h"
+
+#if __has_include(<utility/miniz.h>)
+  #include <utility/miniz.h>
+#elif __has_include(<lgfx/utility/miniz.h>)
+  #include <lgfx/utility/miniz.h>
+#else
+  #error "miniz.h not found, please update to the latest version of LovyanGFX"
+#endif
 
 void PNG_Encoder::init( M5Display *tft, fs::FS &fileSystem  )
 {
