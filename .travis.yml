@@ -53,6 +53,7 @@ before_install:
   # Install the library from the repository
   - install_library
   - install_library "LovyanGFX"
+  #- install_library "https://github.com/lovyan03/LovyanGFX/archive/develop.zip"
   - install_package "esp32:esp32" "https://dl.espressif.com/dl/package_esp32_index.json"
   # - install_package "m5stack:esp32" "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json" # m5stack:esp32:m5stack-core2
   # install ESP32-Chimera-Core custom boards + pins variants

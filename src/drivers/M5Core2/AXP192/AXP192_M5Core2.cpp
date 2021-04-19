@@ -10,46 +10,48 @@ void AXP192_M5Core2::begin(void)
     Wire1.begin(21, 22);
     Wire1.setClock(400000);
 
+    log_w("[ AXP ]");
+
     //AXP192 30H
-    Write1Byte(0x30, (Read8bit(0x30) & 0x04) | 0X02);
-    Serial.printf("axp: vbus limit off\n");
+    Write1Byte(0x30, (Read8bit(0x30) & 0x04) | 0x02);
+    log_d("  - VBUS limit off");
 
     //AXP192 GPIO1:OD OUTPUT
     Write1Byte(0x92, Read8bit(0x92) & 0xf8);
-    Serial.printf("axp: gpio1 init\n");
+    log_d("  - GPIO1 init");
 
     //AXP192 GPIO2:OD OUTPUT
     Write1Byte(0x93, Read8bit(0x93) & 0xf8);
-    Serial.printf("axp: gpio2 init\n");
+    log_d("  - GPIO2 init");
 
     //AXP192 RTC CHG
     Write1Byte(0x35, (Read8bit(0x35) & 0x1c) | 0xa3);
-    Serial.printf("axp: rtc battery charging enabled\n");
+    log_w("  - RTC battery charging enabled");
 
     SetESPVoltage(3350);
-    Serial.printf("axp: esp32 power voltage was set to 3.35v\n");
+    log_w("  - ESP32 power voltage was set to 3.35v");
 
     SetLcdVoltage(2800);
-    Serial.printf("axp: lcd backlight voltage was set to 2.80v\n");
+    log_w("  - TFT backlight voltage was set to 2.80v");
 
     SetLDOVoltage(2, 3300); //Periph power voltage preset (LCD_logic, SD card)
-    Serial.printf("axp: lcd logic and sdcard voltage preset to 3.3v\n");
+    log_w("  - TFT logic and SDCard voltage preset to 3.3v");
 
     SetLDOVoltage(3, 2000); //Vibrator power voltage preset
-    Serial.printf("axp: vibrator voltage preset to 2v\n");
+    log_w("  - Vibrator voltage preset to 2v");
 
     SetLDOEnable(2, true);
 
     SetCHGCurrent(kCHG_100mA);
-    //SetAxpPriphPower(1);
-    //Serial.printf("axp: lcd_logic and sdcard power enabled\n\n");
+    log_w("  - M5Go CHG Base current set to 100mA");
 
     //pinMode(39, INPUT_PULLUP);
 
     //AXP192 GPIO4
-    Write1Byte(0X95, (Read8bit(0x95) & 0x72) | 0X84);
+    Write1Byte(0x95, (Read8bit(0x95) & 0x72) | 0x84);
+    log_d("  - GPIO4 init");
 
-    Write1Byte(0X36, 0X4C);
+    Write1Byte(0x36, 0x4C);
 
     Write1Byte(0x82,0xff);
 
@@ -405,10 +407,10 @@ void AXP192_M5Core2::SetLDOVoltage(uint8_t number, uint16_t voltage)
     {
     //uint8_t reg, data;
     case 2:
-        Write1Byte(AXP_ADDR, (Read8bit(0x28) & 0X0F) | (voltage << 4));
+        Write1Byte(AXP_ADDR, (Read8bit(0x28) & 0x0F) | (voltage << 4));
         break;
     case 3:
-        Write1Byte(AXP_ADDR, (Read8bit(0x28) & 0XF0) | voltage);
+        Write1Byte(AXP_ADDR, (Read8bit(0x28) & 0xF0) | voltage);
         break;
     }
 }
@@ -431,7 +433,7 @@ void AXP192_M5Core2::SetDCVoltage(uint8_t number, uint16_t voltage)
         addr = 0x27;
         break;
     }
-    Write1Byte(addr, (Read8bit(addr) & 0X80) | (voltage & 0X7F));
+    Write1Byte(addr, (Read8bit(addr) & 0x80) | (voltage & 0x7F));
 }
 
 void AXP192_M5Core2::SetESPVoltage(uint16_t voltage)
@@ -491,25 +493,22 @@ void AXP192_M5Core2::SetBusPowerMode(uint8_t state)
     if (state == 0)
     {
         data = Read8bit(0x91);
-        Write1Byte(0x91, (data & 0X0F) | 0XF0);
-
+        Write1Byte(0x91, (data & 0x0F) | 0xF0);
+        //set GPIO0 to LDO OUTPUT , pullup N_VBUSEN to disable supply from BUS_5V
         data = Read8bit(0x90);
-        Write1Byte(0x90, (data & 0XF8) | 0X02); //set GPIO0 to LDO OUTPUT , pullup N_VBUSEN to disable supply from BUS_5V
-
-        data = Read8bit(0x91);
-
-        data = Read8bit(0x12);         //read reg 0x12
-        Write1Byte(0x12, data | 0x40); //set EXTEN to enable 5v boost
+        Write1Byte(0x90, (data & 0xF8) | 0x02);
+        //set EXTEN to enable 5v boost
+        data = Read8bit(0x10);
+        Write1Byte(0x10, data | 0x04);
     }
     else
     {
-        data = Read8bit(0x12);         //read reg 0x10
-        Write1Byte(0x12, data & 0XBF); //set EXTEN to disable 5v boost
-
-        //delay(2000);
-
+        // Set EXTEN to disable 5v boost
+        data = Read8bit(0x10);
+        Write1Byte(0x10, data & ~0x04);
+        // Set GPIO0 to float, using enternal pulldown resistor to enable VBUS supply from BUS_5V
         data = Read8bit(0x90);
-        Write1Byte(0x90, (data & 0xF8) | 0X01); //set GPIO0 to float , using enternal pulldown resistor to enable supply from BUS_5VS
+        Write1Byte(0x90, (data & 0xF8) | 0x07);
     }
 }
 
@@ -521,11 +520,11 @@ void AXP192_M5Core2::SetLed(uint8_t state)
 
     if(state)
     {
-      data=data&0XFD;
+      data=data&0xFD;
     }
     else
     {
-      data|=0X02;
+      data|=0x02;
     }
 
     Write1Byte(reg_addr,data);

@@ -64,7 +64,7 @@
   #define BUTTON_C_PIN 19
 
 
-#elif defined(ARDUINO_T) || defined( ARDUINO_T_Watch ) // TTGO T-Watch
+#elif defined( ARDUINO_T_Watch ) // TTGO T-Watch
 
   //#define TFCARD_CS_PIN 13
 
@@ -77,6 +77,9 @@
   #define TFCARD_MISO_PIN      2
   #define TFCARD_MOSI_PIN     15
   #define TFCARD_SCLK_PIN     14
+
+  #define TFCARD_USE_WIRE1
+
   #define SEN_SDA             21
   #define SEN_SCL             22
 
@@ -92,7 +95,7 @@
   // TODO: use LGFX Touch autodetect where possible
   //#define TOUCH_CS      21 // enable touch
 
-  #if defined(LILYGO_WATCH_2019_WITH_TOUCH)
+  #if defined( LILYGO_WATCH_2019_WITH_TOUCH )
     // #include "board/twatch2019_with_touch.h"
     #warning "Selected LILYGO_WATCH_2019_WITH_TOUCH"
     #define SD_ENABLE            1
@@ -157,7 +160,7 @@
   #define TFT_MISO_PIN  -1
   // if (!SD.begin(13, 15, 2, 14)) {            //T1:13,15,2,14  T2: 23,5,19,18
   // boolean begin(uint8_t csPin = SD_CHIP_SELECT_PIN, int8_t mosi = -1, int8_t miso = -1, int8_t sck = -1);
-  #define SPEAKER_PIN 25
+  #define SPEAKER_PIN   25
   #define TFCARD_CS_PIN 13
   #define SD_ENABLE      0
   #define BUTTON_A_PIN  39
