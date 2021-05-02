@@ -14,12 +14,45 @@
 
 #elif defined(ARDUINO_ESP32_DEV)
 
-  //#warning "Disabling touch, buttons, etc"
-  #define SPEAKER_PIN   -1
-  #define SD_ENABLE      0
-  #define BUTTON_A_PIN  -1
-  #define BUTTON_B_PIN  -1
-  #define BUTTON_C_PIN  -1  // BUTTON_MENU
+  #define TFT_LED_PIN  -1
+  #define TFT_DC_PIN   32
+  #define TFT_CS_PIN    5
+  #define TFT_MOSI_PIN 23
+  #define TFT_CLK_PIN  18
+  #define TFT_RST_PIN  -1
+  #define TFT_MISO_PIN 19
+  
+  // SD card
+  #define TFCARD_CS_PIN 15
+  #define SD_ENABLE     0
+  #define TFCARD_CS_PIN       15
+  #define TFCARD_MISO_PIN     12
+  #define TFCARD_MOSI_PIN     13
+  #define TFCARD_SCLK_PIN     14
+  #define TFCARD_USE_WIRE1
+
+  #define SPEAKER_PIN  -1
+
+  #define BUTTON_A_PIN 39
+  #define BUTTON_B_PIN 27
+  #define BUTTON_C_PIN 26
+
+  #undef  TOUCH_CS // using I2C touch
+  #define HAS_TOUCH
+  #define TOUCH_SDA    21
+  #define TOUCH_SCL    22
+  #define TOUCH_INT     4
+
+  #define LORA_CS_PIN   33
+  #define LORA_RST_PIN  -1
+  #define LORA_IRQ_PIN  36
+
+  #define RTC_IRQ_PIN   34
+  #define IOE_IRQ_PIN   35
+  #define GNSS_IRQ_PIN   2
+
+  #define ETH_IRQ_PIN   25
+  #define ETH_CS_PIN     0
 
 #elif defined( ARDUINO_LOLIN_D32_PRO )
 
@@ -271,9 +304,11 @@
 #define TONE_PIN_CHANNEL 0
 
 // LORA
-#define LORA_CS_PIN   5
-#define LORA_RST_PIN  26
-#define LORA_IRQ_PIN  36
+#if !defined(LORA_CS_PIN)
+  #define LORA_CS_PIN   5
+  #define LORA_RST_PIN  26
+  #define LORA_IRQ_PIN  36
+#endif
 
 // UART
 #define USE_SERIAL Serial

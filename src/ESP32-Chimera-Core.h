@@ -209,7 +209,10 @@
         #endif
 
         // SPEAKER
-        SPEAKER Speaker;
+        #if !defined ( ARDUINO_ESP32_DEV )
+          SPEAKER Speaker;
+        #endif
+
         // LCD
         M5Display Lcd;
         // ScreenShots !
@@ -243,7 +246,7 @@
             AXP20X_Class *Axp = new AXP20X_Class();
           #endif
 
-        #else
+        #elif defined( ARDUINO_M5Stack_Core_ESP32 )
           #define HAS_POWER
           POWER Power;
           // MPU9250
@@ -273,7 +276,7 @@
           void setWakeupButton(uint8_t button);
           void powerOFF();
 
-        #else // M5Core2
+        #elif defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
           /**
           * Function has been move to Power class.(for compatibility)
           * This name will be removed in a future release.
