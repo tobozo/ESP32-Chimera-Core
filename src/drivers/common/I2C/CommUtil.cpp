@@ -16,6 +16,12 @@ extern M5Stack M5;
 CommUtil::CommUtil() {
 }
 
+
+bool CommUtil::begin( signed char sdaPin, signed char sclPin)
+{
+  return Wire.begin( sdaPin, sclPin );
+}
+
 // Wire.h read and write protocols
 bool CommUtil::writeCommand(uint8_t address, uint8_t subAddress) {
   bool function_result = false;

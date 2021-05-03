@@ -113,18 +113,20 @@
     #include <Wire.h>
     #include <SPI.h>
     #include <FS.h>
+    #include "Config.h"
 
     #if defined ( ARDUINO_ESP32_DEV ) || defined( ARDUINO_DDUINO32_XS ) || defined( ARDUINO_ESP32_WROVER_KIT )
       #include "SD_MMC.h"
       #define M5STACK_SD SD_MMC
     #else
-      #include "SD.h"
-      #define M5STACK_SD SD
-      #define USE_TFCARD_CS_PIN
+      #if defined HAS_SDCARD
+        #include "SD.h"
+        #define M5STACK_SD SD
+        #define USE_TFCARD_CS_PIN
+      #endif
     #endif
 
     #include "M5Display.h"
-    #include "Config.h"
 
     #include "helpers/Memory.h"
     #include "helpers/TouchButton.h"
@@ -132,39 +134,43 @@
 
     #include "drivers/common/Button/Button.h"
     #include "drivers/common/Speaker/Speaker.h"
-    #include "drivers/common/IP5306/Power.h"
+
     #include "drivers/common/I2C/CommUtil.h"
     #include "drivers/common/NVS/NVSUtils.h"
 
+    #ifdef HAS_IP5306
+      #include "drivers/common/IP5306/Power.h"
+    #endif
 
     // allow multiple MPU
-    #if defined( MPU9250_INSDE )
+    #if defined MPU9250_INSDE
       #include "drivers/M5Stack/MPU9250/MPU9250.h"
     #endif
-    #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2
+    #if defined ARDUINO_M5STACK_Core2 // M5Core2
       #include "drivers/M5Core2/MPU6886/MPU6886_M5Core2.h"
     #endif
 
-    #ifdef ARDUINO_ODROID_ESP32
+    #if defined ARDUINO_ODROID_ESP32
       #include "drivers/Odroid-Go/Battery/battery.h"
     #endif
 
     #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) // M5Stick C / Plus
       #include "drivers/M5StickC/AXP192.h"
       #include "drivers/M5StickC/RTC.h"
-    #elif defined( ARDUINO_M5STACK_Core2 ) // M5Core2
+    #endif
+
+    #if defined ARDUINO_M5STACK_Core2  // M5Core2
       #include "drivers/M5Core2/FT6336U/Touch_M5Core2.h"
       #include "drivers/M5Core2/AXP192/AXP192_M5Core2.h"
       #include "drivers/M5Core2/BM8563/RTC_M5Core2.h"
-    #elif defined( ARDUINO_T_Watch )
-      #if defined( LILYGO_WATCH_HAS_PCF8563 )
+    #endif
+
+    #if defined ARDUINO_TWATCH_BASE || defined ARDUINO_TWATCH_2020_V1 || defined ARDUINO_TWATCH_2020_V2 // TTGO T-Watch
+      #if defined LILYGO_WATCH_HAS_PCF8563
         #include "drivers/TWatch/rtc/pcf8563.h"
       #endif
       #if defined LILYGO_WATCH_HAS_AXP202
         #include "drivers/TWatch/axp/axp20x.h"
-      #endif
-      #if defined HAS_TOUCH
-        // TODO: implement TWatch Touch
       #endif
     #endif
 
@@ -197,7 +203,7 @@
         Button BtnC = Button(BUTTON_C_PIN, true, DEBOUNCE_MS);
 
         #ifdef ARDUINO_ODROID_ESP32
-        #define DEBOUNCE_MS_XY 5
+          #define DEBOUNCE_MS_XY 5
           Button JOY_Y = Button(BUTTON_JOY_Y_PIN, true, DEBOUNCE_MS_XY);
           Button JOY_X = Button(BUTTON_JOY_X_PIN, true, DEBOUNCE_MS_XY);
           Button BtnMenu = Button(BUTTON_MENU_PIN, true, DEBOUNCE_MS);
@@ -225,7 +231,8 @@
           AXP192 Axp = AXP192();
           //!RTC
           RTC Rtc;
-        #elif defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
+        #endif
+        #if defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
           //!Power
           AXP192_M5Core2 Axp = AXP192_M5Core2();
           //!RTC
@@ -237,24 +244,27 @@
           #ifdef MPU9250_INSDE
             MPU9250 IMU2 = MPU9250();
           #endif
+        #endif
 
-        #elif defined( ARDUINO_T_Watch )
+        #if defined ARDUINO_TWATCH_BASE || defined ARDUINO_TWATCH_2020_V1 || defined ARDUINO_TWATCH_2020_V2 // TTGO T-Watch
           #if defined( LILYGO_WATCH_HAS_PCF8563 )
             PCF8563_Class *Rtc  = nullptr;
           #endif
           #if defined LILYGO_WATCH_HAS_AXP202
             AXP20X_Class *Axp = new AXP20X_Class();
           #endif
-
-        #elif defined( ARDUINO_M5Stack_Core_ESP32 )
-          #define HAS_POWER
-            POWER Power;
-          // MPU9250
-          #ifdef MPU9250_INSDE
-            MPU9250 IMU = MPU9250();
-          #endif
         #endif
 
+
+        #if defined( ARDUINO_M5Stack_Core_ESP32 )
+          #define HAS_POWER
+            POWER Power;
+        #endif
+      
+        // MPU9250
+        #ifdef MPU9250_INSDE
+          MPU9250 IMU = MPU9250();
+        #endif
 
         #ifndef HAS_TOUCH
           touch Touch; // create dummy touch object
