@@ -149,7 +149,7 @@
       #include "drivers/Odroid-Go/Battery/battery.h"
     #endif
 
-    #if defined(ARDUINO_M5Stick_C) // M5Stick C
+    #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) // M5Stick C / Plus
       #include "drivers/M5StickC/AXP192.h"
       #include "drivers/M5StickC/RTC.h"
     #elif defined( ARDUINO_M5STACK_Core2 ) // M5Core2
@@ -220,7 +220,7 @@
 
         NVSUtils NVS;
 
-        #if defined(ARDUINO_M5Stick_C) // M5Stick C
+        #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus )  // M5Stick C / Plus
           //!Power
           AXP192 Axp = AXP192();
           //!RTC
@@ -248,7 +248,7 @@
 
         #elif defined( ARDUINO_M5Stack_Core_ESP32 )
           #define HAS_POWER
-          POWER Power;
+            POWER Power;
           // MPU9250
           #ifdef MPU9250_INSDE
             MPU9250 IMU = MPU9250();
