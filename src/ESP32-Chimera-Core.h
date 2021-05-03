@@ -154,7 +154,7 @@
       #include "drivers/Odroid-Go/Battery/battery.h"
     #endif
 
-    #if defined ARDUINO_M5Stick_C // M5Stick C
+    #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) // M5Stick C / Plus
       #include "drivers/M5StickC/AXP192.h"
       #include "drivers/M5StickC/RTC.h"
     #endif
@@ -215,7 +215,10 @@
         #endif
 
         // SPEAKER
-        SPEAKER Speaker;
+        #if !defined ( ARDUINO_ESP32_DEV )
+          SPEAKER Speaker;
+        #endif
+
         // LCD
         M5Display Lcd;
         // ScreenShots !
@@ -223,7 +226,7 @@
 
         NVSUtils NVS;
 
-        #if defined(ARDUINO_M5Stick_C) // M5Stick C
+        #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus )  // M5Stick C / Plus
           //!Power
           AXP192 Axp = AXP192();
           //!RTC
@@ -253,11 +256,12 @@
         #endif
 
 
-        #ifdef HAS_IP5306 // M5Stack classic power management
+        #if defined( ARDUINO_M5Stack_Core_ESP32 )
           #define HAS_POWER
-          POWER Power;
+            POWER Power;
         #endif
-
+      
+        // MPU9250
         #ifdef MPU9250_INSDE
           MPU9250 IMU = MPU9250();
         #endif
@@ -282,7 +286,7 @@
           void setWakeupButton(uint8_t button);
           void powerOFF();
 
-        #else // M5Core2
+        #elif defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
           /**
           * Function has been move to Power class.(for compatibility)
           * This name will be removed in a future release.

@@ -193,7 +193,10 @@ void M5Stack::update() {
     BtnC.read();
   }
   //Speaker update
-  Speaker.update();
+  #if !defined ( ARDUINO_ESP32_DEV )
+    Speaker.update();
+  #endif
+
   #ifdef ARDUINO_ODROID_ESP32
     BtnMenu.read();
     BtnVolume.read();
