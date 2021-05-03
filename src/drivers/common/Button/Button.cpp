@@ -52,8 +52,15 @@ Button::Button(uint8_t pin, uint8_t invert, uint32_t dbTime) {
  * read() returns the state of the button, 1==pressed, 0==released,     *
  * does debouncing, captures and maintains times, previous states, etc. *
  *----------------------------------------------------------------------*/
+// uint8_t Button::read(void) {
+//   return setState(analogRead(_pin) ^ _invert);
+// }
+
 uint8_t Button::read(void) {
-  return setState(digitalRead(_pin) ^ _invert);
+  static uint8_t pinVal;
+  pinVal = analogRead(_pin);
+  if (_invert != 0) pinVal = !pinVal;
+  return setState(pinVal);
 }
 
 uint8_t Button::setState(uint8_t pinVal)
