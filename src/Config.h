@@ -238,6 +238,8 @@
 
 #else // m5stack classic/fire
 
+  #define HAS_IP5306
+
   #define TFT_LED_PIN  32
   #define TFT_DC_PIN   27
   #define TFT_CS_PIN   14
