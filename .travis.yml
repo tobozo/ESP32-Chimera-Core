@@ -89,7 +89,7 @@ script:
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:esp32wroverkit" "false" "newest"
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:d32_pro" "false" "newest"
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:d-duino-32-xs" "false" "newest"
-  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:watch" "false" "newest"
+  - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:twatch" "false" "newest"
   - build_sketch "${TRAVIS_BUILD_DIR}/examples/Basics/Display/Display.ino" "esp32:esp32:ttgo-t1" "false" "newest"
 
   #- if [ "$TRAVIS_BRANCH" != "master" ]; then echo "This commit was made against the $TRAVIS_BRANCH, skipping examples compilation"; exit 0; fi
