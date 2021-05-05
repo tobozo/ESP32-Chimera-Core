@@ -14,6 +14,7 @@
 class CommUtil {
   public:
     CommUtil();
+    bool begin( signed char sdaPin, signed char sclPin);
     bool writeCommand(uint8_t address, uint8_t subAddress);
     bool writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
     bool writeBytes(uint8_t address, uint8_t subAddress, uint8_t *data,uint8_t length);
