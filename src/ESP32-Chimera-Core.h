@@ -229,6 +229,8 @@
         #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus )  // M5Stick C / Plus
           //!Power
           AXP192 Axp = AXP192();
+          void powerOFF() { Axp.PowerOff(); }
+          void powerOff() { Axp.PowerOff(); }
           //!RTC
           RTC Rtc;
         #endif
@@ -293,7 +295,8 @@
           */
           void setPowerBoostKeepOn(bool en) __attribute__((deprecated));
           void setWakeupButton(uint8_t button) __attribute__((deprecated));
-          void powerOFF() __attribute__((deprecated));
+          void powerOFF() { Axp.PowerOff(); }
+          void powerOff() { Axp.PowerOff(); }
         #endif
       private:
           bool isInited;
