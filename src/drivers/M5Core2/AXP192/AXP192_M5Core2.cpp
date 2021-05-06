@@ -557,3 +557,9 @@ void AXP192_M5Core2::SetCHGCurrent(uint8_t state)
     data = data | ( state & 0x0f );
     Write1Byte(0x33,data);
 }
+
+// Cut all power, except for LDO1 (RTC)
+void AXP192_M5Core2::PowerOff()
+{
+    Write1Byte(0x32, Read8bit(0x32) | 0x80);     // MSB for Power Off
+}
