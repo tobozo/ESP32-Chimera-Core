@@ -256,7 +256,7 @@
         #endif
 
 
-        #if defined( ARDUINO_M5Stack_Core_ESP32 )
+        #if defined( ARDUINO_M5Stack_Core_ESP32 ) || defined( ARDUINO_M5STACK_FIRE )
           #define HAS_POWER
             POWER Power;
         #endif
