@@ -48,7 +48,8 @@ before_install:
   - set_sketchbook_folder "$SKETCHBOOK_FOLDER"
 
   #- install_ide '("1.8.0" "1.8.10" "1.8.11")'
-  - install_ide '("1.8.12" "newest")'
+  # - install_ide '("1.8.12" "newest")' # note: 'newest' often fails on new release of arduino IDE
+  - install_ide '("1.8.13")'
 
   # Install the library from the repository
   - install_library
