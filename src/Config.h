@@ -288,7 +288,7 @@
   #define BUTTON_B_PIN -1
   #define BUTTON_C_PIN -1
 
-#elif defined( ARDUINO_M5Stack_Core_ESP32 ) // m5stack classic/fire
+#elif defined( ARDUINO_M5Stack_Core_ESP32 ) || defined( ARDUINO_M5STACK_FIRE) // m5stack classic/fire
 
   #define HAS_IP5306
 

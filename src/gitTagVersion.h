@@ -1,1 +1,1 @@
-#define M5_LIB_VERSION F("1.1.6")
+#define M5_LIB_VERSION F("1.1.7")
