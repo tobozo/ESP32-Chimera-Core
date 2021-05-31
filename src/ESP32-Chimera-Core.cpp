@@ -50,10 +50,13 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Axp.begin();
     Axp.SetLDOEnable( 3,0 ); // turn any vibration off
   #else
-    // TF Card
-    if (SDEnable == true) {
-      sd_begin();
-    }
+    // LGFX_VERSION_MAJOR is only defined since LGFX V1
+    #if !defined LGFX_VERSION_MAJOR
+      // LGFX V0 has TF Card preinit before TFT
+      if (SDEnable == true) {
+        sd_begin();
+      }
+    #endif
   #endif
 
   #if defined ARDUINO_TWATCH_BASE || defined ARDUINO_TWATCH_2020_V1 || defined ARDUINO_TWATCH_2020_V2 // TTGO T-Watch
@@ -95,10 +98,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   // LCD INIT
   if (LCDEnable == true) {
     log_d("Enabling LCD");
-    #if defined(PANEL_INIT)
-      // is that even used ?
-      panelInit();
-    #endif
+
     Lcd.begin();
 
     if( ScreenShotEnable == true ) {
@@ -110,20 +110,24 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   }
 
-  #if  defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
-    // Touch init
+  #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
     Touch.begin(); // Touch begin after AXP begin. (Reset at the start of AXP)
   #endif
 
   #if defined HAS_SDCARD
-  // TF Card ( reinit )
-  if (SDEnable == true && M5STACK_SD.cardSize() == 0) {
-    sd_begin();
-  }
+    // TF Card ( reinit )
+    if (SDEnable == true && M5STACK_SD.cardSize() == 0) {
+      sd_begin();
+    }
   #endif
 
-  // TONE
-  // Speaker.begin();
+  // TONE (let the user enable that manually)
+  #ifdef HAS_SPEAKER
+    //Speaker.begin();
+  #endif
+
+
+  // Buttons init
   #ifdef ARDUINO_DDUINO32_XS
     pinMode(BUTTON_A_PIN, INPUT_PULLUP);
     pinMode(BUTTON_B_PIN, INPUT_PULLUP);
@@ -193,7 +197,7 @@ void M5Stack::update() {
     BtnC.read();
   }
   //Speaker update
-  #if !defined ( ARDUINO_ESP32_DEV )
+  #ifdef HAS_SPEAKER
     Speaker.update();
   #endif
 
@@ -276,9 +280,11 @@ bool M5Stack::sd_begin(void)
         ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);
       #endif
 
+      #ifndef LGFX_USE_V1
       if ( lgfx::LGFX_Config::spi_host == HSPI_HOST ) {
         Lcd.setSPIShared(false);
       }
+      #endif
 
     #endif
   #else
