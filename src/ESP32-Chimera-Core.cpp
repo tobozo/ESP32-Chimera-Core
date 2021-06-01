@@ -280,12 +280,6 @@ bool M5Stack::sd_begin(void)
         ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);
       #endif
 
-      #ifndef LGFX_USE_V1
-      if ( lgfx::LGFX_Config::spi_host == HSPI_HOST ) {
-        Lcd.setSPIShared(false);
-      }
-      #endif
-
     #endif
   #else
     #if defined HAS_SDCARD
