@@ -5,6 +5,7 @@
 
 #include <FS.h>
 #define LGFX_AUTODETECT
+#define LGFX_USE_V1
 #include <LGFX_TFT_eSPI.hpp>
 
 

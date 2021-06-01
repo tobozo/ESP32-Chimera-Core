@@ -133,7 +133,9 @@
     #include "helpers/ScreenShotService/ScreenShot.h"
 
     #include "drivers/common/Button/Button.h"
-    #include "drivers/common/Speaker/Speaker.h"
+    #ifdef HAS_SPEAKER
+      #include "drivers/common/Speaker/Speaker.h"
+    #endif
 
     #include "drivers/common/I2C/CommUtil.h"
     #include "drivers/common/NVS/NVSUtils.h"
@@ -215,7 +217,7 @@
         #endif
 
         // SPEAKER
-        #if !defined ( ARDUINO_ESP32_DEV )
+        #ifdef HAS_SPEAKER
           SPEAKER Speaker;
         #endif
 
@@ -262,7 +264,7 @@
           #define HAS_POWER
             POWER Power;
         #endif
-      
+
         // MPU9250
         #ifdef MPU9250_INSDE
           MPU9250 IMU = MPU9250();
