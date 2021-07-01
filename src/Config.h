@@ -60,12 +60,18 @@
 
   //#warning "USING LoLin D32 Pro setup with Touch enabled for ESP32Marauder"
   #define SPEAKER_PIN   -1
-  #define SD_ENABLE      0
+  #define SD_ENABLE      1
   #define BUTTON_A_PIN  -1
   #define BUTTON_B_PIN  -1
   #define BUTTON_C_PIN  -1 // BUTTON_MENU
   //#define TOUCH_CS      21 // enable touch
   #define TFCARD_CS_PIN  4
+  #define TFCARD_SPI_FREQ 25000000
+  #define TFCARD_USE_WIRE1
+  #define TFCARD_MISO_PIN     MISO
+  #define TFCARD_MOSI_PIN     MOSI
+  #define TFCARD_SCLK_PIN     SCK
+  #define TFCARD_SPI_HOST     SPI_HOST
 
 #elif defined( ARDUINO_ESP32_WROVER_KIT )
 
@@ -301,6 +307,16 @@
   #define BUTTON_B_PIN 38
   #define BUTTON_C_PIN 37
 
+
+#elif defined CONFIG_IDF_TARGET_ESP32S2 // ESP32-S2 basic support
+
+  #define BUTTON_A_PIN -1
+  #define BUTTON_B_PIN -1
+  #define BUTTON_C_PIN -1
+  #define SD_ENABLE     0
+  #define SPEAKER_PIN  -1
+  #define VSPI FSPI
+  #undef HAS_SDCARD
 
 #endif
 

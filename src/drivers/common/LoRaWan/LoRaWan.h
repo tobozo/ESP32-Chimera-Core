@@ -30,7 +30,11 @@
 #include <Arduino.h>
 
 #define SerialUSB Serial
+#if !defined CONFIG_IDF_TARGET_ESP32S2
 #define SerialLoRa          Serial2
+#else
+#define SerialLoRa          Serial1
+#endif
 
 #define _DEBUG_SERIAL_      1
 //#define DEFAULT_TIMEOUT     5 // second
