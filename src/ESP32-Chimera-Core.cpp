@@ -44,7 +44,6 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
     // I2C init
     if (I2CEnable == true) {
-
       I2C.begin(32, 33);
     }
     Axp.begin();

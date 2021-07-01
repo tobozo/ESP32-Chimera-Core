@@ -1,8 +1,4 @@
 #include "I2CUtil.h"
-//#include <stdint.h>
-#include "../../../ESP32-Chimera-Core.h"
-
-extern M5Stack M5;
 
 I2CUtil::I2CUtil() {
 }
@@ -154,18 +150,31 @@ void I2CUtil::scanID( bool *result )
 }
 
 
+void I2CUtil::defaultPrintCb(const char* format, ...)
+{
+  va_list args;
+  va_start(args, format);
+  vprintf(format, args);
+  va_end(args);
+}
+
+
 // I2C Scanner, scavengered from https://github.com/MartyMacGyver/Arduino_I2C_Scanner
 void I2CUtil::scan()
 {
-  Serial.println();
-  Serial.println("Scanning I2C Bus: ");
-  Serial.println();
-  Serial.print("   ");
-  for (int i = 0; i < 0x10; i++) {
-    Serial.printf(" %2x", i);
+  if( printCb == nullptr ) {
+    printCb = defaultPrintCb;
   }
-  Serial.println();
-  Serial.print("            ");
+  printCb("\n");
+  printCb("\n");
+  printCb("Scanning I2C Bus: \n");
+  printCb("\n");
+  printCb("   ");
+  for (int i = 0; i < 0x10; i++) {
+    printCb(" %2x", i);
+  }
+  printCb("\n");
+  printCb("            ");
   for(unsigned char addr = 0x03; addr <= 0x77; addr++ ) {
     // Address the device
     Wire.beginTransmission(addr);
@@ -173,18 +182,18 @@ void I2CUtil::scan()
     unsigned char deviceStatus = Wire.endTransmission();
 
     if (!(addr % 0x10)) { // Start of a line
-      Serial.printf("%02x:", addr / 0x10);
+      printCb("%02x:", addr / 0x10);
     }
     if (deviceStatus == 0) {
-      Serial.printf(" %02x", addr);
+      printCb(" %02x", addr);
     } else if (deviceStatus == 4) {
-      Serial.printf(" %2s", "??");
+      printCb(" %2s", "??");
     } else {
-      Serial.printf(" %2s", "--");
+      printCb(" %2s", "--");
     }
     if (!((addr+1) % 0x10) ) {
-      Serial.println();
+      printCb("\n");
     }
   }
-  Serial.println();
+  printCb("\n");
 }
