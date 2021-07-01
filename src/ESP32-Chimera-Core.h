@@ -137,7 +137,7 @@
       #include "drivers/common/Speaker/Speaker.h"
     #endif
 
-    #include "drivers/common/I2C/CommUtil.h"
+    #include "drivers/common/I2C/I2CUtil.h"
     #include "drivers/common/NVS/NVSUtils.h"
 
     #ifdef HAS_IP5306
@@ -190,8 +190,10 @@
 
         bool sd_force_enable = SD_ENABLE;
         bool sd_begin(void);
+        bool sd_begun = false;
         void sd_end(void);
-
+        SPIClass *SD_SPI = nullptr;
+        BaseType_t SD_CORE_ID = 1;
         //void setTouchSpiShared( int32_t csPin, int32_t IRQPin=255 );
 
         #if defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
@@ -279,7 +281,7 @@
         // HardwareSerial Serial2 = HardwareSerial(2);
 
         // I2C
-        CommUtil I2C = CommUtil();
+        I2CUtil I2C = I2CUtil();
 
         #if defined HAS_POWER // legacy M5Stack support
           /**

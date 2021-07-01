@@ -239,13 +239,12 @@ void M5Stack::update() {
 #endif
 
 
-#if defined( TFCARD_USE_WIRE1 )
-  SPIClass *sdhander = nullptr;
-#endif
 
 bool M5Stack::sd_begin(void)
 {
+  if( sd_begun ) return true;
   bool ret = false;
+  SD_CORE_ID = xPortGetCoreID();
   #if defined ( USE_TFCARD_CS_PIN ) && defined( TFCARD_CS_PIN )
 
     #if defined ( TFCARD_USE_WIRE1 )
@@ -255,27 +254,44 @@ bool M5Stack::sd_begin(void)
         return true;
       }
 
-      if (!sdhander) {
-        #if defined TFT_SPI_HOST && TFT_SPI_HOST == VSPI_HOST
-        sdhander = new SPIClass(VSPI);
+      if ( SD_SPI == nullptr ) {
+        #if defined TFCARD_SPI_HOST
+          if( TFCARD_SPI_HOST==VSPI_HOST ) {
+            SD_SPI = new SPIClass(VSPI);
+            log_i("SD will use VSPI");
+          }else if( TFCARD_SPI_HOST==HSPI_HOST ) {
+            SD_SPI = new SPIClass(HSPI);
+            log_i("SD will use HSPI");
+          } else if( TFCARD_SPI_HOST==SPI_HOST ) {
+            SD_SPI = new SPIClass(SPI);
+            log_i("SD will use SPI");
+          } else {
+            log_e("No TFCARD_SPI_HOST selected in config");
+            return false;
+          }
+          log_i("TFCARD_SPI_HOST=%d, SPI_HOST=%d, HSPI_HOST=%d, VSPI_HOST=%d from core #%d", TFCARD_SPI_HOST, SPI_HOST, HSPI_HOST, VSPI_HOST, SD_CORE_ID );
+//           #define SPI_HOST    SPI1_HOST
+//           #define HSPI_HOST   SPI2_HOST
+//           #define VSPI_HOST   SPI3_HOST
         #else
-        sdhander = new SPIClass(HSPI);
+          log_i("SD will use HSPI (default)");
+          SD_SPI = new SPIClass(HSPI);
         #endif
-        sdhander->begin(TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN);
+        SD_SPI->begin(TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN);
       }
-      if (!SD.begin(TFCARD_CS_PIN, *sdhander)) {
-        log_e("SD Card Mount Failed pins scl/miso/mosi/cs %d/%d/%d/%d", TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN );
+      if (!SD.begin(TFCARD_CS_PIN, *SD_SPI)) {
+        log_e("SD Card Mount Failed pins scl/miso/mosi/cs %d/%d/%d/%d from core #%d", TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN, SD_CORE_ID );
         return false;
       } else {
-        log_w( "SD Card Mount Success on pins scl/miso/mosi/cs %d/%d/%d/%d", TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN );
+        log_w( "SD Card Mount Success on pins scl/miso/mosi/cs %d/%d/%d/%d from core #%d", TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN, SD_CORE_ID );
       }
+      sd_begun = true;
       return true;
 
     #else
 
       #if defined HAS_SDCARD
-        log_w("Enabling SD from TFCARD_CS_PIN #%d at %d Hz", TFCARD_CS_PIN, TFCARD_SPI_FREQ);
-
+        log_w("Enabling SD from TFCARD_CS_PIN #%d at %d Hz from core #%d", TFCARD_CS_PIN, TFCARD_SPI_FREQ, SD_CORE_ID );
         M5STACK_SD.end();
         ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);
       #endif
@@ -285,9 +301,9 @@ bool M5Stack::sd_begin(void)
     #if defined HAS_SDCARD
       log_d("Enabling SD_MMC");
       ret = M5STACK_SD.begin();
-      Lcd.setSPIShared(false);
     #endif
   #endif
+  if( ret ) sd_begun = true;
   return ret;
 }
 
@@ -296,6 +312,7 @@ void M5Stack::sd_end(void)
   #if defined HAS_SDCARD
     M5STACK_SD.end();
   #endif
+  sd_begun = false;
 }
 
 M5Stack M5;
