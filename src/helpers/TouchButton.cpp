@@ -1,9 +1,6 @@
-/***************************************************************************************
-** Code for the GFX button UI element
-** Grabbed from Adafruit_GFX library and enhanced to handle any label font
-***************************************************************************************/
-
 #include "TouchButton.h"
+
+#if !defined LGFX_HAS_TOUCHBUTTON
 
 
 TouchButton::TouchButton(void) {
@@ -59,7 +56,7 @@ void TouchButton::initButtonUL( void *gfx, int16_t x1, int16_t y1, uint16_t w, u
   _textcolor    = textcolor;
   _textsize     = textsize;
   _gfx          = gfx;
-  strncpy(_label, label, 9);
+  strncpy(_label, label, 11);
 }
 
 
@@ -96,3 +93,5 @@ void TouchButton::press(boolean p) {
 boolean TouchButton::isPressed()    { return currstate; }
 boolean TouchButton::justPressed()  { return (currstate && !laststate); }
 boolean TouchButton::justReleased() { return (!currstate && laststate); }
+
+#endif
