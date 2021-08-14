@@ -30,7 +30,7 @@ github:https://github.com/lewisxhe/PCF8563_Library
 #include "pcf8563.h"
 #include <sys/time.h>
 
-PCF8563_Class::PCF8563_Class(CommUtil &bus, uint8_t addr)
+PCF8563_Class::PCF8563_Class(I2CUtil &bus, uint8_t addr)
 {
     _bus = &bus;
     _address = addr;

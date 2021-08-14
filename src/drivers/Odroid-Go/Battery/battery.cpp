@@ -8,6 +8,8 @@
 
 #include "battery.h"
 
+#if defined ARDUINO_ODROID_ESP32
+
 Battery::Battery() {
     this->_enable_protection = false;
 }
@@ -55,3 +57,5 @@ void Battery::update() {
 
   }
 }
+
+#endif

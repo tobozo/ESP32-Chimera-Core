@@ -5,9 +5,29 @@
  * License v2.1                                                         *
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html           *
  *----------------------------------------------------------------------*/
+
 #include "Power.h"
 #include "../../../ESP32-Chimera-Core.h"
-#include <rom/rtc.h>
+
+#if !defined CONFIG_IDF_TARGET_ESP32S2
+
+
+#if __has_include(<esp32/rom/rtc.h>)
+  #include <esp32/rom/rtc.h>
+#elif __has_include(<rom/rtc.h>)
+  #include <rom/rtc.h>
+#else
+  #error Unsupported Architecture / SDK version
+#endif
+
+/*
+#if defined ESP_IDF_VERSION_MAJOR && ESP_IDF_VERSION_MAJOR >= 4
+  #include <esp32/rom/rtc.h>
+#else
+  #include <rom/rtc.h>
+#endif
+*/
+
 #include <esp_sleep.h>
 #include <esp_bt_main.h>
 #include <esp_wifi.h>
@@ -370,3 +390,5 @@ void POWER::powerOFF(){
   esp_deep_sleep_start();
 
 }
+
+#endif

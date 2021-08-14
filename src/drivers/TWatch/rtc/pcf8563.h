@@ -30,8 +30,7 @@ github:https://github.com/lewisxhe/PCF8563_Library
 #pragma once
 
 #include <Arduino.h>
-#include <Wire.h>
-#include "../../common/I2C/CommUtil.h"
+#include "../../common/I2C/I2CUtil.h"
 
 #define PCF8563_SLAVE_ADDRESS   (0x51) //7-bit I2C Address
 
@@ -131,7 +130,7 @@ public:
 class PCF8563_Class
 {
 public:
-    PCF8563_Class(CommUtil &bus, uint8_t addr = PCF8563_SLAVE_ADDRESS);
+    PCF8563_Class(I2CUtil &bus, uint8_t addr = PCF8563_SLAVE_ADDRESS);
 
     void check();
 
@@ -214,5 +213,5 @@ private:
     uint8_t _data[16];
     bool _voltageLow;
     char format[128];
-    CommUtil *_bus = nullptr;
+    I2CUtil *_bus = nullptr;
 };
