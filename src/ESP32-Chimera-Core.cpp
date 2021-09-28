@@ -99,7 +99,6 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     log_d("Enabling LCD");
 
     Lcd.begin();
-
     if( ScreenShotEnable == true ) {
        #if defined HAS_SDCARD
          ScreenShot.init( &Lcd, M5STACK_SD );
@@ -111,6 +110,10 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
   #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
     Touch.begin(); // Touch begin after AXP begin. (Reset at the start of AXP)
+
+    Button* _btns[3] = { &BtnA, &BtnB, &BtnC };
+    M5Core2TouchButtonEmu = new ButtonTouchReader( &Lcd, _btns );
+
   #endif
 
   #if defined HAS_SDCARD
@@ -160,7 +163,6 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
       } else {
         I2C.begin(32, 33);
       }
-      //();
     }
   #endif
 
@@ -177,24 +179,17 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   #endif
 }
 
+
+
 void M5Stack::update() {
   //Button update
-  if (M5.Lcd.getBoard() == lgfx::board_M5StackCore2) {
-    int32_t x, y;
-    int idx = -1;
-
-    if (M5.Lcd.getTouchRaw(&x, &y) && y >= 256) {
-      idx = x * 3 / 320;
-    }
-
-    BtnA.setState(idx == 0);
-    BtnB.setState(idx == 1);
-    BtnC.setState(idx == 2);
-  } else {
+  #if defined ARDUINO_M5STACK_Core2
+    M5Core2TouchButtonEmu->read();
+  #else
     BtnA.read();
     BtnB.read();
     BtnC.read();
-  }
+  #endif
   //Speaker update
   #ifdef HAS_SPEAKER
     Speaker.update();
