@@ -74,14 +74,14 @@ bool I2CUtil::readByte( unsigned char i2c_addr, unsigned char *buf )
     return true;
   }
 
-  log_d("read 1 byte from 0x%02x received none", i2c_addr);
+  log_d("tried to read 1 byte from i2c addr 0x%02x and received none", i2c_addr);
 
   return false;
 }
 
 
 
-bool I2CUtil::readByte( unsigned char i2c_addr, unsigned char reg,unsigned char *buf )
+bool I2CUtil::readByte( unsigned char i2c_addr, unsigned char reg, unsigned char *buf )
 {
   Wire.beginTransmission(i2c_addr);
   Wire.write(reg);
@@ -94,7 +94,7 @@ bool I2CUtil::readByte( unsigned char i2c_addr, unsigned char reg,unsigned char 
     return true;
   }
 
-  log_d("read 1 byte from 0x%02x [0x%02x] received none", i2c_addr);
+  log_d("tried to read 1 byte from i2c addr 0x%02x / reg 0x%02x and received none", i2c_addr, reg);
 
   return false;
 }
@@ -119,7 +119,7 @@ bool I2CUtil::readBytes( unsigned char i2c_addr, unsigned char reg, unsigned cha
     return true;
   }
 
-  log_d("read from 0x%02x [0x%02x] (%d bytes) received none", i2c_addr, reg, count);
+  log_d("tried to read %d bytes from i2c addr 0x%02x / reg 0x%02x and received none", count, i2c_addr, reg);
 
   return false;
 }
@@ -136,6 +136,8 @@ bool I2CUtil::readBytes( unsigned char i2c_addr, unsigned char count,unsigned ch
     }
     return true;
   }
+
+  log_d("tried to read %d bytes from i2c addr 0x%02x and received none", count, i2c_addr);
 
   return false;
 }
