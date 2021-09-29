@@ -258,10 +258,9 @@
         void sd_end(void);
         SPIClass *SD_SPI = nullptr;
         BaseType_t SD_CORE_ID = 1;
-        //void setTouchSpiShared( int32_t csPin, int32_t IRQPin=255 );
 
         #if defined( ARDUINO_M5STACK_Core2 )// M5Core2 C
-          #define DEBOUNCE_MS 1
+          #define DEBOUNCE_MS 100 // slower polls throws less false negatives
         #else
           #define DEBOUNCE_MS 10
         #endif
