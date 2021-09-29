@@ -10,11 +10,8 @@
  *----------------------------------------------------------------------*/
 #ifndef Button_h
 #define Button_h
-// #if ARDUINO >= 100
+
 #include <Arduino.h>
-// #else
-// #include <WProgram.h>
-// #endif
 
 #define DPAD_V_FULL 2
 #define DPAD_V_HALF 1
@@ -23,20 +20,21 @@
 class Button {
   public:
     Button(uint8_t pin, uint8_t invert, uint32_t dbTime);
-    uint8_t read();
-    uint8_t setState(uint8_t);
-    uint8_t isPressed();
-    uint8_t isReleased();
-    uint8_t wasPressed();
-    uint8_t wasReleased();
-    uint8_t pressedFor(uint32_t ms);
-    uint8_t releasedFor(uint32_t ms);
-    uint8_t wasReleasefor(uint32_t ms);
+    uint8_t  read();
+    uint8_t  setState(uint8_t);
+    uint8_t  isPressed();
+    uint8_t  isReleased();
+    uint8_t  wasPressed();
+    uint8_t  wasReleased();
+    uint8_t  pressedFor(uint32_t ms);
+    uint8_t  releasedFor(uint32_t ms);
+    uint8_t  wasReleasefor(uint32_t ms);
     uint32_t lastChange();
+    void     setDebounce( uint32_t dbTime) { _dbTime = dbTime; }
 #ifdef ARDUINO_ODROID_ESP32
-    uint8_t readAxis();
-    uint8_t isAxisPressed(void);
-    uint8_t wasAxisPressed(void);
+    uint8_t  readAxis();
+    uint8_t  isAxisPressed(void);
+    uint8_t  wasAxisPressed(void);
 #endif
   private:
     uint8_t _pin;           //arduino pin number
