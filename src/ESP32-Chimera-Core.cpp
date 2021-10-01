@@ -316,7 +316,7 @@ void M5Stack::sd_end(void)
 
 
 #if defined HAS_RTC
-  #include <time.h> // needed to set system time
+  #include <sys/time.h> // needed to set system time
   // Pickup the time from RTC module and apply it to system time (ESP32's internal, battery-less RTC).
   // This is particularly useful as the SD Card writes and file creations inherit system date/time.
   void M5Stack::setSystemTimeFromRtc()
