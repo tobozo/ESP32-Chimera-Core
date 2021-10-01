@@ -161,7 +161,7 @@
     #define SD_ENABLE            0
     #undef HAS_SDCARD
     #undef  SPEAKER_PIN
-    #define SPEAKER_PIN  -1
+    #define SPEAKER_PIN         -1
     #define HAS_TOUCH
     #if defined(BOARD_HAS_PSRAM)
       //#include "board/twatch2020_v1.h"
@@ -170,6 +170,8 @@
       #define LILYGO_WATCH_HAS_BMA423
       #define LILYGO_WATCH_HAS_AXP202
       #define LILYGO_WATCH_HAS_IRREMOTE
+      #define LILYGO_WATCH_HAS_PCF8563
+      #define HAS_RTC
       //#define LILYGO_WATCH_HAS_BACKLIGHT
     #else // TODO: implement v3
       //#include "board/twatch2020_v2.h"
@@ -248,6 +250,8 @@
   #define BUTTON_C_PIN  -1
   #define SD_ENABLE      0
 
+  #define HAS_RTC
+
 #elif defined( ARDUINO_M5Stick_C_Plus ) // M5Stick C Plus
 
   #define SPEAKER_PIN   -1
@@ -268,6 +272,8 @@
   #define BUTTON_C_PIN  -1
   #define SD_ENABLE      0
 
+  #define HAS_RTC
+
 #elif defined( ARDUINO_M5STACK_Core2  ) // M5Core2
 
   #define TFT_LED_PIN  -1
@@ -280,6 +286,7 @@
 
   #undef TOUCH_CS // using I2C touch
   #define HAS_TOUCH
+  #define HAS_RTC
 
   #define TFCARD_CS_PIN 4
   #define SD_ENABLE     0
