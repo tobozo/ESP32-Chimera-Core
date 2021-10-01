@@ -58,7 +58,7 @@ before_install:
   - install_package "esp32:esp32" "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json"
   # - install_package "m5stack:esp32" "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json" # m5stack:esp32:m5stack-core2
   # install ESP32-Chimera-Core custom boards + pins variants
-  # - cp -R ${TRAVIS_BUILD_DIR}/boards/* ~/.arduino15/packages/esp32/hardware/esp32/1.0.6/
+  - cp -R ${TRAVIS_BUILD_DIR}/boards/* ~/.arduino15/packages/esp32/hardware/esp32/2.0.0/
   # Arduino CLI wants pyserial
   - pip install pyserial
 
