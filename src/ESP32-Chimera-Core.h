@@ -328,6 +328,10 @@
           #endif
         #endif
 
+        #if defined HAS_RTC
+          void setSystemTimeFromRtc();
+        #endif
+
 
         #if defined( ARDUINO_M5Stack_Core_ESP32 ) || defined( ARDUINO_M5STACK_FIRE )
           #define HAS_POWER
