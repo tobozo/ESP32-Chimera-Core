@@ -1,0 +1,86 @@
+name: ArduinoBuild
+
+env:
+  SKETCH_NAME: Display.ino
+
+on:
+  push:
+    paths:
+    - '**.ino'
+    - '**.cpp'
+    - '**.hpp'
+    - '**.h'
+    - '**.c'
+    - '**ArduinoBuild.yml'
+  pull_request:
+
+jobs:
+  build:
+    name: ${{ matrix.fancy-name }}
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+
+        arduino-boards-fqbn:
+          - esp32:esp32:esp32
+          - esp32:esp32:m5stick-c
+          - esp32:esp32:m5stack-core-esp32
+          - esp32:esp32:m5stack-fire
+          - esp32:esp32:m5stack-core2
+          - esp32:esp32:odroid_esp32
+          - esp32:esp32:esp32wroverkit
+          - esp32:esp32:d32_pro
+          - esp32:esp32:twatch
+          - esp32:esp32:ttgo-t1
+          #- esp32:esp32:d-duino-32-xs
+
+        platform-url:
+          - https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+
+        required-libraries:
+          - LovyanGFX
+
+        include:
+          - arduino-boards-fqbn: esp32:esp32:esp32
+            fancy-name: ESP32 Generic
+          - arduino-boards-fqbn: esp32:esp32:m5stick-c
+            fancy-name: M5StickC
+          - arduino-boards-fqbn: esp32:esp32:m5stack-core-esp32
+            fancy-name: M5Stack
+          - arduino-boards-fqbn: esp32:esp32:m5stack-core2
+            fancy-name: M5Core2
+          - arduino-boards-fqbn: esp32:esp32:m5stack-fire
+            fancy-name: M5Fire
+          - arduino-boards-fqbn: esp32:esp32:odroid_esp32
+            fancy-name: OdroidGo
+          - arduino-boards-fqbn: esp32:esp32:esp32wroverkit
+            fancy-name: Wrover-Kit
+          - arduino-boards-fqbn: esp32:esp32:d32_pro
+            fancy-name: LoLin D32 Pro
+          - arduino-boards-fqbn: esp32:esp32:twatch
+            fancy-name: TTGO TWatch
+          - arduino-boards-fqbn: esp32:esp32:ttgo-t1
+            fancy-name: TTGO T-1
+
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Compile example
+        uses: ArminJo/arduino-test-compile@v3
+        with:
+          arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
+          platform-url: ${{ matrix.platform-url }}
+          required-libraries: ${{ matrix.required-libraries }}
+          build-properties: ${{ toJson(matrix.build-properties) }}
+          sketch-names: ${{ env.SKETCH_NAME }}
+          #platform-default-url: ${{ env.PLATFORM_DEFAULT_URL }}
+          #sketches-exclude: ${{ matrix.sketches-exclude }}
+
+
