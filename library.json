@@ -5,7 +5,8 @@
   "authors": [
     {
       "name": "tobozo",
-      "url": "https://github.com/tobozo"
+      "url": "https://github.com/tobozo",
+      "maintainer": true
     },
     {
       "name": "Lovyan03",
@@ -23,5 +24,8 @@
   ],
   "version": "1.2.3",
   "framework": "arduino",
-  "platforms": "espressif32"
+  "platforms": "espressif32",
+  "build": {
+    "libArchive": false
+  }
 }
