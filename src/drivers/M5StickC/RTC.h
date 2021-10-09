@@ -1,6 +1,8 @@
 #ifndef __RTC_H__
 #define __RTC_H__
 
+//#error blah
+
 #include <Wire.h>
 
 typedef struct
@@ -28,6 +30,7 @@ public:
 
   void SetTime(RTC_TimeTypeDef* RTC_TimeStruct);
   void SetData(RTC_DateTypeDef* RTC_DateStruct);
+  void SetDate(RTC_DateTypeDef* RTC_DateStruct) { SetData( RTC_DateStruct ); } // fix typo (Data/Date) + backwards compat)
 
   void GetTime(RTC_TimeTypeDef* RTC_TimeStruct);
   void GetData(RTC_DateTypeDef* RTC_DateStruct);
