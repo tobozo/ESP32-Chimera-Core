@@ -65,4 +65,3 @@ jobs:
 
       - name: Run PlatformIO
         run: cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.pio-env }}
-
