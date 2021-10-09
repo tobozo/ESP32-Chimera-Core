@@ -36,7 +36,8 @@ jobs:
           - esp32:esp32:ttgo-t1
           #- esp32:esp32:d-duino-32-xs
 
-        platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+        platform-url:
+          - https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
 
         include:
           - arduino-boards-fqbn: esp32:esp32:esp32
