@@ -1,7 +1,7 @@
 name: PlatformIOBuild
 
 env:
-  PROJECT_DIR: examples/Basics/Display
+  PROJECT_DIR: examples/Tests/build_test
 
 on:
   push:
@@ -64,4 +64,7 @@ jobs:
           pip install --upgrade platformio
 
       - name: Run PlatformIO
-        run: cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.pio-env }}
+        run: |
+          mkdir -p /tmp/piolib
+          cp -R ../ESP32-Chimera-Core /tmp/piolib/
+          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.pio-env }}
