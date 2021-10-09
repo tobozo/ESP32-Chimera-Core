@@ -48,17 +48,17 @@ jobs:
           - arduino-boards-fqbn: esp32:esp32:m5stack-core2
             fancy-name: M5Core2
           - arduino-boards-fqbn: esp32:esp32:m5stack-fire
-           fancy-name: M5Fire
+            fancy-name: M5Fire
           - arduino-boards-fqbn: esp32:esp32:odroid_esp32
-           fancy-name: OdroidGo
+            fancy-name: OdroidGo
           - arduino-boards-fqbn: esp32:esp32:esp32wroverkit
-           fancy-name: Wrover-Kit
+            fancy-name: Wrover-Kit
           - arduino-boards-fqbn: esp32:esp32:d32_pro
-           fancy-name: LoLin D32 Pro
+            fancy-name: LoLin D32 Pro
           - arduino-boards-fqbn: esp32:esp32:twatch
-           fancy-name: TTGO TWatch
+            fancy-name: TTGO TWatch
           - arduino-boards-fqbn: esp32:esp32:ttgo-t1
-           fancy-name: TTGO T-1
+            fancy-name: TTGO T-1
 
       fail-fast: false
 
