@@ -321,8 +321,10 @@ void M5Stack::sd_end(void)
   // This is particularly useful as the SD Card writes and file creations inherit system date/time.
   void M5Stack::setSystemTimeFromRtc()
   {
-    struct tm t;
-    time_t t_of_day;
+    struct tm rtcnow;
+    struct tm sysnow;
+    time_t unixtime;
+
 
     #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
       // BM8563: "Core2/M5StickC/Plus" style RTC
@@ -330,49 +332,79 @@ void M5Stack::sd_end(void)
       RTC_DateTypeDef RTCDate;
       Rtc.GetTime(&RTCtime); //Gets the time in the real-time clock.
       Rtc.GetDate(&RTCDate);
-      t.tm_year  = RTCDate.Year-1900;  // Year - 1900
-      t.tm_mon   = RTCDate.Month-1;    // Month, where 0 = jan
-      t.tm_mday  = RTCDate.Date;       // Day of the month
-      t.tm_hour  = RTCtime.Hours;
-      t.tm_min   = RTCtime.Minutes;
-      t.tm_sec   = RTCtime.Seconds;
+      rtcnow.tm_year  = RTCDate.Year-1900;  // Year - 1900
+      rtcnow.tm_mon   = RTCDate.Month-1;    // Month, where 0 = jan
+      rtcnow.tm_mday  = RTCDate.Date;       // Day of the month
+      rtcnow.tm_hour  = RTCtime.Hours;
+      rtcnow.tm_min   = RTCtime.Minutes;
+      rtcnow.tm_sec   = RTCtime.Seconds;
     #elif defined LILYGO_WATCH_HAS_PCF8563
       // PCF8563
       RTC_Date RTCDate = Rtc->getDateTime();
-      t.tm_year  = RTCDate.year-1900;  // Year - 1900
-      t.tm_mon   = RTCDate.month-1;    // Month, where 0 = jan
-      t.tm_mday  = RTCDate.day;        // Day of the month
-      t.tm_hour  = RTCDate.hour;
-      t.tm_min   = RTCDate.minute;
-      t.tm_sec   = RTCDate.second;
+      rtcnow.tm_year  = RTCDate.year-1900;  // Year - 1900
+      rtcnow.tm_mon   = RTCDate.month-1;    // Month, where 0 = jan
+      rtcnow.tm_mday  = RTCDate.day;        // Day of the month
+      rtcnow.tm_hour  = RTCDate.hour;
+      rtcnow.tm_min   = RTCDate.minute;
+      rtcnow.tm_sec   = RTCDate.second;
     #else
       #warning "HAS_RTC is set but no means are provided to retrieve data/time"
     #endif
 
-    t.tm_isdst = -1; // Is DST on? 1=yes, 0=no, -1=unknown
+    rtcnow.tm_isdst = -1; // Is DST on? 1=yes, 0=no, -1=unknown
 
-    t_of_day = mktime(&t);
-
-    timeval epoch = {(time_t)t_of_day, 0};
-    const timeval *tv = &epoch;
+    unixtime = mktime(&rtcnow); // to unix time
+    timeval epoch = {(time_t)unixtime, 0}; // to epoch time
+    const timeval *tv = &epoch; // to timeval pointer
     settimeofday(tv, NULL);
-    struct tm now;
-    if( getLocalTime(&now,0) ) {
+
+    if( getLocalTime(&sysnow,0) ) {
       //log_w("System time adjusted from M5Core2 RTC (BM8563)");
       Serial.printf("Fetched RTC Date/Time: %d/%02d/%02d %02d:%02d:%02d (DST=%d)\n",
-        t.tm_year+1900,
-        t.tm_mon+1,
-        t.tm_mday,
-        t.tm_hour,
-        t.tm_min,
-        t.tm_sec,
-        t.tm_isdst
+        rtcnow.tm_year+1900,  // Year - 1900
+        rtcnow.tm_mon+1,      // Month, where 0 = jan
+        rtcnow.tm_mday,
+        rtcnow.tm_hour,
+        rtcnow.tm_min,
+        rtcnow.tm_sec,
+        rtcnow.tm_isdst
       );
-      Serial.println(&now,"System Date/Time set to: %B %d %Y %H:%M:%S (%A)");
+      Serial.println(&sysnow,"System Date/Time set to: %B %d %Y %H:%M:%S (%A)");
     } else {
       log_e("System time could not be adjusted from RTC");
     }
   }
+
+
+  void M5Stack::setRtcTime( uint16_t year, uint8_t month, uint8_t day , uint8_t hours, uint8_t minutes, uint8_t seconds )
+  {
+    #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
+      RTC_DateTypeDef RTCDate;
+      RTC_TimeTypeDef RTCtime;
+      RTCDate.Year    = year;    // (e.g. 2021)
+      RTCDate.Month   = month;   // (e.g. January=1)
+      RTCDate.Date    = day;     // (e.g. first=1)
+      RTCtime.Hours   = hours;
+      RTCtime.Minutes = minutes;
+      RTCtime.Seconds = seconds;
+      M5.Rtc.SetTime(&RTCtime);
+      M5.Rtc.SetDate(&RTCDate);
+      // should call M5.setSystemTimeFromRtc();
+    #elif defined LILYGO_WATCH_HAS_PCF8563
+      RTC_Date RTCDate;
+      RTCDate.year   = year;
+      RTCDate.month  = month;
+      RTCDate.day    = day;
+      RTCDate.hour   = hours;
+      RTCDate.minute = minutes;
+      RTCDate.second = seconds;
+      Rtc->setDateTime( RTCDate );
+    #else
+      #warning "HAS_RTC is set but no means are provided to set data/time"
+    #endif
+
+  }
+
 #endif
 
 
