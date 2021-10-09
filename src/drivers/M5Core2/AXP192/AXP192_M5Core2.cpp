@@ -393,7 +393,8 @@ bool AXP192_M5Core2::isACIN()
 }
 bool AXP192_M5Core2::isCharging()
 {
-    return ( Read8bit(0x00) & 0x02 ) ? true : false;
+    return ( Read8bit(0x00) & 0x04 ) ? true : false;
+
 }
 bool AXP192_M5Core2::isVBUS()
 {
