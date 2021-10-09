@@ -39,6 +39,8 @@ jobs:
         platform-url:
           - https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
 
+        required-libraries: LovyanGFX
+
         include:
           - arduino-boards-fqbn: esp32:esp32:esp32
             fancy-name: ESP32 Generic
@@ -79,5 +81,4 @@ jobs:
           sketch-names: ${{ env.SKETCH_NAME }}
           #platform-default-url: ${{ env.PLATFORM_DEFAULT_URL }}
           #sketches-exclude: ${{ matrix.sketches-exclude }}
-
 
