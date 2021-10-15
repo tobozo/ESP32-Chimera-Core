@@ -289,7 +289,7 @@
   #define HAS_RTC
 
   #define TFCARD_CS_PIN 4
-  #define SD_ENABLE     0
+  #define SD_ENABLE     1
   #define SPEAKER_PIN  25
   #define BUTTON_A_PIN -1
   #define BUTTON_B_PIN -1
