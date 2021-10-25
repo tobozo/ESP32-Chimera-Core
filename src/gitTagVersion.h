@@ -1,6 +1,6 @@
 #define ECC_VERSION_MAJOR 1
 #define ECC_VERSION_MINOR 2
-#define ECC_VERSION_PATCH 4
+#define ECC_VERSION_PATCH 5
 #define _ECC_STR(x) #x
 #define ECC_STR(x) _ECC_STR(x)
 // Macro to convert library version number into an integer
