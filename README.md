@@ -11,6 +11,7 @@ This library is a *substitute* of the original [M5Stack](https://github.com/m5st
   - [M5Stack Classic](https://m5stack.com/products/basic-core-iot-development-kit)
   - [M5Stack Fire](https://m5stack.com/collections/m5-core/products/fire-iot-development-kit)
   - [M5Stack Core2](https://m5stack.com/products/m5stack-core2-esp32-iot-development-kit)
+  - [M5StickC](https://m5stack.com/collections/m5-core/products/stick-c)
   - [Odroid-Go](https://www.hardkernel.com/shop/odroid-go/)
   - [D-Duino-32-XS](https://www.tindie.com/products/lspoplove/dstike-d-duino-32-xs/)
   - [LoLin D32-Pro](https://www.aliexpress.com/item/32883116057.html)
@@ -18,10 +19,7 @@ This library is a *substitute* of the original [M5Stack](https://github.com/m5st
   - [Lilygo TTGO-TS](https://www.banggood.com/LILYGO-TTGO-TS-ESP32-1_44-Inch-TFT-MicroSD-Card-Slot-Speakers-bluetooth-Wifi-Module-p-1273383.html)
   - [Lilygo TTGO-Twatch](http://www.lilygo.cn/prod_view.aspx?TypeId=50053&Id=1290)
 
-Support coming soon:
 
-  - [M5StickC](https://m5stack.com/collections/m5-core/products/stick-c)
-  - ~~[M5Atom](https://m5stack.com/collections/m5-core/products/atom-matrix-esp32-development-kit)~~
 
 It also implements a set of extra features:
 
