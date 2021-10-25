@@ -10,7 +10,7 @@
 
   #include <SPI.h>
   #include <Wire.h>
-  #include "../../../ESP32-Chimera-Core.h"
+  #include "../../common/I2C/I2CUtil.h"
 
   // See also MPU-9250 Register Map and Descriptions, Revision 4.0,
   // RM-MPU-9250A-00, Rev. 1.4, 9/9/2013 for registers not listed in above
@@ -234,6 +234,7 @@
       int16_t accelCount[3];
 
     public:
+      MPU9250(I2CUtil *port ) { _i2cPort = port; }
       void getMres();
       void getGres();
       void getAres();
@@ -249,6 +250,11 @@
       void writeByte(uint8_t, uint8_t, uint8_t);
       uint8_t readByte(uint8_t, uint8_t);
       void readBytes(uint8_t, uint8_t, uint8_t, uint8_t *);
+
+
+  private:
+      I2CUtil *_i2cPort;
+
   };  // class MPU9250
 
 #endif // _MPU9250_H_

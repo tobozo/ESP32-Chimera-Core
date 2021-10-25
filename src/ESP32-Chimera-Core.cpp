@@ -4,27 +4,14 @@
 #include "ESP32-Chimera-Core.h"
 
 
-M5Stack::M5Stack() : isInited(0) {
+M5Stack::M5Stack() : isInited(0)
+{
 }
 
-//void M5Stack::setJpgRenderer( bool legacy ) {
-//  if( legacy ) {
-//    islegacyJpegDecoder = true;
-//    Lcd.setJpegRenderCallBack = nullptr;
-//    Lcd.jpgFlashRenderFunc    = &jpgLegacyRenderer;
-//    Lcd.jpgFSRenderFunc       = &jpgLegacyRenderer;
-//    Lcd.jpgStreamRenderFunc   = &jpgLegacyRenderer;
-//  } else {
-//    islegacyJpegDecoder = false;
-//    Lcd.setJpegRenderCallBack = &jpgCallBackSetter;
-//    Lcd.jpgFlashRenderFunc    = &jpgRenderer;
-//    Lcd.jpgFSRenderFunc       = &jpgRenderer;
-//    Lcd.jpgStreamRenderFunc   = &jpgRenderer;
-//  }
-//}
 
 
-void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEnable, bool ScreenShotEnable) {
+void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEnable, bool ScreenShotEnable)
+{
   // Correct init once
   if (isInited == true) {
     log_d("ESP32-Chimera-Core Already inited");
@@ -41,57 +28,48 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Serial.print("ESP32-Chimera-Core initializing...");
   }
 
-  #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
-    // I2C init
-    if (I2CEnable == true) {
-      I2C.begin(32, 33);
-    }
+  #if defined HAS_AXP192
     Axp.begin();
-    Axp.SetLDOEnable( 3,0 ); // turn any vibration off
-  #else
-    // LGFX_VERSION_MAJOR is only defined since LGFX V1
-    #if !defined LGFX_VERSION_MAJOR
-      // LGFX V0 has TF Card preinit before TFT
-      if (SDEnable == true) {
-        sd_begin();
-      }
-    #endif
   #endif
 
-  #if defined ARDUINO_TWATCH_BASE || defined ARDUINO_TWATCH_2020_V1 || defined ARDUINO_TWATCH_2020_V2 // TTGO T-Watch
-    #if defined LILYGO_WATCH_HAS_AXP202
+  #if defined HAS_IP5306
+    // Set wakeup button
+    Power.setWakeupButton(BUTTON_A_PIN);
+  #endif
 
-      Wire1.begin(21, 22);
+  #if defined HAS_AXP202 // TTGO T-Watch
+    Wire1.begin(21, 22);
+    //int ret = Axp->begin(i2cReadBytes, i2cWriteBytes);
+    int ret = Axp->begin(Wire1);
+    if (ret == AXP_FAIL) {
+      log_e("AXP Power begin failed");
+    } else {
+      log_n("AXP Power begin success!");
+      //Change the shutdown time to 4 seconds
+      Axp->setShutdownTime(AXP_POWER_OFF_TIME_4S);
+      // Turn off the charging instructions, there should be none
+      Axp->setChgLEDMode(AXP20X_LED_OFF);
+      // Turn off external enable
+      Axp->setPowerOutPut(AXP202_EXTEN, false);
+      //axp202 allows maximum charging current of 1800mA, minimum 300mA
+      Axp->setChargeControlCur(300);
+    }
+    //#ifdef  LILYGO_WATCH_2020_V1
+      //In the 2020V1 version, the ST7789 chip power supply
+      //is shared with the backlight, so LDO2 cannot be turned off
+      log_w("Setting power output for ST7789");
+      Axp->setPowerOutPut(AXP202_LDO2, AXP202_ON);
+    //#endif  /*LILYGO_WATCH_2020_V1*/
+    //#ifdef  LILYGO_WATCH_2020_V2
+      //GPS power domain is AXP202 LDO4
+      //Axp->setPowerOutPut(AXP202_LDO3, false);
+      //Axp->setPowerOutPut(AXP202_LDO4, false);
+      //Axp->setLDO4Voltage(AXP202_LDO4_3300MV);
+    //#endif  /*LILYGO_WATCH_2020_V2*/
+  #endif
 
-      //int ret = Axp->begin(i2cReadBytes, i2cWriteBytes);
-      int ret = Axp->begin(Wire1);
-      if (ret == AXP_FAIL) {
-        log_e("AXP Power begin failed");
-      } else {
-        log_n("AXP Power begin success!");
-        //Change the shutdown time to 4 seconds
-        Axp->setShutdownTime(AXP_POWER_OFF_TIME_4S);
-        // Turn off the charging instructions, there should be none
-        Axp->setChgLEDMode(AXP20X_LED_OFF);
-        // Turn off external enable
-        Axp->setPowerOutPut(AXP202_EXTEN, false);
-        //axp202 allows maximum charging current of 1800mA, minimum 300mA
-        Axp->setChargeControlCur(300);
-      }
-      //#ifdef  LILYGO_WATCH_2020_V1
-        //In the 2020V1 version, the ST7789 chip power supply
-        //is shared with the backlight, so LDO2 cannot be turned off
-        log_w("Setting power output for ST7789");
-        Axp->setPowerOutPut(AXP202_LDO2, AXP202_ON);
-      //#endif  /*LILYGO_WATCH_2020_V1*/
-      //#ifdef  LILYGO_WATCH_2020_V2
-        //GPS power domain is AXP202 LDO4
-        //Axp->setPowerOutPut(AXP202_LDO3, false);
-        //Axp->setPowerOutPut(AXP202_LDO4, false);
-        //Axp->setLDO4Voltage(AXP202_LDO4_3300MV);
-      //#endif  /*LILYGO_WATCH_2020_V2*/
-    #endif
-
+  #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
+    Axp.SetLDOEnable( 3,0 ); // turn any vibration off
   #endif
 
   // LCD INIT
@@ -105,20 +83,15 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
          ScreenShot.begin();
        #endif
     }
-
   }
 
   #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
-    Touch.begin(); // Touch begin after AXP begin. (Reset at the start of AXP)
-
     Button* _btns[3] = { &BtnA, &BtnB, &BtnC };
     M5Core2TouchButtonEmu = new ButtonTouchReader( &Lcd, _btns );
-
   #endif
 
   #if defined HAS_SDCARD
-    // TF Card ( reinit )
-    if (SDEnable == true && M5STACK_SD.cardSize() == 0) {
+    if (SDEnable == true /*&& M5STACK_SD.cardSize() == 0*/) {
       sd_begin();
     }
   #endif
@@ -144,18 +117,8 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     pinMode(BUTTON_JOY_X_PIN, INPUT_PULLDOWN);
   #endif
 
-  #if defined(ARDUINO_M5Stick_C) // M5Stick C
-    Axp.begin();
-    Rtc.begin();
-  #endif
-
-  #if defined HAS_POWER
-    // Set wakeup button
-    Power.setWakeupButton(BUTTON_A_PIN);
-  #endif
-
   #if !defined( ARDUINO_M5STACK_Core2 )
-    // I2C init
+    // need I2C init for RTC ?
     if (I2CEnable == true) {
       log_d("Enabling I2C");
       if (M5.Lcd.getBoard() != lgfx::board_M5StackCore2) {
@@ -170,12 +133,10 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Serial.println("OK");
   }
 
-  #if defined( ARDUINO_M5STACK_Core2 )
+  #if defined HAS_BM8563
     Rtc.begin();
-  #elif defined ARDUINO_TWATCH_BASE || defined ARDUINO_TWATCH_2020_V1 || defined ARDUINO_TWATCH_2020_V2 // TTGO T-Watch
-    #if defined( LILYGO_WATCH_HAS_PCF8563 )
-      Rtc = new PCF8563_Class(I2C);
-    #endif
+  #elif defined( HAS_PCF8563 )
+    Rtc = new PCF8563_Class(I2C);
   #endif
 
   #if defined HAS_RTC
@@ -185,7 +146,8 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
 
 
-void M5Stack::update() {
+void M5Stack::update()
+{
   //Button update
   #if defined ARDUINO_M5STACK_Core2
     M5Core2TouchButtonEmu->read();
@@ -209,32 +171,6 @@ void M5Stack::update() {
     battery.update();
   #endif
 }
-
-#if defined HAS_POWER
-
-  /**
-    * Function has been move to Power class.(for compatibility)
-    * This name will be removed in a future release.
-    */
-  void M5Stack::setPowerBoostKeepOn(bool en) {
-    M5.Power.setPowerBoostKeepOn(en);
-  }
-  /**
-    * Function has been move to Power class.(for compatibility)
-    * This name will be removed in a future release.
-    */
-  void M5Stack::setWakeupButton(uint8_t button) {
-    M5.Power.setWakeupButton(button);
-  }
-  /**
-    * Function has been move to Power class.(for compatibility)
-    * This name will be removed in a future release.
-    */
-  void M5Stack::powerOFF() {
-    M5.Power.deepSleep();
-  }
-
-#endif
 
 
 
@@ -316,6 +252,7 @@ void M5Stack::sd_end(void)
 
 
 #if defined HAS_RTC
+
   #include <sys/time.h> // needed to set system time
   // Pickup the time from RTC module and apply it to system time (ESP32's internal, battery-less RTC).
   // This is particularly useful as the SD Card writes and file creations inherit system date/time.
@@ -324,7 +261,6 @@ void M5Stack::sd_end(void)
     struct tm rtcnow;
     struct tm sysnow;
     time_t unixtime;
-
 
     #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
       // BM8563: "Core2/M5StickC/Plus" style RTC
@@ -338,8 +274,8 @@ void M5Stack::sd_end(void)
       rtcnow.tm_hour  = RTCtime.Hours;
       rtcnow.tm_min   = RTCtime.Minutes;
       rtcnow.tm_sec   = RTCtime.Seconds;
-    #elif defined LILYGO_WATCH_HAS_PCF8563
-      // PCF8563
+    #elif defined HAS_PCF8563
+      // PCF8563 (Currently only TWatch)
       RTC_Date RTCDate = Rtc->getDateTime();
       rtcnow.tm_year  = RTCDate.year-1900;  // Year - 1900
       rtcnow.tm_mon   = RTCDate.month-1;    // Month, where 0 = jan
@@ -379,6 +315,7 @@ void M5Stack::sd_end(void)
   void M5Stack::setRtcTime( uint16_t year, uint8_t month, uint8_t day , uint8_t hours, uint8_t minutes, uint8_t seconds )
   {
     #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
+      // BM8563: "Core2/M5StickC/Plus" style RTC
       RTC_DateTypeDef RTCDate;
       RTC_TimeTypeDef RTCtime;
       RTCDate.Year    = year;    // (e.g. 2021)
@@ -390,7 +327,8 @@ void M5Stack::sd_end(void)
       M5.Rtc.SetTime(&RTCtime);
       M5.Rtc.SetDate(&RTCDate);
       // should call M5.setSystemTimeFromRtc();
-    #elif defined LILYGO_WATCH_HAS_PCF8563
+    #elif defined HAS_PCF8563
+      // PCF8563 (Currently only TWatch)
       RTC_Date RTCDate;
       RTCDate.year   = year;
       RTCDate.month  = month;

@@ -3,6 +3,9 @@
 
 #define HAS_SDCARD
 
+// buttons debounce time (milliseconds)
+#define DEBOUNCE_MS 10
+
 
 #if defined( LGFX_ONLY ) // LGFX config loaded externally
 
@@ -135,7 +138,7 @@
     //#warning "Selected LILYGO_WATCH_2019_WITH_TOUCH"
     #define SD_ENABLE            1
     #define LILYGO_WATCH_HAS_BMA423
-    #define LILYGO_WATCH_HAS_AXP202
+    #define HAS_AXP202
     #define LILYGO_WATCH_HAS_BACKLIGHT
     #define LILYGO_WATCH_HAS_BUTTON
     #define HAS_TOUCH
@@ -144,7 +147,7 @@
     //#warning "Selected LILYGO_WATCH_2019_NO_TOUCH"
     #define SD_ENABLE            1
     #define LILYGO_WATCH_HAS_BMA423
-    #define LILYGO_WATCH_HAS_AXP202
+    #define HAS_AXP202
     #define LILYGO_WATCH_HAS_BACKLIGHT
     #define LILYGO_WATCH_HAS_BUTTON
   #elif defined(LILYGO_WATCH_BLOCK) // should be called "brick" :-)
@@ -152,7 +155,7 @@
     //#warning "Selected LILYGO_WATCH_BLOCK"
     #define SD_ENABLE            0
     #undef HAS_SDCARD
-    #define LILYGO_WATCH_HAS_AXP202
+    #define HAS_AXP202
     #define LILYGO_WATCH_HAS_BUTTON
     #define LILYGO_WATCH_HAS_MPU6050
     #define HAS_TOUCH
@@ -168,9 +171,9 @@
       //#warning "Defaulting to LILYGO_WATCH_2020_V1"
       #define LILYGO_WATCH_HAS_MOTOR
       #define LILYGO_WATCH_HAS_BMA423
-      #define LILYGO_WATCH_HAS_AXP202
+      #define HAS_AXP202
       #define LILYGO_WATCH_HAS_IRREMOTE
-      #define LILYGO_WATCH_HAS_PCF8563
+      #define HAS_PCF8563
       #define HAS_RTC
       //#define LILYGO_WATCH_HAS_BACKLIGHT
     #else // TODO: implement v3
@@ -178,7 +181,7 @@
       //#warning "Defaulting to LILYGO_WATCH_2020_V2"
       #define TOUCH_RST                   4 // !! 2020_v2 only
       #define LILYGO_WATCH_HAS_BMA423
-      #define LILYGO_WATCH_HAS_AXP202
+      #define HAS_AXP202
       #define LILYGO_WATCH_HAS_IRREMOTE
       #define LILYGO_WATCH_HAS_BACKLIGHT
       #define LILYGO_WATCH_HAS_GPS
@@ -251,6 +254,8 @@
   #define SD_ENABLE      0
 
   #define HAS_RTC
+  #define HAS_AXP192
+  #define HAS_BM8563
 
 #elif defined( ARDUINO_M5Stick_C_Plus ) // M5Stick C Plus
 
@@ -273,6 +278,8 @@
   #define SD_ENABLE      0
 
   #define HAS_RTC
+  #define HAS_AXP192
+  #define HAS_BM8563
 
 #elif defined( ARDUINO_M5STACK_Core2  ) // M5Core2
 
@@ -287,6 +294,9 @@
   #undef TOUCH_CS // using I2C touch
   #define HAS_TOUCH
   #define HAS_RTC
+  #define HAS_AXP192
+  #define HAS_BM8563
+  #define HAS_MPU6886
 
   #define TFCARD_CS_PIN 4
   #define SD_ENABLE     1
@@ -298,6 +308,7 @@
 #elif defined( ARDUINO_M5Stack_Core_ESP32 ) || defined( ARDUINO_M5STACK_FIRE) // m5stack classic/fire
 
   #define HAS_IP5306
+  #define HAS_MPU9250
 
   #define TFT_LED_PIN  32
   #define TFT_DC_PIN   27
@@ -342,6 +353,9 @@
 #define BTN_JOY_Y  6
 #define BTN_JOY_X  7
 
+#if defined MPU9250_INSDE && ! defined HAS_MPU9250
+  #define HAS_MPU9250
+#endif
 
 #if SPEAKER_PIN != -1
   #define HAS_SPEAKER
