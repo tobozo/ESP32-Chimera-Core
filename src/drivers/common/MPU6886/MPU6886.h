@@ -49,7 +49,7 @@
 #define AtR    	0.0174533
 #define Gyro_Gr	0.0010653
 
-class MPU6886_M5Core2 {
+class MPU6886 {
     public:
       enum Ascale {
         AFS_2G = 0,
@@ -68,7 +68,7 @@ class MPU6886_M5Core2 {
       Gscale Gyscale = GFS_2000DPS;
       Ascale Acscale = AFS_8G;
     public:
-      MPU6886_M5Core2();
+      MPU6886();
       int Init(void);
       void getAccelAdc(int16_t* ax, int16_t* ay, int16_t* az);
       void getGyroAdc(int16_t* gx, int16_t* gy, int16_t* gz);

@@ -429,15 +429,15 @@ void MPU9250::MPU9250SelfTest(float * destination) { // Should return percent de
 
 // Wire.h read and write protocols
 void MPU9250::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
-  M5.I2C.writeByte(address, subAddress, data);
+  _i2cPort->writeByte(address, subAddress, data);
 }
 
 uint8_t MPU9250::readByte(uint8_t address, uint8_t subAddress) {
   uint8_t result;
-  M5.I2C.readByte(address, subAddress,&result);
+  _i2cPort->readByte(address, subAddress,&result);
   return (result);
 }
 
 void MPU9250::readBytes(uint8_t address, uint8_t subAddress, uint8_t count,uint8_t * dest) {
-  M5.I2C.readBytes(address, subAddress,count,dest);
+  _i2cPort->readBytes(address, subAddress,count,dest);
 }

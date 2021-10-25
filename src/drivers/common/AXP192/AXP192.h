@@ -11,7 +11,7 @@
 
 #define AXP_ADDR 0X34
 
-class AXP192_M5Core2 {
+class AXP192 {
 public:
 
     enum CHGCurrent{
@@ -33,8 +33,14 @@ public:
         kCHG_1320mA,
     };
 
-  	AXP192_M5Core2();
-  	void  begin(void);
+  	AXP192();
+    #if defined ARDUINO_M5STACK_Core2
+  	  void begin(void);
+    #endif
+    #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) // M5Stick C / Plus
+      void begin(bool disableLDO2 = false, bool disableLDO3 = false, bool disableRTC = false, bool disableDCDC1 = false, bool disableDCDC3 = false);
+    #endif
+
 	void  ScreenBreath(uint8_t brightness);
 	bool  GetBatState();
 
