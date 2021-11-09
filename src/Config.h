@@ -1,5 +1,4 @@
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
+#pragma once
 
 #define HAS_SDCARD
 
@@ -392,12 +391,12 @@
 
 
 #if defined ESP_ARDUINO_VERSION_VAL
-  #include "core_version.h"
+  #if __has_include("core_version.h") // for platformio
+    #include "core_version.h"
+  #endif
   #if ESP_ARDUINO_VERSION_VAL(2,0,1) >= ESP_ARDUINO_VERSION || ARDUINO_ESP32_GIT_VER == 0x15bbd0a || ARDUINO_ESP32_GIT_VER == 0xd218e58f
-    #pragma message "Filesystem can create subfolders on file creation"
+    // #pragma message "Filesystem can create subfolders on file creation"
     #define FS_CAN_CREATE_PATH
   #endif
 #endif
 
-
-#endif // _CONFIG_H_
