@@ -18,7 +18,7 @@ class ButtonTouchReader
       button_zone_width = ((_gfx->width()+1)/3); // 1/3rd of the screen per button
       button_marginleft = 15; // dead space in pixels before and after each button to prevent overlap
       button_marginright = button_zone_width-button_marginleft;
-      log_d("Touch zone set to w(%d), ml(%d), mr(%d)", button_zone_width, button_marginleft, button_marginright );
+      log_d("Touch zone set to width(%d), edge-left-offset(%d), edge-right-offset(%d)", button_zone_width, button_marginleft, button_marginright );
     };
 
     uint16_t number = 0;
