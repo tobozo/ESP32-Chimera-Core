@@ -27,7 +27,7 @@
 
 // Select time function:
 //static inline unsigned long elapsed() { return micros(); }
-static inline unsigned long elapsed() { return millis(); }
+static inline unsigned long elapsed() { return (unsigned long) (esp_timer_get_time() / 1000ULL);; }
 
 M5Timer::M5Timer() {
   unsigned long current_millis = elapsed();
@@ -181,7 +181,7 @@ void M5Timer::restartTimer(int numTimer) {
   prev_millis[numTimer] = elapsed();
 }
 
-boolean M5Timer::isEnabled(int numTimer) {
+bool M5Timer::isEnabled(int numTimer) {
   if (numTimer >= MAX_TIMERS) {
     return false;
   }

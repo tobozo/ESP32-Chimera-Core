@@ -1,5 +1,4 @@
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
+#pragma once
 
 #define HAS_SDCARD
 
@@ -336,6 +335,13 @@
   #define VSPI FSPI
   #undef HAS_SDCARD
 
+#else
+  #pragma "No know board detected, disabling Buttons and SD"
+  #define SD_ENABLE 0
+  #define BUTTON_A_PIN -1
+  #define BUTTON_B_PIN -1
+  #define BUTTON_C_PIN -1
+  #define SPEAKER_PIN  -1
 #endif
 
 // Default Buttons (M5Stack or assimilate)
@@ -361,6 +367,7 @@
   #define HAS_SPEAKER
 #endif
 
+
 #define TONE_PIN_CHANNEL 0
 
 // LORA
@@ -379,9 +386,17 @@
 #endif
 
 #if !defined(TFCARD_SPI_FREQ)
-  #define TFCARD_SPI_FREQ 20000000
+  #define TFCARD_SPI_FREQ 25000000
 #endif
 
 
+#if defined ESP_ARDUINO_VERSION_VAL
+  #if __has_include("core_version.h") // for platformio
+    #include "core_version.h"
+  #endif
+  #if ESP_ARDUINO_VERSION_VAL(2,0,1) >= ESP_ARDUINO_VERSION || ARDUINO_ESP32_GIT_VER == 0x15bbd0a || ARDUINO_ESP32_GIT_VER == 0xd218e58f
+    // #pragma message "Filesystem can create subfolders on file creation"
+    #define FS_CAN_CREATE_PATH
+  #endif
+#endif
 
-#endif // _CONFIG_H_
