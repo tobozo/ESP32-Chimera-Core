@@ -25,6 +25,7 @@
   "version": "1.2.6",
   "framework": "arduino",
   "platforms": "espressif32",
+  "headers": "ESP32-Chimera-Core.h",
   "build": {
     "libArchive": false
   }
