@@ -42,7 +42,7 @@ class M5Display : public TFT_eSPI {
 
     void display() {}
 
-    void progressBar(int x, int y, int w, int h, uint8_t val, uint16_t color=0x09F1 );
+    void progressBar(int x, int y, int w, int h, uint8_t val, uint16_t color=0x09F1, uint16_t bgcolor=0x0000 );
 
     const uint32_t    &textcolor   = _text_style.fore_rgb888;
     const uint32_t    &textbgcolor = _text_style.back_rgb888;

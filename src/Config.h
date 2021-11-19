@@ -389,6 +389,10 @@
   #define TFCARD_SPI_FREQ 25000000
 #endif
 
+#if defined M5STACK_MPU6886 && !defined HAS_MPU6886
+  #define HAS_MPU6886
+#endif
+
 
 #if defined ESP_ARDUINO_VERSION_VAL
   #if __has_include("core_version.h") // for platformio

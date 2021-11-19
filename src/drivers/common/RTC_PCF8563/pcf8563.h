@@ -29,6 +29,7 @@ github:https://github.com/lewisxhe/PCF8563_Library
 /////////////////////////////////////////////////////////////////
 #pragma once
 
+// TODO: get rid of <arduino.h>
 #include <Arduino.h>
 #include "../../common/I2C/I2CUtil.h"
 

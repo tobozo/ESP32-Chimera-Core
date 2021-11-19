@@ -9,7 +9,6 @@ M5Stack::M5Stack() : isInited(0)
 }
 
 
-
 void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEnable, bool ScreenShotEnable)
 {
   // Correct init once
@@ -120,7 +119,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   #if !defined( ARDUINO_M5STACK_Core2 )
     // need I2C init for RTC ?
     if (I2CEnable == true) {
-      log_d("Enabling I2C");
+      log_d("Will start I2C");
       if (M5.Lcd.getBoard() != lgfx::board_M5StackCore2) {
         I2C.begin(SDA, SCL);
       } else {
@@ -128,10 +127,6 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
       }
     }
   #endif
-
-  if (SerialEnable == true) {
-    Serial.println("OK");
-  }
 
   #if defined HAS_BM8563
     Rtc.begin();
@@ -142,6 +137,10 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   #if defined HAS_RTC
     setSystemTimeFromRtc();
   #endif
+
+  if (SerialEnable == true) {
+    Serial.println("ESP32-Chimera-Core started");
+  }
 }
 
 

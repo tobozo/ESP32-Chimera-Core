@@ -127,14 +127,14 @@
 
   #include "M5Display.h"
 
-  #include "helpers/Memory.h"
-  #include "helpers/ScreenShotService/ScreenShot.h" // ScreenShot Service
+  #include "utility/Memory.h"
+  #include "utility/ScreenShotService/ScreenShot.h" // ScreenShot Service
   #include "drivers/common/Button/Button.h"         // BtnA/BtnB/BtnC Support
   #include "drivers/common/I2C/I2CUtil.h"           // I2C Scanner
   #include "drivers/common/NVS/NVSUtils.h"          // NVS Utilities
 
   #if defined HAS_TOUCH
-    #include "helpers/TouchButton.h"
+    #include "utility/TouchButton.h"
   #endif
 
   #if defined HAS_SPEAKER
@@ -181,7 +181,17 @@
   #endif
 
   #if defined( ARDUINO_M5Stack_Core_ESP32 ) || defined( ARDUINO_M5STACK_FIRE) // m5stack classic/fire
-    #if defined HAS_MPU9250
+    #if defined HAS_MPU6886
+      #define HAS_PRIMARY_IMU
+      #define PRIMARY_IMU MPU6886
+      #define PRIMARY_IMU_ARG &Wire
+      #if defined HAS_MPU9250
+        #pragma message "Enabling secondary IMU (MPU9250)"
+        #define HAS_SECONDARY_IMU
+        #define SECONDARY_IMU MPU9250
+        #define SECONDARY_IMU_ARG &I2C
+      #endif
+    #elif defined HAS_MPU9250
       #define HAS_PRIMARY_IMU
       #define PRIMARY_IMU MPU9250
       #define PRIMARY_IMU_ARG &I2C
@@ -189,15 +199,19 @@
   #endif
 
   #if defined HAS_MPU6886
-    #define HAS_PRIMARY_IMU
-    #define PRIMARY_IMU MPU6886
-    #define PRIMARY_IMU_ARG
+    #if !defined HAS_PRIMARY_IMU
+      #define HAS_PRIMARY_IMU
+      #define PRIMARY_IMU MPU6886
+      #define PRIMARY_IMU_ARG &I2C
+    #endif
     // allow secondary MPU
     #if defined HAS_MPU9250
-      #warning "Enabling secondary IMU (MPU9250)"
-      #define HAS_SECONDARY_IMU
-      #define SECONDARY_IMU MPU9250
-      #define SECONDARY_IMU_ARG &I2C
+      #if !defined HAS_SECONDARY_IMU
+        #pragma message "Enabling secondary IMU (MPU9250)"
+        #define HAS_SECONDARY_IMU
+        #define SECONDARY_IMU MPU9250
+        #define SECONDARY_IMU_ARG &I2C
+      #endif
     #endif
   #endif
 
@@ -220,6 +234,7 @@
       ScreenShotService ScreenShot; // ScreenShots !
       NVSUtils NVS; // NVS Utilities
       I2CUtil I2C = I2CUtil(); // I2C Scanner && Twatch I2C bus
+      //I2CUtil I2C = I2CUtil_Core;
       Button BtnA = Button(BUTTON_A_PIN, true, DEBOUNCE_MS);
       Button BtnB = Button(BUTTON_B_PIN, true, DEBOUNCE_MS);
       Button BtnC = Button(BUTTON_C_PIN, true, DEBOUNCE_MS);
