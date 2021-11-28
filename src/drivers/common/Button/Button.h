@@ -17,7 +17,8 @@
 #define DPAD_V_HALF 1
 #define DPAD_V_NONE 0
 
-class Button {
+class Button
+{
   public:
     Button(uint8_t pin, uint8_t invert, uint32_t dbTime);
     uint8_t  read();

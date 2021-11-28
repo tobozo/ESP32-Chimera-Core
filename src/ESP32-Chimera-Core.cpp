@@ -24,7 +24,14 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Serial.begin(115200);
     Serial.flush();
     delay(50);
-    Serial.print("ESP32-Chimera-Core initializing...");
+    Serial.print("ESP32-Chimera-Core initializing ");
+    #if defined ARDUINO_BOARD
+      Serial.printf("[Board=%s] ", ARDUINO_BOARD );
+    #endif
+    #if defined ARDUINO_VARIANT
+      Serial.printf("[Variant=%s] ", ARDUINO_VARIANT );
+    #endif
+    Serial.println();
   }
 
   #if defined HAS_AXP192
