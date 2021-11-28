@@ -1,3 +1,5 @@
+#pragma once
+
 #define ECC_VERSION_MAJOR 1
 #define ECC_VERSION_MINOR 2
 #define ECC_VERSION_PATCH 7
