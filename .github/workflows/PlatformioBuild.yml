@@ -35,6 +35,7 @@ jobs:
           - d32_pro
           - twatch
           - ttgo-t1
+          #- ttgo-lora32
 
       fail-fast: false
 
