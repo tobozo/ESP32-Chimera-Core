@@ -27,7 +27,7 @@
  *
  */
 
-#ifndef __SCREENSHOT_SERVICE_H_
+#pragma once
 #define __SCREENSHOT_SERVICE_H_
 
 
@@ -42,10 +42,10 @@ class ScreenShotService {
 
   public:
 
-    ScreenShotService();
+    ScreenShotService( M5Display *tft, fs::FS *fileSystem ) : _tft(tft), _fileSystem(fileSystem) { };
     ~ScreenShotService();
 
-    void init( M5Display *tft, fs::FS &fileSystem );
+    void init();
     bool begin( bool ifPsram = true ); // ram test and allocation
     /*
      *  M5.ScreenShot.snap() => /jpg/screenshot-YYYY-MM-DD_HH-MM-SS.jpg
@@ -67,26 +67,26 @@ class ScreenShotService {
 
     bool        _begun         = false; // prevent begin() from being called more than once
     bool        _inited        = false; // prevent memory to be allocated more than once
+    bool        _psram         = false;
 
     char        fileName[255]  = {0};
     char        folderName[32] = {0};
 
     M5Display* _tft;
-    fs::FS *   _fileSystem;
+    fs::FS*    _fileSystem;
 
     void        genFileName( const char* name, const char* extension );
     void        checkFolder( const char* path );
     void        snapAnimation();
     bool        displayCanReadPixels();
 
-    JPEG_Encoder JPEGEncoder;
-    BMP_Encoder  BMPEncoder;
-    PNG_Encoder  PNGEncoder;
-    GIF_Encoder  GIFEncoder;
+    JPEG_Encoder *JPEGEncoder = nullptr;
+    BMP_Encoder  *BMPEncoder  = nullptr;
+    PNG_Encoder  *PNGEncoder  = nullptr;
+    GIF_Encoder  *GIFEncoder  = nullptr;
 
     uint8_t*    rgbBuffer      = NULL; // used for jpeg only, bmp has his own
 
 
 }; // end class
 
-#endif // __SCREENSHOT_SERVICE_H_

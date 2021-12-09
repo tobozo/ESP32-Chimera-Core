@@ -138,7 +138,7 @@ class M5Stack
     BaseType_t SD_CORE_ID = 1;
 
     M5Display Lcd; // LCD
-    ScreenShotService ScreenShot; // ScreenShots !
+    ScreenShotService *ScreenShot; // ScreenShots !
     NVSUtils NVS; // NVS Utilities
     I2CUtil I2C = I2CUtil(); // I2C Scanner && Twatch I2C bus
     //I2CUtil I2C = I2CUtil_Core;
@@ -224,6 +224,5 @@ class M5Stack
 };
 
 extern M5Stack M5;
-#define m5 M5
-#define lcd Lcd
-
+//#define m5 M5 // <<< is this really needed ?
+//#define lcd Lcd // <<< also this ?

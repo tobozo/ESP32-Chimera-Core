@@ -26,7 +26,7 @@
 // Finally, call GifEnd() to close the file handle and free memory.
 //
 
-#ifndef gif_h
+#pragma once
 #define gif_h
 
 #include "../../../M5Display.h"
@@ -89,11 +89,12 @@ struct GifLzwNode
 
 
 
-class GIF_Encoder {
+class GIF_Encoder
+{
 
   public:
-
-    void init( M5Display *tft, fs::FS &fileSystem  );
+    GIF_Encoder( M5Display *tft, fs::FS *fileSystem  ) : _tft(tft), _fileSystem(fileSystem) { };
+    void init();
     bool encodeToFile( const char* filename, const int width, const int height );
     bool encodeToFile( const char* filename, const int imageX, const int imageY, const int width, const int height );
 
@@ -164,6 +165,4 @@ class GIF_Encoder {
     void writeLzwImage(fs::File f, uint8_t* image, uint32_t left, uint32_t top,  uint32_t width, uint32_t height, uint32_t frameDelay, GifPalette* pPal);
 
 };
-
-#endif
 

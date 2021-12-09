@@ -183,9 +183,6 @@ static uint16_t tjei_be_word( const uint16_t le_word ) {
 }
 
 
-void JPEG_Encoder::init( fs::FS &fileSystem ) {
-  _fileSystem = &fileSystem;
-}
 
 
 void JPEG_Encoder::begin( bool ifPsram ) {

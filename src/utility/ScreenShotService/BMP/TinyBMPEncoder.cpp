@@ -29,11 +29,6 @@
 #include "TinyBMPEncoder.h"
 
 
-void BMP_Encoder::init( M5Display *tft, fs::FS &fileSystem  ) {
-  _tft = tft;
-  _fileSystem = &fileSystem;
-}
-
 bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const int imageH ) {
   return encodeToFile( filename, 0, 0, imageW, imageH );
 }

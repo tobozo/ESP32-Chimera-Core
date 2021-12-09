@@ -26,7 +26,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-#ifndef __TINY_BMP_ENCODER_H
+#pragma once
 #define __TINY_BMP_ENCODER_H
 
 #include "../../../M5Display.h"
@@ -35,7 +35,8 @@ class BMP_Encoder {
 
   public:
 
-    void init( M5Display *tft, fs::FS &fileSystem  );
+    BMP_Encoder( M5Display *tft, fs::FS *fileSystem  ) : _tft(tft), _fileSystem(fileSystem) { };
+
     bool encodeToFile( const char* filename, const int imageW, const int imageH );
     bool encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH );
 
@@ -47,4 +48,4 @@ class BMP_Encoder {
 
 };
 
-#endif // __TINY_BMP_ENCODER_H
+

@@ -53,7 +53,7 @@
  */
 
 
-#ifndef __TINY_JPEG_ENCODER__
+#pragma once
 #define __TINY_JPEG_ENCODER__
 
 #include "../../../M5Display.h"
@@ -189,6 +189,7 @@ typedef void (*jpeg_encoder_callback_t)(uint32_t y, uint32_t h, unsigned char* r
 class JPEG_Encoder {
   public:
 
+    JPEG_Encoder( fs::FS * fileSystem ) : _fileSystem( fileSystem ) { }
 
     fs::File jpegFile;
     fs::FS * _fileSystem;
@@ -196,7 +197,6 @@ class JPEG_Encoder {
     uint8_t**  huffsize = NULL;
     uint16_t** huffcode = NULL;
 
-    void       init( fs::FS &fileSystem );
     void       begin( bool ifPsram = true );
     int        encodeToFile( const char* dest_path, const int width, const int height, const int numComponents, unsigned char* src_data, jpeg_encoder_callback_t fp, void* device );
     int        encodeWithFunc( writeFunc* func, fs::File jpegFile, const int quality, const int width, const int height, const int numComponents, unsigned char* src_data, jpeg_encoder_callback_t fp, void* device );
@@ -221,4 +221,3 @@ class JPEG_Encoder {
 
 }; // end class
 
-#endif // defined __TINY_JPEG_ENCODER__
