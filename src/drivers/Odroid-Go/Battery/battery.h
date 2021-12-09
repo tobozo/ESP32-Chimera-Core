@@ -5,7 +5,7 @@
  *      Author: mdrjr
  */
 
-#ifndef LIBRARIES_ODROID_GO_SRC_UTILITY_BATTERY_H_
+#pragma once
 #define LIBRARIES_ODROID_GO_SRC_UTILITY_BATTERY_H_
 
 #include "Arduino.h"
@@ -19,7 +19,8 @@
 #define BATTERY_VMIN 330
 #define BATTERY_CUTOFF 325
 
-class Battery {
+class Battery
+{
 public:
   Battery(void);
 
@@ -34,4 +35,4 @@ private:
   bool _enable_protection;
 };
 
-#endif /* LIBRARIES_ODROID_GO_SRC_UTILITY_BATTERY_H_ */
+

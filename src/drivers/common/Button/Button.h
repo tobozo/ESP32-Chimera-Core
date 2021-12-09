@@ -8,7 +8,7 @@
  * letter to Creative Commons, 171 Second Street, Suite 300,            *
  * San Francisco, California, 94105, USA.                               *
  *----------------------------------------------------------------------*/
-#ifndef Button_h
+#pragma once
 #define Button_h
 
 #include <Arduino.h>
@@ -53,4 +53,4 @@ class Button
 
     uint8_t _axis;          //state changed since last read
 };
-#endif
+

@@ -19,7 +19,7 @@ bool I2CUtil::begin( signed char sdaPin, signed char sclPin, TwoWire *i2cPort )
     return false;
   }
   if( _begun ) {
-    log_w("Skipping I2C start (already started) on %s with SDA/SCL: %d/%d", i2cPort == &Wire?"Wire":"Wire1", _sdaPin, _sclPin );
+    log_d("Skipping I2C start (already started) on %s with SDA/SCL: %d/%d", i2cPort == &Wire?"Wire":"Wire1", _sdaPin, _sclPin );
     return true;
   }
   _sdaPin = sdaPin;
@@ -55,7 +55,7 @@ void I2CUtil::checkFreq( bool unset )
     _i2cPort->setClock( _lastclockspeed );
   } else {
     if( currentClockSpeed == _clockspeed ) return;
-    log_d("Setting freq to %d (was: %d)", _clockspeed, currentClockSpeed );
+    log_v("Setting freq to %d (was: %d)", _clockspeed, currentClockSpeed );
     _lastclockspeed = currentClockSpeed;
     _i2cPort->setClock( _clockspeed );
   }
@@ -70,7 +70,7 @@ bool I2CUtil::writeCommand( unsigned char i2c_addr, unsigned char reg )
   _i2cPort->write(reg);
   res = (_i2cPort->endTransmission() == 0);
 
-  log_d("send to 0x%02x [0x%02x] result:%s", i2c_addr, reg, res ? "OK" : "NG");
+  log_v("send to 0x%02x [0x%02x] result:%s", i2c_addr, reg, res ? "OK" : "NG");
   checkFreq(true);
   return res;
 }
@@ -86,7 +86,7 @@ bool I2CUtil::writeByte( unsigned char i2c_addr, unsigned char reg, unsigned cha
   _i2cPort->write(data);
   res = (_i2cPort->endTransmission() == 0);
   checkFreq(true);
-  log_d("send to 0x%02x [0x%2x] data=0x%02x result:%s", i2c_addr, reg, data, res ? "OK" : "NG");
+  log_v("send to 0x%02x [0x%2x] data=0x%02x result:%s", i2c_addr, reg, data, res ? "OK" : "NG");
 
   return res;
 }
@@ -106,7 +106,7 @@ bool I2CUtil::writeBytes( unsigned char i2c_addr, unsigned char reg, unsigned ch
   }
   res = _i2cPort->endTransmission() == 0;
 
-  log_d("sent to 0x%02x [0x%02x], result:%s", i2c_addr,reg, res ? "OK" : "NG");
+  log_v("sent to 0x%02x [0x%02x], result:%s", i2c_addr,reg, res ? "OK" : "NG");
   checkFreq(true);
   return res;
 }
@@ -125,7 +125,7 @@ bool I2CUtil::readByte( unsigned char i2c_addr, unsigned char *buf )
     return true;
   }
 
-  log_d("tried to read 1 byte from i2c addr 0x%02x and received none", i2c_addr);
+  log_v("tried to read 1 byte from i2c addr 0x%02x and received none", i2c_addr);
   checkFreq(true);
   return false;
 }
@@ -146,7 +146,7 @@ bool I2CUtil::readByte( unsigned char i2c_addr, unsigned char reg, unsigned char
     return true;
   }
 
-  log_d("tried to read 1 byte from i2c addr 0x%02x / reg 0x%02x and received none", i2c_addr, reg);
+  log_v("tried to read 1 byte from i2c addr 0x%02x / reg 0x%02x and received none", i2c_addr, reg);
   checkFreq(true);
   return false;
 }
@@ -172,7 +172,7 @@ bool I2CUtil::readBytes( unsigned char i2c_addr, unsigned char reg, unsigned cha
     return true;
   }
 
-  log_d("tried to read %d bytes from i2c addr 0x%02x / reg 0x%02x and received none", count, i2c_addr, reg);
+  log_v("tried to read %d bytes from i2c addr 0x%02x / reg 0x%02x and received none", count, i2c_addr, reg);
   checkFreq(true);
   return false;
 }
@@ -191,7 +191,7 @@ bool I2CUtil::readBytes( unsigned char i2c_addr, unsigned char count,unsigned ch
     return true;
   }
 
-  log_d("tried to read %d bytes from i2c addr 0x%02x and received none", count, i2c_addr);
+  log_v("tried to read %d bytes from i2c addr 0x%02x and received none", count, i2c_addr);
   checkFreq(true);
   return false;
 }

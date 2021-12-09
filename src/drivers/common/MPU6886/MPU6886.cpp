@@ -4,15 +4,15 @@ bool MPU6886::Init( int sdaPin, int sclPin ){
   unsigned char tempdata[1];
   unsigned char regdata;
 
-  log_e("Will Init MPU6886 on I2C ports SDA/SCL: %d/%d", sdaPin, sclPin );
+  log_w("Will Init MPU6886 on I2C ports SDA/SCL: %d/%d", sdaPin, sclPin );
 
   if( _i2cUtil == nullptr ) {
     if( _i2cPort  == nullptr ) {
       _i2cUtil = new I2CUtil( &Wire );
-      log_w("New I2C port specified (Wire). on SDA/SCL: %d/%d", sdaPin, sclPin );
+      log_d("New I2C port specified (Wire). on SDA/SCL: %d/%d", sdaPin, sclPin );
     } else {
       _i2cUtil = new I2CUtil( _i2cPort );
-      log_w("New I2C port specified (%s). on SDA/SCL: %d/%d", _i2cPort==&Wire?"Wire":"Wire1", sdaPin, sclPin );
+      log_d("New I2C port specified (%s). on SDA/SCL: %d/%d", _i2cPort==&Wire?"Wire":"Wire1", sdaPin, sclPin );
     }
   }
 
