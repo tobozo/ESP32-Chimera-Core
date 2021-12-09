@@ -35,7 +35,7 @@ jobs:
           - esp32:esp32:d32_pro
           - esp32:esp32:twatch
           - esp32:esp32:ttgo-t1
-          #- esp32:esp32:ttgo-lora32
+          #- esp32:esp32:ttgo-lora32-v2
           #- esp32:esp32:d-duino-32-xs
 
         platform-url:
