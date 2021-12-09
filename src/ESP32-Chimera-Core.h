@@ -3,7 +3,7 @@
 // create marker to ease core (legacy or chimera) detection
 // e.g.:
 // #ifdef _CHIMERA_CORE_
-//    M5.ScreenShot.snap();
+//    M5.ScreenShot->snap();
 // #endif
 #define _CHIMERA_CORE_H_
 #define _CHIMERA_CORE_
