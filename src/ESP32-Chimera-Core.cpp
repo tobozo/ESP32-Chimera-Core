@@ -84,14 +84,14 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
 
     Lcd.begin();
 
-    ScreenShot = new ScreenShotService( &Lcd, &M5STACK_SD );
-
-    if( ScreenShotEnable == true ) {
-       #if defined HAS_SDCARD
-         ScreenShot->init();
-         ScreenShot->begin();
-       #endif
-    }
+    #if defined HAS_SDCARD
+      // note: builds without prefefined filesystem will need to run this manually
+      ScreenShot = new ScreenShotService( &Lcd, &M5STACK_SD );
+      if( ScreenShotEnable == true ) {
+          ScreenShot->init();
+          ScreenShot->begin();
+      }
+    #endif
   }
 
   #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
