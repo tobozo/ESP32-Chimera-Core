@@ -25,7 +25,7 @@
  */
 
 
-#ifndef M5Timer_H
+#pragma once
 #define M5Timer_H
 
 #include <functional>
@@ -119,4 +119,3 @@ class M5Timer {
     int numTimers;
 };
 
-#endif

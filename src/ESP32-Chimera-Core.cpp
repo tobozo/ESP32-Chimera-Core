@@ -9,7 +9,6 @@ M5Stack::M5Stack() : isInited(0)
 }
 
 
-
 void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEnable, bool ScreenShotEnable)
 {
   // Correct init once
@@ -25,7 +24,14 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     Serial.begin(115200);
     Serial.flush();
     delay(50);
-    Serial.print("ESP32-Chimera-Core initializing...");
+    Serial.print("ESP32-Chimera-Core initializing ");
+    #if defined ARDUINO_BOARD
+      Serial.printf("[Board=%s] ", ARDUINO_BOARD );
+    #endif
+    #if defined ARDUINO_VARIANT
+      Serial.printf("[Variant=%s] ", ARDUINO_VARIANT );
+    #endif
+    Serial.println();
   }
 
   #if defined HAS_AXP192
@@ -57,7 +63,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     //#ifdef  LILYGO_WATCH_2020_V1
       //In the 2020V1 version, the ST7789 chip power supply
       //is shared with the backlight, so LDO2 cannot be turned off
-      log_w("Setting power output for ST7789");
+      log_d("Setting power output for ST7789");
       Axp->setPowerOutPut(AXP202_LDO2, AXP202_ON);
     //#endif  /*LILYGO_WATCH_2020_V1*/
     //#ifdef  LILYGO_WATCH_2020_V2
@@ -77,12 +83,15 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
     log_d("Enabling LCD");
 
     Lcd.begin();
-    if( ScreenShotEnable == true ) {
-       #if defined HAS_SDCARD
-         ScreenShot.init( &Lcd, M5STACK_SD );
-         ScreenShot.begin();
-       #endif
-    }
+
+    #if defined HAS_SDCARD
+      // note: builds without prefefined filesystem will need to run this manually
+      ScreenShot = new ScreenShotService( &Lcd, &M5STACK_SD );
+      if( ScreenShotEnable == true ) {
+          ScreenShot->init();
+          ScreenShot->begin();
+      }
+    #endif
   }
 
   #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
@@ -100,7 +109,6 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   #ifdef HAS_SPEAKER
     //Speaker.begin();
   #endif
-
 
   // Buttons init
   #ifdef ARDUINO_DDUINO32_XS
@@ -120,7 +128,7 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   #if !defined( ARDUINO_M5STACK_Core2 )
     // need I2C init for RTC ?
     if (I2CEnable == true) {
-      log_d("Enabling I2C");
+      log_d("Will start I2C");
       if (M5.Lcd.getBoard() != lgfx::board_M5StackCore2) {
         I2C.begin(SDA, SCL);
       } else {
@@ -128,10 +136,6 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
       }
     }
   #endif
-
-  if (SerialEnable == true) {
-    Serial.println("OK");
-  }
 
   #if defined HAS_BM8563
     Rtc.begin();
@@ -142,6 +146,10 @@ void M5Stack::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEn
   #if defined HAS_RTC
     setSystemTimeFromRtc();
   #endif
+
+  if (SerialEnable == true) {
+    Serial.println("ESP32-Chimera-Core started");
+  }
 }
 
 
@@ -192,23 +200,23 @@ bool M5Stack::sd_begin(void)
         #if defined TFCARD_SPI_HOST
           if( TFCARD_SPI_HOST==VSPI_HOST ) {
             SD_SPI = new SPIClass(VSPI);
-            log_i("SD will use VSPI");
+            log_d("SD will use VSPI");
           }else if( TFCARD_SPI_HOST==HSPI_HOST ) {
             SD_SPI = new SPIClass(HSPI);
-            log_i("SD will use HSPI");
+            log_d("SD will use HSPI");
           } else if( TFCARD_SPI_HOST==SPI_HOST ) {
             SD_SPI = new SPIClass(SPI);
-            log_i("SD will use SPI");
+            log_d("SD will use SPI");
           } else {
             log_e("No TFCARD_SPI_HOST selected in config");
             return false;
           }
-          log_i("TFCARD_SPI_HOST=%d, SPI_HOST=%d, HSPI_HOST=%d, VSPI_HOST=%d from core #%d", TFCARD_SPI_HOST, SPI_HOST, HSPI_HOST, VSPI_HOST, SD_CORE_ID );
-//           #define SPI_HOST    SPI1_HOST
-//           #define HSPI_HOST   SPI2_HOST
-//           #define VSPI_HOST   SPI3_HOST
+          log_d("TFCARD_SPI_HOST=%d, SPI_HOST=%d, HSPI_HOST=%d, VSPI_HOST=%d from core #%d", TFCARD_SPI_HOST, SPI_HOST, HSPI_HOST, VSPI_HOST, SD_CORE_ID );
+          //           #define SPI_HOST    SPI1_HOST
+          //           #define HSPI_HOST   SPI2_HOST
+          //           #define VSPI_HOST   SPI3_HOST
         #else
-          log_i("SD will use HSPI (default)");
+          log_d("SD will use HSPI (default)");
           SD_SPI = new SPIClass(HSPI);
         #endif
         SD_SPI->begin(TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN);
@@ -217,7 +225,7 @@ bool M5Stack::sd_begin(void)
         log_e("SD Card Mount Failed pins scl/miso/mosi/cs %d/%d/%d/%d from core #%d", TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN, SD_CORE_ID );
         return false;
       } else {
-        log_w( "SD Card Mount Success on pins scl/miso/mosi/cs %d/%d/%d/%d from core #%d", TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN, SD_CORE_ID );
+        log_d( "SD Card Mount Success on pins scl/miso/mosi/cs %d/%d/%d/%d from core #%d", TFCARD_SCLK_PIN, TFCARD_MISO_PIN, TFCARD_MOSI_PIN, TFCARD_CS_PIN, SD_CORE_ID );
       }
       sd_begun = true;
       return true;
@@ -225,7 +233,7 @@ bool M5Stack::sd_begin(void)
     #else
 
       #if defined HAS_SDCARD
-        log_w("Enabling SD from TFCARD_CS_PIN #%d at %d Hz from core #%d", TFCARD_CS_PIN, TFCARD_SPI_FREQ, SD_CORE_ID );
+        log_d("Enabling SD from TFCARD_CS_PIN #%d at %d Hz from core #%d", TFCARD_CS_PIN, TFCARD_SPI_FREQ, SD_CORE_ID );
         M5STACK_SD.end();
         ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);
       #endif
@@ -307,7 +315,7 @@ void M5Stack::sd_end(void)
       );
       Serial.println(&sysnow,"System Date/Time set to: %B %d %Y %H:%M:%S (%A)");
     } else {
-      log_e("System time could not be adjusted from RTC");
+      log_w("System time could not be adjusted from RTC");
     }
   }
 

@@ -5,12 +5,13 @@
  library in the Wire.h/twi.c utility file. We are also using the 400 kHz fast
  I2C mode by setting the TWI_FREQ  to 400000L /twi.h utility file.
  */
-#ifndef _MPU6886_H_
+#pragma once
 #define _MPU6886_H_
 
 #include <Wire.h>
-#include <Arduino.h>
 #include "MahonyAHRS.h"
+#include "../../common/I2C/I2CUtil.h"
+#include <math.h>
 
 #define MPU6886_ADDRESS           0x68
 #define MPU6886_WHOAMI            0x75
@@ -49,50 +50,57 @@
 #define AtR    	0.0174533
 #define Gyro_Gr	0.0010653
 
+
+#if ! defined DEG_TO_RAD
+  #define DEG_TO_RAD 0.017453292519943295769236907684886
+#endif
+
+extern I2CUtil I2CUtil_Core;
+
 class MPU6886 {
-    public:
-      enum Ascale {
-        AFS_2G = 0,
-        AFS_4G,
-        AFS_8G,
-        AFS_16G
-      };
+  public:
+    enum Ascale {
+      AFS_2G = 0,
+      AFS_4G,
+      AFS_8G,
+      AFS_16G
+    };
 
-      enum Gscale {
-        GFS_250DPS = 0,
-        GFS_500DPS,
-        GFS_1000DPS,
-        GFS_2000DPS
-      };
+    enum Gscale {
+      GFS_250DPS = 0,
+      GFS_500DPS,
+      GFS_1000DPS,
+      GFS_2000DPS
+    };
 
-      Gscale Gyscale = GFS_2000DPS;
-      Ascale Acscale = AFS_8G;
-    public:
-      MPU6886();
-      int Init(void);
-      void getAccelAdc(int16_t* ax, int16_t* ay, int16_t* az);
-      void getGyroAdc(int16_t* gx, int16_t* gy, int16_t* gz);
-      void getTempAdc(int16_t *t);
+    Gscale Gyscale = GFS_2000DPS;
+    Ascale Acscale = AFS_8G;
+  public:
 
-      void getAccelData(float* ax, float* ay, float* az);
-      void getGyroData(float* gx, float* gy, float* gz);
-      void getTempData(float *t);
+    MPU6886( TwoWire *port ) { _i2cPort = port; }
+    MPU6886( I2CUtil *i2cUtil ) { _i2cUtil = i2cUtil; }
+    bool Init( int sdaPin=21, int sclPin=22 );
+    void getAccelAdc(int16_t* ax, int16_t* ay, int16_t* az);
+    void getGyroAdc(int16_t* gx, int16_t* gy, int16_t* gz);
+    void getTempAdc(int16_t *t);
 
-      void SetGyroFsr(Gscale scale);
-      void SetAccelFsr(Ascale scale);
+    void getAccelData(float* ax, float* ay, float* az);
+    void getGyroData(float* gx, float* gy, float* gz);
+    void getTempData(float *t);
 
-      void getAhrsData(float *pitch,float *roll,float *yaw);
+    void SetGyroFsr(Gscale scale);
+    void SetAccelFsr(Ascale scale);
 
-    public:
-      float aRes, gRes;
+    void getAhrsData(float *pitch,float *roll,float *yaw);
+    I2CUtil *getI2C() { return _i2cUtil; }
 
-    private:
+  public:
+    float aRes, gRes;
 
-    private:
-      void I2C_Read_NBytes(uint8_t driver_Addr, uint8_t start_Addr, uint8_t number_Bytes, uint8_t *read_Buffer);
-      void I2C_Write_NBytes(uint8_t driver_Addr, uint8_t start_Addr, uint8_t number_Bytes, uint8_t *write_Buffer);
-      void getGres();
-      void getAres();
+  private:
+    I2CUtil *_i2cUtil = nullptr;
+    TwoWire *_i2cPort = nullptr;
+    void getGres();
+    void getAres();
 
 };
-#endif

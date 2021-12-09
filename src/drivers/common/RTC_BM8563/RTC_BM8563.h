@@ -1,4 +1,4 @@
-#ifndef __RTC_H__
+#pragma once
 #define __RTC_H__
 
 #include <Wire.h>
@@ -77,5 +77,3 @@ class RTC_BM8563
     uint8_t ByteToBcd2(uint8_t Value);
 
 };
-
-#endif

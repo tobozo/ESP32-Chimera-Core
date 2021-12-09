@@ -38,12 +38,10 @@
   #error "miniz.h not found, please update to the latest version of LovyanGFX"
 #endif
 
-void PNG_Encoder::init( M5Display *tft, fs::FS &fileSystem  )
+void PNG_Encoder::init()
 {
-  _tft = tft;
-  _fileSystem = &fileSystem;
   if( !psramInit() ) {
-    log_n("[INFO] No PSRAM found, PNG Encoding is disabled");
+    log_n("[INFO] No PSRAM found, PNG Encoding won't work");
   }
 }
 

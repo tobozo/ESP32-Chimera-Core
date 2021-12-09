@@ -10,17 +10,20 @@
 
 #if defined ARDUINO_ODROID_ESP32
 
-Battery::Battery() {
+Battery::Battery()
+{
     this->_enable_protection = false;
 }
 
-void Battery::begin() {
+void Battery::begin()
+{
   adc1_config_width(ADC_WIDTH_BIT_12);
   adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
   esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_DB_11, ADC_WIDTH_BIT_12, ESP_ADC_CAL_VAL_EFUSE_TP, &_adc_chars);
 }
 
-double Battery::getVoltage() {
+double Battery::getVoltage()
+{
   uint32_t adc_reading = 0;
 
   for (int i = 0; i < BATTERY_SAMPLES; i++) {
@@ -32,7 +35,8 @@ double Battery::getVoltage() {
   return (double) esp_adc_cal_raw_to_voltage(adc_reading, &_adc_chars) * BATTERY_RESISTANCE_NUM / 1000;
 }
 
-int Battery::getPercentage() {
+int Battery::getPercentage()
+{
 
   int res = 101 - (101 / pow(1 + pow(1.33 * ((int)(getVoltage() * 100) - BATTERY_VMIN)/(BATTERY_VMAX - BATTERY_VMIN), 4.5), 3));
 
@@ -42,7 +46,8 @@ int Battery::getPercentage() {
   return res;
 }
 
-void Battery::setProtection(bool enable) {
+void Battery::setProtection(bool enable)
+{
   this->_enable_protection = enable;
 }
 

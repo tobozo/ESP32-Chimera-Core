@@ -5,8 +5,24 @@
 // buttons debounce time (milliseconds)
 #define DEBOUNCE_MS 10
 
+#include "esp32-hal-log.h"
+
+#if defined ESP_ARDUINO_VERSION_VAL
+  #if __has_include("core_version.h") // for platformio
+    #include "core_version.h"
+  #endif
+  #if ESP_ARDUINO_VERSION_VAL(2,0,1) >= ESP_ARDUINO_VERSION || ARDUINO_ESP32_GIT_VER == 0x15bbd0a || ARDUINO_ESP32_GIT_VER == 0xd218e58f
+    // #pragma message "Filesystem can create subfolders on file creation"
+    #define FS_CAN_CREATE_PATH
+  #endif
+#endif
+
 
 #if defined( LGFX_ONLY ) // LGFX config loaded externally
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "LGFX Only"
+  #endif
 
   #define SPEAKER_PIN   -1
   #define SD_ENABLE      0
@@ -17,6 +33,10 @@
   //#undef LGFX_AUTODETECT
 
 #elif defined(ARDUINO_ESP32_DEV)
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "ESP32_DEV SELECTED"
+  #endif
 
   #define TFT_LED_PIN  -1
   #define TFT_DC_PIN   32
@@ -60,7 +80,11 @@
 
 #elif defined( ARDUINO_LOLIN_D32_PRO )
 
-  //#warning "USING LoLin D32 Pro setup with Touch enabled for ESP32Marauder"
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "LOLIN_D32_PRO SELECTED"
+  #endif
+
+  //#pragma message "USING LoLin D32 Pro setup with Touch enabled for ESP32Marauder"
   #define SPEAKER_PIN   -1
   #define SD_ENABLE      1
   #define BUTTON_A_PIN  -1
@@ -76,6 +100,10 @@
   #define TFCARD_SPI_HOST     SPI_HOST
 
 #elif defined( ARDUINO_ESP32_WROVER_KIT )
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "WROVER_KIT SELECTED"
+  #endif
 
   #define TFT_LED_PIN   14
   #define TFT_DC_PIN    21
@@ -93,6 +121,10 @@
   #define BUTTON_C_PIN  -1  // BUTTON_MENU
 
 #elif defined(ARDUINO_D) || defined(ARDUINO_DDUINO32_XS)
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "DDUINO32_XS SELECTED"
+  #endif
 
   #define TFT_LED_PIN  22
   #define TFT_DC_PIN   23
@@ -133,8 +165,11 @@
   #define SPEAKER_PIN          4
 
   #if defined( LILYGO_WATCH_2019_WITH_TOUCH )
+    #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+      #pragma message "LILYGO_WATCH_2019_WITH_TOUCH SELECTED"
+    #endif
     // #include "board/twatch2019_with_touch.h"
-    //#warning "Selected LILYGO_WATCH_2019_WITH_TOUCH"
+    //#pragma message "Selected LILYGO_WATCH_2019_WITH_TOUCH"
     #define SD_ENABLE            1
     #define LILYGO_WATCH_HAS_BMA423
     #define HAS_AXP202
@@ -142,16 +177,22 @@
     #define LILYGO_WATCH_HAS_BUTTON
     #define HAS_TOUCH
   #elif defined(LILYGO_WATCH_2019_NO_TOUCH)
+    #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+      #pragma message "LILYGO_WATCH_2019_NO_TOUCH SELECTED"
+    #endif
     //#include "board/twatch2019_with_not_touch.h"
-    //#warning "Selected LILYGO_WATCH_2019_NO_TOUCH"
+    //#pragma message "Selected LILYGO_WATCH_2019_NO_TOUCH"
     #define SD_ENABLE            1
     #define LILYGO_WATCH_HAS_BMA423
     #define HAS_AXP202
     #define LILYGO_WATCH_HAS_BACKLIGHT
     #define LILYGO_WATCH_HAS_BUTTON
   #elif defined(LILYGO_WATCH_BLOCK) // should be called "brick" :-)
+    #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+      #pragma message "LILYGO_WATCH_BLOCK SELECTED"
+    #endif
     //#include "board/twatch_block.h"
-    //#warning "Selected LILYGO_WATCH_BLOCK"
+    //#pragma message "Selected LILYGO_WATCH_BLOCK"
     #define SD_ENABLE            0
     #undef HAS_SDCARD
     #define HAS_AXP202
@@ -159,6 +200,9 @@
     #define LILYGO_WATCH_HAS_MPU6050
     #define HAS_TOUCH
   #else // all LILYGO_WATCH_2020 models
+    #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+      #pragma message "LILYGO_WATCH_2020 SELECTED"
+    #endif
     // common settings across v1/v2/v3
     #define SD_ENABLE            0
     #undef HAS_SDCARD
@@ -167,7 +211,7 @@
     #define HAS_TOUCH
     #if defined(BOARD_HAS_PSRAM)
       //#include "board/twatch2020_v1.h"
-      //#warning "Defaulting to LILYGO_WATCH_2020_V1"
+      //#pragma message "Defaulting to LILYGO_WATCH_2020_V1"
       #define LILYGO_WATCH_HAS_MOTOR
       #define LILYGO_WATCH_HAS_BMA423
       #define HAS_AXP202
@@ -177,7 +221,7 @@
       //#define LILYGO_WATCH_HAS_BACKLIGHT
     #else // TODO: implement v3
       //#include "board/twatch2020_v2.h"
-      //#warning "Defaulting to LILYGO_WATCH_2020_V2"
+      //#pragma message "Defaulting to LILYGO_WATCH_2020_V2"
       #define TOUCH_RST                   4 // !! 2020_v2 only
       #define LILYGO_WATCH_HAS_BMA423
       #define HAS_AXP202
@@ -189,7 +233,9 @@
 
 
 #elif defined(ARDUINO_TTGO_T1)
-
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "ARDUINO_TTGO_T1 SELECTED"
+  #endif
   // TFT/OLED display
   #define TFT_CS_PIN    16
   #define TFT_RST_PIN    9  // you can also connect this to the Arduino reset
@@ -208,7 +254,61 @@
   #define BUTTON_C_PIN  35
 
 
+
+#elif defined ARDUINO_TTGO_LoRa32_V2 // || defined ARDUINO_TTGO_LoRa32_V1 || defined ARDUINO_TTGO_LoRa32_v21new
+
+  // ARDUINO_BOARD="TTGO_LoRa32_V2"
+  // ARDUINO_VARIANT="ttgo-lora32-v2"
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_DEBUG
+    #pragma message "TTGO_LoRa32_v2 SELECTED"
+    #undef LGFX_AUTODETECT
+  #endif
+
+  // !!! ARDUINO_TTGO_LoRa32_v2 does not exist in boards.txt !!!
+  // this profile will only be loaded if a custom entry is inserted in boards.local.txt
+  // or if -D ARDUINO_TTGO_LoRa32_v2 is added to the compile flags.
+  // Similar boards exist in board.txt but use a different pinout: ARDUINO_TTGO_LoRa32_V1, ARDUINO_TTGO_LoRa32_v21new
+  // TFT/OLED display
+  #define OLED_SDA        21
+  #define OLED_SCL        22
+  #define OLED_RST        16
+  // LoRa device
+  #define LORA_MOSI_PIN   27
+  #define LORA_MISO_PIN   19
+  #define LORA_CS_PIN     18
+  #define LORA_SCK_PIN     5
+  #define LORA_RST_PIN    12 // attached to EN
+  #define LORA_IRQ_PIN    26 // DIO0
+  #define LORA_SPI_HOST   VSPI_HOST
+  // SD-MMC used as 1bit SD
+  #define TFCARD_SCLK_PIN 14
+  #define TFCARD_MISO_PIN  2
+  #define TFCARD_MOSI_PIN 15
+  #define TFCARD_CS_PIN   13
+  #define SD_ENABLE        1
+  #define TFCARD_USE_WIRE1
+  #define TFCARD_SPI_HOST SPI_HOST
+  // disabled features
+  #define SPEAKER_PIN     -1
+  #define BUTTON_A_PIN    -1
+  #define BUTTON_B_PIN    -1
+  #define BUTTON_C_PIN    -1
+
+/*
+  SPI.begin(14, 2, 15);
+  if(!SD.begin(13)){
+      Serial.println("Card Mount Failed");
+      return;
+  }
+*/
+
+
 #elif defined( ARDUINO_ODROID_ESP32 )
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "ODROID_ESP32 SELECTED"
+  #endif
 
   #define TFT_LED_PIN       32
   #define TFT_DC_PIN        27
@@ -234,6 +334,10 @@
 
 #elif defined( ARDUINO_M5Stick_C ) // M5Stick C
 
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "M5Stick_C SELECTED"
+  #endif
+
   #define SPEAKER_PIN   -1
   #define TFT_DC_PIN   23
   #define TFT_CS_PIN    5
@@ -257,6 +361,10 @@
   #define HAS_BM8563
 
 #elif defined( ARDUINO_M5Stick_C_Plus ) // M5Stick C Plus
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "M5Stick_C_Plus SELECTED"
+  #endif
 
   #define SPEAKER_PIN   -1
   #define TFT_DC_PIN   23
@@ -282,6 +390,10 @@
 
 #elif defined( ARDUINO_M5STACK_Core2  ) // M5Core2
 
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "M5STACK_Core2 SELECTED"
+  #endif
+
   #define TFT_LED_PIN  -1
   #define TFT_DC_PIN   15
   #define TFT_CS_PIN    5
@@ -306,6 +418,10 @@
 
 #elif defined( ARDUINO_M5Stack_Core_ESP32 ) || defined( ARDUINO_M5STACK_FIRE) // m5stack classic/fire
 
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "M5Stack_Core_ESP32 / M5STACK_FIRE SELECTED"
+  #endif
+
   #define HAS_IP5306
   #define HAS_MPU9250
 
@@ -327,6 +443,10 @@
 
 #elif defined CONFIG_IDF_TARGET_ESP32S2 // ESP32-S2 basic support
 
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "ESP32S2 SELECTED"
+  #endif
+
   #define BUTTON_A_PIN -1
   #define BUTTON_B_PIN -1
   #define BUTTON_C_PIN -1
@@ -336,7 +456,12 @@
   #undef HAS_SDCARD
 
 #else
-  #pragma "No know board detected, disabling Buttons and SD"
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_WARN
+    #pragma message "NO BOARD SELECTED"
+  #endif
+
+  #pragma message "No know board detected, disabling Buttons and SD"
   #define SD_ENABLE 0
   #define BUTTON_A_PIN -1
   #define BUTTON_B_PIN -1
@@ -365,6 +490,10 @@
 
 #if SPEAKER_PIN != -1
   #define HAS_SPEAKER
+#else
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_WARN
+    #pragma message "Speaker disabled"
+  #endif
 #endif
 
 
@@ -389,14 +518,10 @@
   #define TFCARD_SPI_FREQ 25000000
 #endif
 
-
-#if defined ESP_ARDUINO_VERSION_VAL
-  #if __has_include("core_version.h") // for platformio
-    #include "core_version.h"
-  #endif
-  #if ESP_ARDUINO_VERSION_VAL(2,0,1) >= ESP_ARDUINO_VERSION || ARDUINO_ESP32_GIT_VER == 0x15bbd0a || ARDUINO_ESP32_GIT_VER == 0xd218e58f
-    // #pragma message "Filesystem can create subfolders on file creation"
-    #define FS_CAN_CREATE_PATH
-  #endif
+#if defined M5STACK_MPU6886 && !defined HAS_MPU6886
+  #define HAS_MPU6886
 #endif
+
+
+
 

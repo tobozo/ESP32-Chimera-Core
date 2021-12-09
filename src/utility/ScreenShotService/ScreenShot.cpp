@@ -29,12 +29,12 @@
 
 #include "ScreenShot.h"
 
-
-ScreenShotService::ScreenShotService()
+/*
+ScreenShotService::ScreenShotService( M5Display *tft, fs::FS &fileSystem )
 {
   // wut ?
 }
-
+*/
 ScreenShotService::~ScreenShotService()
 {
   if( _begun ) {
@@ -43,15 +43,9 @@ ScreenShotService::~ScreenShotService()
   }
 }
 
-void ScreenShotService::init( M5Display *tft, fs::FS &fileSystem )
+void ScreenShotService::init()
 {
   if( _inited ) return;
-  _tft = tft;
-  _fileSystem = &fileSystem;
-  BMPEncoder.init( tft, fileSystem );
-  PNGEncoder.init( tft, fileSystem );
-  JPEGEncoder.init( fileSystem );
-  GIFEncoder.init( tft, fileSystem );
   // default capture mode is full screen
   setWindow(0, 0, _tft->width(), _tft->height() );
   _inited = true;
@@ -77,33 +71,21 @@ void ScreenShotService::setWindow( uint32_t x, uint32_t y, uint32_t w, uint32_t 
   _y = y;
   _w = w;
   _h = h;
-
 }
 
 
 bool ScreenShotService::begin( bool ifPsram )
 {
-  if( !_inited ) return false;
+  if( !_inited ) {
+    //return false;
+    init();
+  }
   if( _begun ) return true;
   if( !displayCanReadPixels() ) {
-    log_e( "readPixel() test failed, screenshots are disabled" );
+    log_n( "readPixel() test failed, screenshots are disabled" );
     return false;
   }
-  if( ifPsram && psramInit() ) {
-    log_w("Will attempt to allocate psram for screenshots");
-    rgbBuffer = (uint8_t*)ps_calloc( (_w*8*3)+1, sizeof( uint8_t ) );
-  } else {
-    log_w("Will attempt to allocate ram for screenshots");
-    // attempt to allocate anyway, and use BMP stream on failure
-    rgbBuffer = (uint8_t*)calloc( (_w*8*3)+1, sizeof( uint8_t ) );
-  }
-  if( rgbBuffer != NULL ) {
-    log_w( "ScreenShot Service can use JPG capture" );
-    JPEGEncoder.begin( ifPsram );
-  } else {
-    log_w( "ScreenShot Service can use BMP capture" );
-    jpegCapture = false;
-  }
+  _psram = ifPsram;
   _begun = true;
   return true;
 }
@@ -116,13 +98,11 @@ bool ScreenShotService::displayCanReadPixels()
   uint16_t value_in = _tft->color565(r, g, b);
   uint16_t value_out;
   __attribute__((unused)) byte testnum = 0;
-
-  log_w( "Testing display readpixel" );
-//  log_w( "Testing display#%04x", TFT_DRIVER );
-
+  log_d( "Testing display readpixel" );
+  //  log_w( "Testing display#%04x", TFT_DRIVER );
   _tft->drawPixel( 30, 30, value_in ); //  <----- Test color
   value_out = _tft->readPixel( 30,30 );
-  log_w( "test#%d: readPixel(as rgb565), expected:0x%04x, got: 0x%04x", testnum++, value_in, value_out );
+  log_d( "test#%d: readPixel(as rgb565), expected:0x%04x, got: 0x%04x", testnum++, value_in, value_out );
   if( value_in == value_out ) {
     readPixelSuccess = true;
     _tft->drawPixel( 30, 30, value_initial );
@@ -166,7 +146,27 @@ void ScreenShotService::snapJPG( const char* name, bool displayAfter )
   jpeg_encoder_w = _w;
   genFileName( name, "jpg" );
   uint32_t time_start = millis();
-  if ( !JPEGEncoder.encodeToFile( fileName, _w, _h, 3 /*3=RGB,4=RGBA*/, rgbBuffer, &jpeg_encoder_callback, _tft ) ) {
+
+  if( _psram && psramInit() ) {
+    log_v("Will attempt to allocate psram for screenshots");
+    rgbBuffer = (uint8_t*)ps_calloc( (_w*8*3)+1, sizeof( uint8_t ) );
+  } else {
+    log_v("Will attempt to allocate ram for screenshots");
+    rgbBuffer = (uint8_t*)calloc( (_w*8*3)+1, sizeof( uint8_t ) );
+    _psram = false;
+  }
+  if( rgbBuffer != NULL ) {
+    log_v( "ScreenShot Service can use JPG capture" );
+  } else {
+    log_n( "Not enough ram to use jpeg screenshot" );
+    jpegCapture = false;
+    return;
+  }
+
+  JPEGEncoder = new JPEG_Encoder( _fileSystem );
+  JPEGEncoder->begin( _psram );
+
+  if ( !JPEGEncoder->encodeToFile( fileName, _w, _h, 3 /*3=RGB,4=RGBA*/, rgbBuffer, &jpeg_encoder_callback, _tft ) ) {
     log_n( "[ERROR] Could not write JPG file to: %s", fileName );
   } else {
     fs::File outFile = _fileSystem->open( fileName );
@@ -179,6 +179,8 @@ void ScreenShotService::snapJPG( const char* name, bool displayAfter )
       delay(5000);
     }
   }
+  delete JPEGEncoder;
+  free( rgbBuffer );
 }
 
 
@@ -186,7 +188,8 @@ void ScreenShotService::snapBMP( const char* name, bool displayAfter )
 {
   genFileName( name, "bmp" );
   uint32_t time_start = millis();
-  if( !BMPEncoder.encodeToFile( fileName, _x, _y, _w, _h ) )  {
+  BMPEncoder = new BMP_Encoder( _tft, _fileSystem );
+  if( !BMPEncoder->encodeToFile( fileName, _x, _y, _w, _h ) )  {
     log_e( "[ERROR] Could not write BMP file to: %s", fileName );
   } else {
     fs::File outFile = _fileSystem->open( fileName );
@@ -199,13 +202,17 @@ void ScreenShotService::snapBMP( const char* name, bool displayAfter )
       delay(5000);
     }
   }
+  delete BMPEncoder;
 }
+
 
 void ScreenShotService::snapPNG( const char* name, bool displayAfter )
 {
   genFileName( name, "png" );
   uint32_t time_start = millis();
-  if( !PNGEncoder.encodeToFile( fileName, _x, _y, _w, _h ) )  {
+  PNGEncoder = new PNG_Encoder( _tft, _fileSystem );
+  PNGEncoder->init();
+  if( !PNGEncoder->encodeToFile( fileName, _x, _y, _w, _h ) )  {
     log_e( "[ERROR] Could not write PNG file to: %s", fileName );
   } else {
     fs::File outFile = _fileSystem->open( fileName );
@@ -218,6 +225,7 @@ void ScreenShotService::snapPNG( const char* name, bool displayAfter )
       delay(5000);
     }
   }
+  delete PNGEncoder;
 }
 
 
@@ -225,7 +233,8 @@ void ScreenShotService::snapGIF( const char* name, bool displayAfter )
 {
   genFileName( name, "gif" );
   uint32_t time_start = millis();
-  if( !GIFEncoder.encodeToFile( fileName, _x, _y, _w, _h ) )  {
+  GIFEncoder  = new GIF_Encoder( _tft, _fileSystem );
+  if( !GIFEncoder->encodeToFile( fileName, _x, _y, _w, _h ) )  {
     log_e( "[ERROR] Could not write GIF file to: %s", fileName );
   } else {
     fs::File outFile = _fileSystem->open( fileName );
@@ -238,22 +247,19 @@ void ScreenShotService::snapGIF( const char* name, bool displayAfter )
     //  delay(5000);
     //}
   }
+  delete GIFEncoder;
 }
 
 
 void ScreenShotService::checkFolder( const char* path )
 {
   *folderName = {0};
-  if( path[0] =='/' ) {
-    sprintf( folderName, "%s", path );
-  } else {
-    sprintf( folderName, "/%s", path );
-  }
+  sprintf( folderName, "%s%s", path[0] =='/'?"":"/", path );
   if( ! _fileSystem->exists( folderName ) ) {
-    log_d( "Creating path %s", folderName );
+    log_v( "Creating path %s", folderName );
     _fileSystem->mkdir( folderName );
   } else {
-    log_d( "Path %s exists", folderName );
+    log_v( "Path %s exists", folderName );
   }
 }
 
@@ -267,9 +273,9 @@ void ScreenShotService::genFileName( const char* name, const char* extension )
     struct tm now;
     getLocalTime( &now, 0 );
     sprintf( fileName, "%s/%s-%04d-%02d-%02d_%02dh%02dm%02ds.%s", folderName, name, (now.tm_year)+1900,( now.tm_mon)+1, now.tm_mday,now.tm_hour , now.tm_min, now.tm_sec, extension );
-    log_d( "has prefix: %s, has folder:%s, has extension: /%s, got fileName: %s", name, folderName, extension, fileName );
+    log_v( "has prefix: %s, has folder:%s, has extension: /%s, got fileName: %s", name, folderName, extension, fileName );
   } else {
-    log_d( "has path: %s", name );
+    log_v( "has path: %s", name );
     sprintf( fileName, "%s", name );
   }
 }

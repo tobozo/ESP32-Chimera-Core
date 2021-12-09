@@ -5,71 +5,73 @@
  * License v2.1                                                         *
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html           *
  *----------------------------------------------------------------------*/
-#ifndef Power_h
-  #define Power_h
-  #include <Arduino.h>
-  #include <Wire.h>
+#pragma once
 
-  #define SLEEP_MSEC(us) (((uint64_t)us) * 1000L)
-  #define SLEEP_SEC(us) (((uint64_t)us) * 1000000L)
-  #define SLEEP_MIN(us) (((uint64_t)us) * 60L * 1000000L)
-  #define SLEEP_HR(us) (((uint64_t)us) * 60L * 60L * 1000000L)
+#define Power_h
+#include <Arduino.h>
+#include <Wire.h>
 
-  class POWER
-  {
-    public:
-      POWER();
-      bool canControl();
-      void begin();
+#define SLEEP_MSEC(us) (((uint64_t)us) * 1000L)
+#define SLEEP_SEC(us) (((uint64_t)us) * 1000000L)
+#define SLEEP_MIN(us) (((uint64_t)us) * 60L * 1000000L)
+#define SLEEP_HR(us) (((uint64_t)us) * 60L * 60L * 1000000L)
 
-      // -- ShutdownTimeParam
-      enum ShutdownTime
-      {
-        SHUTDOWN_8S = 0,
-        SHUTDOWN_16S,
-        SHUTDOWN_32S,
-        SHUTDOWN_64S
-      };
+class POWER
+{
+  public:
+    POWER();
+    bool canControl();
+    void begin();
 
-      // -- control for power
-      bool setKeepLightLoad(bool en);
-      bool setPowerBoostKeepOn(bool en);
-      bool setAutoBootOnLoad(bool en);
-      bool setLowPowerShutdown(bool en);
-      bool setLowPowerShutdownTime(ShutdownTime time);
-      bool setPowerBoostOnOff(bool en);
-      bool setPowerBoostSet(bool en);
-      bool setPowerVin(bool en);
-      bool setPowerWLEDSet(bool en);
-      bool setPowerBtnEn(bool en);
+    // -- ShutdownTimeParam
+    enum ShutdownTime
+    {
+      SHUTDOWN_8S = 0,
+      SHUTDOWN_16S,
+      SHUTDOWN_32S,
+      SHUTDOWN_64S
+    };
 
-      // -- control for battery
-      bool setCharge(bool en);
-      bool isChargeFull();
-      bool isCharging();
-      int8_t getBatteryLevel();
-      bool batteryMode(bool en);
+    // -- control for power
+    bool setKeepLightLoad(bool en);
+    bool setPowerBoostKeepOn(bool en);
+    bool setAutoBootOnLoad(bool en);
+    bool setLowPowerShutdown(bool en);
+    bool setLowPowerShutdownTime(ShutdownTime time);
+    bool setPowerBoostOnOff(bool en);
+    bool setPowerBoostSet(bool en);
+    bool setPowerVin(bool en);
+    bool setPowerWLEDSet(bool en);
+    bool setPowerBtnEn(bool en);
 
-      // -- configuration for wakeup
-      void setWakeupButton(uint8_t button);
+    // -- control for battery
+    bool setVinMaxCurrent(uint8_t cur);
+    bool setChargeVolt(uint8_t volt);
+    bool setCharge(bool en);
+    bool isChargeFull();
+    bool isCharging();
+    int8_t getBatteryLevel();
+    bool batteryMode(bool en);
 
-      // -- get resson for startup
-      bool isResetbyWatchdog();
-      bool isResetbyDeepsleep();
-      bool isResetbySoftware();
-      bool isResetbyPowerSW();
+    // -- configuration for wakeup
+    void setWakeupButton(uint8_t button);
 
-      // -- sleep
-      void deepSleep(uint64_t time_in_us = 0);
-      void lightSleep(uint64_t time_in_us = 0);
+    // -- get resson for startup
+    bool isResetbyWatchdog();
+    bool isResetbyDeepsleep();
+    bool isResetbySoftware();
+    bool isResetbyPowerSW();
 
-      // -- power off
-      void powerOFF();
+    // -- sleep
+    void deepSleep(uint64_t time_in_us = 0);
+    void lightSleep(uint64_t time_in_us = 0);
 
-      // -- software reset
-      void reset();
+    // -- power off
+    void powerOFF();
 
-    private:
-      uint8_t _wakeupPin;
-  };
-#endif
+    // -- software reset
+    void reset();
+
+  private:
+    uint8_t _wakeupPin;
+};

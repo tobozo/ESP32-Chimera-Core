@@ -8,7 +8,7 @@
  * letter to Creative Commons, 171 Second Street, Suite 300,            *
  * San Francisco, California, 94105, USA.                               *
  *----------------------------------------------------------------------*/
-#ifndef Button_h
+#pragma once
 #define Button_h
 
 #include <Arduino.h>
@@ -17,7 +17,8 @@
 #define DPAD_V_HALF 1
 #define DPAD_V_NONE 0
 
-class Button {
+class Button
+{
   public:
     Button(uint8_t pin, uint8_t invert, uint32_t dbTime);
     uint8_t  read();
@@ -52,4 +53,4 @@ class Button {
 
     uint8_t _axis;          //state changed since last read
 };
-#endif
+

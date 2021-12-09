@@ -24,7 +24,7 @@
   THE SOFTWARE.1  USA
 */
 
-#ifndef _LORAWAN_H_
+#pragma once
 #define _LORAWAN_H_
 
 #include <Arduino.h>
@@ -501,5 +501,3 @@ class LoRaWanClass
 
 extern LoRaWanClass lora;
 
-
-#endif

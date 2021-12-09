@@ -1,106 +1,94 @@
 #include "MPU6886.h"
-#include <math.h>
-#include <Arduino.h>
 
-MPU6886::MPU6886(){
-
-}
-
-void MPU6886::I2C_Read_NBytes(uint8_t driver_Addr, uint8_t start_Addr, uint8_t number_Bytes, uint8_t *read_Buffer){
-
-  Wire1.beginTransmission(driver_Addr);
-  Wire1.write(start_Addr);
-  Wire1.endTransmission(false);
-  uint8_t i = 0;
-  Wire1.requestFrom(driver_Addr,number_Bytes);
-
-  //! Put read results in the Rx buffer
-  while (Wire1.available()) {
-    read_Buffer[i++] = Wire1.read();
-  }
-}
-
-void MPU6886::I2C_Write_NBytes(uint8_t driver_Addr, uint8_t start_Addr, uint8_t number_Bytes, uint8_t *write_Buffer){
-
-  Wire1.beginTransmission(driver_Addr);
-  Wire1.write(start_Addr);
-  Wire1.write(*write_Buffer);
-  Wire1.endTransmission();
-
-}
-
-int MPU6886::Init(void){
+bool MPU6886::Init( int sdaPin, int sclPin ){
   unsigned char tempdata[1];
   unsigned char regdata;
 
-  Wire1.begin(21,22);
+  log_w("Will Init MPU6886 on I2C ports SDA/SCL: %d/%d", sdaPin, sclPin );
 
-  I2C_Read_NBytes(MPU6886_ADDRESS, MPU6886_WHOAMI, 1, tempdata);
-  if(tempdata[0] != 0x19)
-    return -1;
+  if( _i2cUtil == nullptr ) {
+    if( _i2cPort  == nullptr ) {
+      _i2cUtil = new I2CUtil( &Wire );
+      log_d("New I2C port specified (Wire). on SDA/SCL: %d/%d", sdaPin, sclPin );
+    } else {
+      _i2cUtil = new I2CUtil( _i2cPort );
+      log_d("New I2C port specified (%s). on SDA/SCL: %d/%d", _i2cPort==&Wire?"Wire":"Wire1", sdaPin, sclPin );
+    }
+  }
+
+  _i2cUtil->begin( sdaPin, sclPin );
+
+  _i2cUtil->readByte(MPU6886_ADDRESS, MPU6886_WHOAMI, tempdata);
+
+  switch( tempdata[0] ) {
+    case 0x19: log_d("MPU for Core2 detected"); break;
+    case 0x71: log_d("MPU for M5Gray detected"); break;
+    default: log_e("Magic byte reading failed (was expecting 0x19 or 0x71, got 0x%2x)", tempdata[0] ); return false; break;
+  }
+
   delay(1);
 
   regdata = 0x00;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_PWR_MGMT_1, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_PWR_MGMT_1, regdata);
   delay(10);
 
   regdata = (0x01<<7);
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_PWR_MGMT_1, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_PWR_MGMT_1, regdata);
   delay(10);
 
   regdata = (0x01<<0);
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_PWR_MGMT_1, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_PWR_MGMT_1, regdata);
   delay(10);
 
   regdata = 0x10;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_ACCEL_CONFIG, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_ACCEL_CONFIG, regdata);
   delay(1);
 
   regdata = 0x18;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_GYRO_CONFIG, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_GYRO_CONFIG, regdata);
   delay(1);
 
   regdata = 0x01;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_CONFIG, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_CONFIG, regdata);
   delay(1);
 
   regdata = 0x05;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_SMPLRT_DIV, 1,&regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_SMPLRT_DIV, regdata);
   delay(1);
 
   regdata = 0x00;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_INT_ENABLE, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_INT_ENABLE, regdata);
   delay(1);
 
   regdata = 0x00;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_ACCEL_CONFIG2, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_ACCEL_CONFIG2, regdata);
   delay(1);
 
   regdata = 0x00;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_USER_CTRL, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_USER_CTRL, regdata);
   delay(1);
 
   regdata = 0x00;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_FIFO_EN, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_FIFO_EN, regdata);
   delay(1);
 
   regdata = 0x22;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_INT_PIN_CFG, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_INT_PIN_CFG, regdata);
   delay(1);
 
   regdata = 0x01;
-  I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_INT_ENABLE, 1, &regdata);
+  _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_INT_ENABLE, regdata);
 
   delay(100);
   getGres();
   getAres();
-  return 0;
+  return true;
 }
 
 void MPU6886::getAccelAdc(int16_t* ax, int16_t* ay, int16_t* az){
 
    uint8_t buf[6];
-   I2C_Read_NBytes(MPU6886_ADDRESS,MPU6886_ACCEL_XOUT_H,6,buf);
+   _i2cUtil->readBytes(MPU6886_ADDRESS,MPU6886_ACCEL_XOUT_H,6,buf);
 
    *ax=((int16_t)buf[0]<<8)|buf[1];
    *ay=((int16_t)buf[2]<<8)|buf[3];
@@ -110,7 +98,7 @@ void MPU6886::getAccelAdc(int16_t* ax, int16_t* ay, int16_t* az){
 void MPU6886::getGyroAdc(int16_t* gx, int16_t* gy, int16_t* gz){
 
   uint8_t buf[6];
-  I2C_Read_NBytes(MPU6886_ADDRESS,MPU6886_GYRO_XOUT_H,6,buf);
+  _i2cUtil->readBytes(MPU6886_ADDRESS,MPU6886_GYRO_XOUT_H,6,buf);
 
   *gx=((uint16_t)buf[0]<<8)|buf[1];
   *gy=((uint16_t)buf[2]<<8)|buf[3];
@@ -121,7 +109,7 @@ void MPU6886::getGyroAdc(int16_t* gx, int16_t* gy, int16_t* gz){
 void MPU6886::getTempAdc(int16_t *t){
 
   uint8_t buf[2];
-  I2C_Read_NBytes(MPU6886_ADDRESS,MPU6886_TEMP_OUT_H,2,buf);
+  _i2cUtil->readBytes(MPU6886_ADDRESS,MPU6886_TEMP_OUT_H,2,buf);
 
   *t=((uint16_t)buf[0]<<8)|buf[1];
 }
@@ -196,7 +184,7 @@ void MPU6886::SetGyroFsr(Gscale scale)
     //return IIC_Write_Byte(MPU_GYRO_CFG_REG,scale<<3);//设置陀螺仪满量程范围
     unsigned char regdata;
     regdata = (scale<<3);
-    I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_GYRO_CONFIG, 1, &regdata);
+    _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_GYRO_CONFIG, regdata);
     delay(10);
 
     Gyscale = scale;
@@ -207,7 +195,7 @@ void MPU6886::SetAccelFsr(Ascale scale)
 {
     unsigned char regdata;
     regdata = (scale<<3);
-    I2C_Write_NBytes(MPU6886_ADDRESS, MPU6886_ACCEL_CONFIG, 1, &regdata);
+    _i2cUtil->writeByte(MPU6886_ADDRESS, MPU6886_ACCEL_CONFIG, regdata);
     delay(10);
 
     Acscale = scale;

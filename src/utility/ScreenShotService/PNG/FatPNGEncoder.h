@@ -26,7 +26,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
 \*/
-#ifndef __FAT_PNG_ENCODER_H
+#pragma once
 #define __FAT_PNG_ENCODER_H
 
 
@@ -35,8 +35,8 @@
 class PNG_Encoder {
 
   public:
-
-    void init( M5Display *tft, fs::FS &fileSystem  );
+    PNG_Encoder( M5Display *tft, fs::FS *fileSystem  ) : _tft(tft), _fileSystem(fileSystem) { };
+    void init();
     bool encodeToFile( const char* filename, const int imageW, const int imageH );
     bool encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH );
 
@@ -47,4 +47,4 @@ class PNG_Encoder {
 
 };
 
-#endif
+

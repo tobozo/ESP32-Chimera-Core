@@ -40,6 +40,9 @@
 #define IP5306_REG_READ0 (0x70)
 #define IP5306_REG_READ1 (0x71)
 #define IP5306_REG_READ3 (0x78)
+#define IP5306_REG_CHG_CTL0 (0x20)
+#define IP5306_REG_CHG_CTL1 (0x21)
+#define IP5306_REG_CHG_DIG  (0x24)
 
 //- REG_CTL0
 #define BOOST_ENABLE_BIT (0x20)
@@ -71,24 +74,50 @@
 #define LIGHT_LOAD_BIT (0x20)
 #define LOWPOWER_SHUTDOWN_BIT (0x01)
 
+//- CHG
+#define CURRENT_100MA  (0x01 << 0)
+#define CURRENT_200MA  (0x01 << 1)
+#define CURRENT_400MA  (0x01 << 2)
+#define CURRENT_800MA  (0x01 << 3)
+#define CURRENT_1600MA  (0x01 << 4)
+
+#define BAT_4_2V      (0x00)
+#define BAT_4_3V      (0x01)
+#define BAT_4_3_5V    (0x02)
+#define BAT_4_4V      (0x03)
+
+#define CHG_CC_BIT    (0x20)
+
 extern M5Stack M5;
 
 POWER::POWER() {
 }
 
 void POWER::begin() {
+  uint8_t data;
 
   //Initial I2C
-  Wire.begin(21, 22);
-}
+  if( ! M5.I2C.begun() ) {
+    M5.I2C.begin( 21, 22, &Wire );
+  }
 
-
-__attribute__((unused)) static bool getI2CReg(uint8_t *result, uint8_t address, uint8_t *reg) {
-  return (M5.I2C.readByte(address, *reg, result));
-}
-
-__attribute__((unused)) static bool setI2CReg(uint8_t address, uint8_t reg, uint8_t value) {
-  return (M5.I2C.writeByte(address, reg, value));
+  #if defined ARDUINO_M5STACK_FIRE
+    // 450ma
+    setVinMaxCurrent(CURRENT_400MA);
+    setChargeVolt(BAT_4_2V);
+    // End charge current 200ma
+    if(M5.I2C.readByte(IP5306_ADDR, 0x21, &data) == true) {
+      M5.I2C.writeByte(IP5306_ADDR, 0x21, (data & 0x3f) | 0x00);
+    }
+    // Add volt 28mv
+    if(M5.I2C.readByte(IP5306_ADDR, 0x22, &data) == true) {
+      M5.I2C.writeByte(IP5306_ADDR, 0x22, (data & 0xfc) | 0x02);
+    }
+    // Vin charge CC
+    if(M5.I2C.readByte(IP5306_ADDR, 0x23, &data) == true) {
+      M5.I2C.writeByte(IP5306_ADDR, 0x23, (data & 0xdf) | 0x20);
+    }
+  #endif
 }
 
 bool POWER::setPowerBoostOnOff(bool en) {
@@ -207,6 +236,22 @@ bool POWER::setAutoBootOnLoad(bool en) {
   return false;
 }
 
+bool POWER::setVinMaxCurrent(uint8_t cur) {
+  uint8_t data;
+  if(M5.I2C.readByte(IP5306_ADDR, IP5306_REG_CHG_DIG, &data) == true) {
+    return M5.I2C.writeByte(IP5306_ADDR, IP5306_REG_CHG_DIG, (data & 0xe0) | cur);
+  }
+  return false;
+}
+
+bool POWER::setChargeVolt(uint8_t volt) {
+  uint8_t data;
+  if (M5.I2C.readByte(IP5306_ADDR, IP5306_REG_CHG_CTL0, &data) == true) {
+    return M5.I2C.writeByte(IP5306_ADDR, IP5306_REG_CHG_CTL0, (data & 0xfc) | volt);
+  }
+  return false;
+}
+
 // if charge full,try set charge enable->disable->enable,can be recharged
 bool POWER::setCharge(bool en) {
   uint8_t data;
@@ -299,7 +344,6 @@ bool POWER::isResetbyPowerSW() {
 void POWER::deepSleep(uint64_t time_in_us){
 
   // Keep power keep boost on
-  setLowPowerShutdown(false);
   setPowerBoostKeepOn(true);
 
   // power off the Lcd
@@ -369,9 +413,12 @@ void POWER::powerOFF(){
     M5.I2C.writeByte(IP5306_ADDR, IP5306_REG_SYS_CTL1, (data & (~BOOST_ENABLE_BIT)));
   }
 
-  //stop wifi
-  esp_wifi_disconnect();
-  esp_wifi_stop();
+  // if wifi was initialized, stop it
+  wifi_mode_t mode;
+  if (esp_wifi_get_mode(&mode) == ESP_OK) {
+    esp_wifi_disconnect();
+    esp_wifi_stop();
+  }
 
   //stop bt
   esp_bluedroid_disable();

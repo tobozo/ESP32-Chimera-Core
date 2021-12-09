@@ -1,4 +1,4 @@
-#if !defined _BUTTON_TOUCH_READER_H_
+#pragma once
 #define _BUTTON_TOUCH_READER_H_
 
 #include "../../../Config.h"
@@ -59,5 +59,3 @@ class ButtonTouchReader
     Button* _btns[3];
 
 };
-
-#endif

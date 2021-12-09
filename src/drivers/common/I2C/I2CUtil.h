@@ -1,4 +1,4 @@
-#ifndef I2CUtil_h
+#pragma once
 #define I2CUtil_h
 
 #include <Wire.h>
@@ -10,9 +10,11 @@ class I2CUtil
 {
   public:
 
-    I2CUtil();
+    I2CUtil( TwoWire *i2cPort = &Wire, uint32_t clockspeed = 0 ) { _i2cPort = i2cPort; _clockspeed = clockspeed; }
 
-    bool begin( signed char sdaPin, signed char sclPin );
+    //bool begin( signed char sdaPin, signed char sclPin );
+    bool begin( signed char sdaPin, signed char sclPin, TwoWire *i2cPort = nullptr );
+    bool begun() { return _begun; };
 
     bool writeCommand( unsigned char i2c_addr, unsigned char reg);
 
@@ -30,9 +32,17 @@ class I2CUtil
 
   private:
 
+    TwoWire *_i2cPort;
+    uint32_t _clockspeed = 0;
+    uint32_t _lastclockspeed = 0;
+    int _sdaPin = -1, _sclPin = -1;
+    bool _begun = false;
+
+    void checkFreq( bool unset = false );
+
     I2CPrintCb printCb = nullptr;
     static void defaultPrintCb(const char* format, ...);
 
 };
 
-#endif
+//extern I2CUtil I2CUtil_Core; // I2C Scanner && Twatch I2C bus
