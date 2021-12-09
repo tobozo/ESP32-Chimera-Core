@@ -260,8 +260,9 @@
   // ARDUINO_BOARD="TTGO_LoRa32_V2"
   // ARDUINO_VARIANT="ttgo-lora32-v2"
 
-  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_DEBUG
     #pragma message "TTGO_LoRa32_v2 SELECTED"
+    #undef LGFX_AUTODETECT
   #endif
 
   // !!! ARDUINO_TTGO_LoRa32_v2 does not exist in boards.txt !!!
@@ -287,7 +288,7 @@
   #define TFCARD_CS_PIN   13
   #define SD_ENABLE        1
   #define TFCARD_USE_WIRE1
-  #define TFCARD_SPI_HOST HSPI_HOST
+  #define TFCARD_SPI_HOST SPI_HOST
   // disabled features
   #define SPEAKER_PIN     -1
   #define BUTTON_A_PIN    -1
