@@ -18,6 +18,7 @@ This library is a *substitute* of the original [M5Stack](https://github.com/m5st
   - [ESP32-Wrover-Kit (v4.1, v4.2, v4.3)](https://www.sparkfun.com/products/14917)
   - [Lilygo TTGO-TS](https://www.banggood.com/LILYGO-TTGO-TS-ESP32-1_44-Inch-TFT-MicroSD-Card-Slot-Speakers-bluetooth-Wifi-Module-p-1273383.html)
   - [Lilygo TTGO-Twatch](http://www.lilygo.cn/prod_view.aspx?TypeId=50053&Id=1290)
+  - [Soon] Lilygo TTGO-LoRa32 (v1, v2, v2.1)
 
 
 
@@ -28,22 +29,19 @@ It also implements a set of extra features:
   - I2C Scanner
 
 
-GFX implementation is a courtesy of @lovyan03 who did a marvelous work of integrating his
-[LovyanGFX](https://github.com/lovyan03/LovyanGFX) library into his own [ESP32-Chimera-Core fork](https://github.com/lovyan03/ESP32-Chimera-Core).
+GFX implementation is a courtesy of @lovyan03 who (in the first days of this library) did a marvelous work of integrating his
+[LovyanGFX](https://github.com/lovyan03/LovyanGFX) library into his own [ESP32-Chimera-Core fork](https://github.com/lovyan03/ESP32-Chimera-Core). Since then, [LovyanGFX](https://github.com/lovyan03/LovyanGFX) has become an external dependency of this library.
 
 [LovyanGFX](https://github.com/lovyan03/LovyanGFX) is an optimized display driver maintained by [@lovyan03](https://github.com/lovyan03/),
-it brings an average 30% speed improvement along with more flexibility towards adding custom boards.
+it brings an average 30% speed improvement compared to other drivers along with more flexibility towards adding custom boards.
 
-This is still beta quality, most examples will fail due to the minor syntax changes, but the tradeoff is really worth it!
+This library will forever be beta quality, but the tradeoff is really worth it!
 
 See [LovyanGFX Readme](https://github.com/lovyan03/LovyanGFX/blob/master/README.md) for an overview of those minor changes
 along with the new features such as shapes, arcs, polygon drawing and filling, and much more ...
 
 
 # Usage
-
-  ~~- Delete the `~/Arduino/M5Stack` folder to prevent any confusion at compilation (you can still restore it later using the Library Manager)~~
-
 
 Choose between managed install:
 
@@ -74,9 +72,9 @@ You can use `#if defined(_CHIMERA_CORE_)` macros to isolate ESP32-Chimera-Core s
 
   ```C
     #if defined(_CHIMERA_CORE_)
-      M5.ScreenShot.init( &M5.Lcd, M5STACK_SD );
-      M5.ScreenShot.begin();
-      M5.ScreenShot.snap();
+      M5.ScreenShot->init( &M5.Lcd, M5STACK_SD );
+      M5.ScreenShot->begin();
+      M5.ScreenShot->snap();
     #endif
 
   ```
