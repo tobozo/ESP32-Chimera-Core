@@ -1,4 +1,4 @@
-#ifndef _TOUCH_BUTTON_H
+#pragma once
 #define _TOUCH_BUTTON_H
 
 #include "../ESP32-Chimera-Core.h"
@@ -99,6 +99,5 @@
     bool  currstate, laststate;
   };
 
-  #endif // defined LGFX_HAS_TOUCHBUTTON
+#endif // defined LGFX_HAS_TOUCHBUTTON
 
-#endif // !defined _TOUCH_BUTTON_H

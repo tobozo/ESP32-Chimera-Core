@@ -1,4 +1,4 @@
-#ifndef __MEMORY_H
+#pragma once
 #define __MEMORY_H
 
 
@@ -25,4 +25,4 @@ class Memory {
 
 };
 
-#endif
+
