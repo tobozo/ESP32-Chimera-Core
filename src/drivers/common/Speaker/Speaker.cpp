@@ -54,6 +54,7 @@ void SPEAKER::mute() {
 }
 
 void SPEAKER::update() {
+  if(!_begun) return;
   if(speaker_on) {
     if(millis() > _count) {
       speaker_on = 0;

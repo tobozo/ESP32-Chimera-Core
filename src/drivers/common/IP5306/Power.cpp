@@ -88,7 +88,8 @@
 
 #define CHG_CC_BIT    (0x20)
 
-extern M5Stack M5;
+extern ChimeraCore::ECCKernel M5;
+
 
 POWER::POWER() {
 }
