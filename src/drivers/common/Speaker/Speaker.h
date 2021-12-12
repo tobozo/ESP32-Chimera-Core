@@ -1,5 +1,5 @@
-#ifndef _SPEAKER_H_
-  #define _SPEAKER_H_
+#pragma once
+#define _SPEAKER_H_
 
   #include "Arduino.h"
   #include "../../../Config.h"
@@ -38,4 +38,3 @@
       bool _begun;
       bool speaker_on;
   };
-#endif
