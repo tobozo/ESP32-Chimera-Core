@@ -228,8 +228,8 @@ namespace ChimeraCore
 
 using M5Stack  = ChimeraCore::ECCKernel;
 // more object aliasing for other M5Stack clones
-using M5StickC = ChimeraCore::ECCKernel;
-using OdroidGo = ChimeraCore::ECCKernel;
-using TWatch   = ChimeraCore::ECCKernel;
+//using M5StickC = ChimeraCore::ECCKernel;
+//using OdroidGo = ChimeraCore::ECCKernel;
+//using TWatch   = ChimeraCore::ECCKernel;
 
 extern M5Stack M5;

@@ -136,7 +136,7 @@ namespace ChimeraCore
       // need I2C init for RTC ?
       if (I2CEnable == true) {
         log_d("Will start I2C");
-        if (M5.Lcd.getBoard() != lgfx::board_ECCKernelCore2) {
+        if (M5.Lcd.getBoard() != lgfx::board_M5StackCore2) {
           I2C.begin(SDA, SCL);
         } else {
           I2C.begin(32, 33);
