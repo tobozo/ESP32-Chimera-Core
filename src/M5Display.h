@@ -1,5 +1,4 @@
-#ifndef _M5DISPLAY_H_
-#define _M5DISPLAY_H_
+#pragma once
 
 #define M5STACK
 
@@ -51,4 +50,3 @@ class M5Display : public TFT_eSPI {
 
 };
 
-#endif
