@@ -12,8 +12,8 @@
 #include "esp32-hal-log.h"
 
 #if defined ESP_ARDUINO_VERSION_VAL
-  #if __has_include("core_version.h") // for platformio
-    #include "core_version.h"
+  #if __has_include(<core_version.h>) // for platformio
+    #include <core_version.h>
   #endif
 
   #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2,0,1) \
@@ -510,7 +510,7 @@
   #undef GPIO_BTN_INVERT
   #define GPIO_BTN_INVERT false
 
-  #define SD_ENABLE     1
+  #define SD_ENABLE     0
   #define TFCARD_CS_PIN     GPIO_NUM_10
   #define TFCARD_MISO_PIN   GPIO_NUM_13
   #define TFCARD_MOSI_PIN   GPIO_NUM_11
