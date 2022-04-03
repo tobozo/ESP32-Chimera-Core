@@ -16,57 +16,102 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: ${{ matrix.fancy-name }}
 
+  matrix_build:
+    name: ${{ matrix.matrix-context }}@${{ matrix.sdk-version }})
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
 
-        arduino-boards-fqbn:
-          - esp32:esp32:esp32
-          - esp32:esp32:m5stick-c
-          - esp32:esp32:m5stack-core-esp32
-          - esp32:esp32:m5stack-fire
-          - esp32:esp32:m5stack-core2
-          - esp32:esp32:odroid_esp32
-          - esp32:esp32:esp32wroverkit
-          - esp32:esp32:d32_pro
-          - esp32:esp32:twatch
-          - esp32:esp32:ttgo-t1
-          - esp32:esp32:esp32s3box
-          #- esp32:esp32:d-duino-32-xs
-
-        platform-url:
-          - https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
-
         required-libraries:
           - LovyanGFX
 
+        sketch-names:
+          - ${{SKETCH_NAME}}
+
+        sdk-version:
+          - 1.0.6
+          - 2.0.0
+          - 2.0.1
+          - 2.0.2
+          - 2.0.3-RC1
+
+
+        matrix-context:
+          # Supported boards fancy names
+          - ESP32Dev
+          - ESP32 Wrover Kit
+          - M5Core2
+          - M5Stack
+          - M5StickC
+          - M5Fire
+          - TTGO Twatch
+          - TTGO T1
+          - LoLin D32 Pro
+          - S3Box
+          - OdroidGo
+
+        exclude:
+          # There's no esp32s3box support before 2.0.3
+          - matrix-context: S3Box
+            sdk-version: 1.0.6
+          - matrix-context: S3Box
+            sdk-version: 2.0.0
+          - matrix-context: S3Box
+            sdk-version: 2.0.1
+          - matrix-context: S3Box
+            sdk-version: 2.0.2
+
+
         include:
-          - arduino-boards-fqbn: esp32:esp32:esp32
-            fancy-name: ESP32 Generic
-          - arduino-boards-fqbn: esp32:esp32:m5stick-c
-            fancy-name: M5StickC
-          - arduino-boards-fqbn: esp32:esp32:m5stack-core-esp32
-            fancy-name: M5Stack
-          - arduino-boards-fqbn: esp32:esp32:m5stack-core2
-            fancy-name: M5Core2
-          - arduino-boards-fqbn: esp32:esp32:m5stack-fire
-            fancy-name: M5Fire
-          - arduino-boards-fqbn: esp32:esp32:odroid_esp32
-            fancy-name: OdroidGo
-          - arduino-boards-fqbn: esp32:esp32:esp32wroverkit
-            fancy-name: Wrover-Kit
-          - arduino-boards-fqbn: esp32:esp32:d32_pro
-            fancy-name: LoLin D32 Pro
-          - arduino-boards-fqbn: esp32:esp32:twatch
-            fancy-name: TTGO TWatch
-          - arduino-boards-fqbn: esp32:esp32:ttgo-t1
-            fancy-name: TTGO T-1
-          - arduino-boards-fqbn: esp32:esp32:esp32s3box
-            fancy-name: ESP32-S3-Box
+
+          # testable sdk versions
+          - sdk-version: 1.0.6
+            platform-url: https://phpsecu.re/esp32/packages/package_esp32_esp32-1.0.6_index.json
+          - sdk-version: 2.0.0
+            platform-url: https://phpsecu.re/esp32/packages/package_esp32_esp32-2.0.0_index.json
+          - sdk-version: 2.0.1
+            platform-url: https://phpsecu.re/esp32/packages/package_esp32_esp32-2.0.1_index.json
+          - sdk-version: 2.0.2
+            platform-url: https://phpsecu.re/esp32/packages/package_esp32_esp32-2.0.2_index.json
+          - sdk-version: 2.0.3-RC1
+            platform-url: https://phpsecu.re/esp32/packages/package_esp32_esp32-2.0.3-RC1_index.json
+
+
+          - matrix-context: ESP32Dev
+            arduino-board: esp32
+
+          - matrix-context: ESP32 Wrover Kit
+            arduino-board: esp32wroverkit
+
+          - matrix-context: LoLin D32 Pro
+            arduino-board: d32_pro
+
+          - matrix-context: TTGO Twatch
+            arduino-board: twatch
+
+          - matrix-context: TTGO T1
+            arduino-board: ttgo-t1
+
+          - matrix-context: M5Core2
+            arduino-board: m5stack-core2
+
+          - matrix-context: M5Stack
+            arduino-board: m5stack-core-esp32
+
+          - matrix-context: S3Box
+            arduino-board: esp32s3box
+
+          - matrix-context: M5StickC
+            arduino-board: m5stick-c
+
+          - matrix-context: M5Fire
+            arduino-board: m5stack-fire
+
+          - matrix-context: OdroidGo
+            arduino-board: odroid_esp32
+
 
       fail-fast: false
 
@@ -75,16 +120,17 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Compile example
+      - name: ${{ matrix.matrix-context }}
         uses: ArminJo/arduino-test-compile@v3
         with:
-          arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}
+          arduino-board-fqbn: esp32-${{ matrix.sdk-version }}:esp32:${{ matrix.arduino-board}}${{ matrix.extra-fqbn }}
           required-libraries: ${{ matrix.required-libraries }}
+          extra-arduino-lib-install-args: --no-deps
+          # extra-arduino-cli-args: ${{ matrix.extra-arduino-cli-args }}
+          sketch-names: ${{ matrix.sketch-names }}
+          set-build-path: true
           build-properties: ${{ toJson(matrix.build-properties) }}
-          sketch-names: ${{ env.SKETCH_NAME }}
-          #platform-default-url: ${{ env.PLATFORM_DEFAULT_URL }}
-          #sketches-exclude: ${{ matrix.sketches-exclude }}
+          #debug-install: true
 
 
