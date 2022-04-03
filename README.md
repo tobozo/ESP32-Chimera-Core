@@ -15,6 +15,7 @@ This library is a *substitute* of the original [M5Stack](https://github.com/m5st
   - [M5Stack Core2](https://m5stack.com/products/m5stack-core2-esp32-iot-development-kit)
   - [M5StickC](https://m5stack.com/collections/m5-core/products/stick-c)
   - [Odroid-Go](https://www.hardkernel.com/shop/odroid-go/)
+  - [ESP32-S3-Box](https://github.com/espressif/esp-box)
   - [D-Duino-32-XS](https://www.tindie.com/products/lspoplove/dstike-d-duino-32-xs/)
   - [LoLin D32-Pro](https://www.aliexpress.com/item/32883116057.html)
   - [ESP32-Wrover-Kit (v4.1, v4.2, v4.3)](https://www.sparkfun.com/products/14917)
@@ -32,7 +33,7 @@ It also implements a set of extra features:
 
 
 GFX implementation is a courtesy of @lovyan03 who (in the first days of this library) did a marvelous work of integrating his
-[LovyanGFX](https://github.com/lovyan03/LovyanGFX) library into his own [ESP32-Chimera-Core fork](https://github.com/lovyan03/ESP32-Chimera-Core). Since then, [LovyanGFX](https://github.com/lovyan03/LovyanGFX) has become an external dependency of this library.
+[LovyanGFX](https://github.com/lovyan03/LovyanGFX) library into his own [ESP32-Chimera-Core fork](https://github.com/lovyan03/ESP32-Chimera-Core). Since then, [LovyanGFX](https://github.com/lovyan03/LovyanGFX) has become an external dependency of this library and even given birth to [M5Unified](https://github.com/M5Stack/M5Unified) which has the same spirit as Chimera-Core but focuses on M5 products only.
 
 [LovyanGFX](https://github.com/lovyan03/LovyanGFX) is an optimized display driver maintained by [@lovyan03](https://github.com/lovyan03/),
 it brings an average 30% speed improvement compared to other drivers along with more flexibility towards adding custom boards.
