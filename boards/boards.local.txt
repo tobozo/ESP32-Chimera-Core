@@ -1,3 +1,15 @@
+########## Odroid-Go fix for wroom/wrover mismatch with upload and partition size) ###########
+
+odroid_esp32.upload.maximum_size=6553600
+odroid_esp32.upload.maximum_data_size=4521984
+
+odroid_esp32.menu.PartitionScheme.default=Default (2 x 6.5 MB app, 3.6 MB SPIFFS)
+odroid_esp32.menu.PartitionScheme.default.build.partitions=default_16MB
+odroid_esp32.menu.PartitionScheme.default.upload.maximum_size=6553600
+odroid_esp32.menu.PartitionScheme.large_spiffs=Large SPIFFS (7 MB)
+odroid_esp32.menu.PartitionScheme.large_spiffs.build.partitions=large_spiffs_16MB
+odroid_esp32.menu.PartitionScheme.large_spiffs.upload.maximum_size=4685824
+
 
 ############# Chimera-Core specific : D-Duino-32-XS ##########################################
 

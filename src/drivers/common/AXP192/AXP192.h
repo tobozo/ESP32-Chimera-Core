@@ -2,7 +2,7 @@
 #define __AXP192_H__
 
 #include <Wire.h>
-#include <Arduino.h>
+//#include <Arduino.h>
 
 #define SLEEP_MSEC(us) (((uint64_t)us) * 1000L)
 #define SLEEP_SEC(us)  (((uint64_t)us) * 1000000L)

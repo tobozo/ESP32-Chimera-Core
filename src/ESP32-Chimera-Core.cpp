@@ -8,10 +8,14 @@ ChimeraCore::ECCKernel M5;
 namespace ChimeraCore
 {
 
+  //using namespace board;
 
   ECCKernel::ECCKernel() : isInited(0)
   {
-    // TODO: hw cold scan (chip id, pins state)
+    //log_w("Cold config set to board '%s'", cfg.name );
+    //for (const auto& drv : cfg.drivers) {
+    //  log_v("[%8s][%-2d] %s", drv.first, drv.second.type, drv.second.desc);
+    //}
   }
 
 
@@ -90,12 +94,12 @@ namespace ChimeraCore
 
       Lcd.begin();
 
-      #if defined HAS_SDCARD
+      #if defined HAS_SDCARD && defined USE_SCREENSHOTS
         // note: builds without prefefined filesystem will need to run this manually
         ScreenShot = new ScreenShotService( &Lcd, &M5STACK_SD );
         if( ScreenShotEnable == true ) {
-            ScreenShot->init();
-            ScreenShot->begin();
+          ScreenShot->init();
+          ScreenShot->begin();
         }
       #endif
     }
@@ -193,7 +197,9 @@ namespace ChimeraCore
           }
         #endif // ARDUINO_M5STACK_Core2
       }
-    #else
+    #endif
+
+    #if defined HAS_BUTTONS && !defined ARDUINO_M5STACK_Core2
       BtnA.read();
       BtnB.read();
       BtnC.read();

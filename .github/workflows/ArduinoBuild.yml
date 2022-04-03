@@ -1,8 +1,5 @@
 name: ArduinoBuild
 
-env:
-  SKETCH_NAME: Display.ino
-
 on:
   push:
     paths:
@@ -16,55 +13,70 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: ${{ matrix.fancy-name }}
 
+  matrix_build:
+    name: ${{ matrix.board }}@${{ matrix.platform-version }}
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
 
-        arduino-boards-fqbn:
-          - esp32:esp32:esp32
-          - esp32:esp32:m5stick-c
-          - esp32:esp32:m5stack-core-esp32
-          - esp32:esp32:m5stack-fire
-          - esp32:esp32:m5stack-core2
-          - esp32:esp32:odroid_esp32
-          - esp32:esp32:esp32wroverkit
-          - esp32:esp32:d32_pro
-          - esp32:esp32:twatch
-          - esp32:esp32:ttgo-t1
-          #- esp32:esp32:ttgo-lora32-v2
-          #- esp32:esp32:d-duino-32-xs
+        platform-version:
+          # ESP32 Core versions
+          - 1.0.6
+          - 2.0.0
+          - 2.0.1
+          - 2.0.2
+          - 2.0.3-RC1
 
-        platform-url:
-          - https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+        board:
+          # Supported boards fancy names
+          - esp32
+          - esp32wroverkit
+          - m5stack-core2
+          - m5stack-core-esp32
+          - m5stick-c
+          - m5stack-fire
+          - twatch
+          - ttgo-t1
+          - d32_pro
+          - esp32s3box
+          - odroid_esp32
 
-        required-libraries:
-          - LovyanGFX
+        exclude:
+          # No esp32s3box support before 2.0.3
+          - board: esp32s3box
+            platform-version: 1.0.6
+          - board: esp32s3box
+            platform-version: 2.0.0
+          - board: esp32s3box
+            platform-version: 2.0.1
+          - board: esp32s3box
+            platform-version: 2.0.2
+          # No ESP32-Wrover-Kit board profile before 2.0.0
+          - board: esp32wroverkit
+            platform-version: 1.0.6
 
         include:
-          - arduino-boards-fqbn: esp32:esp32:esp32
-            fancy-name: ESP32 Generic
-          - arduino-boards-fqbn: esp32:esp32:m5stick-c
-            fancy-name: M5StickC
-          - arduino-boards-fqbn: esp32:esp32:m5stack-core-esp32
-            fancy-name: M5Stack
-          - arduino-boards-fqbn: esp32:esp32:m5stack-core2
-            fancy-name: M5Core2
-          - arduino-boards-fqbn: esp32:esp32:m5stack-fire
-            fancy-name: M5Fire
-          - arduino-boards-fqbn: esp32:esp32:odroid_esp32
-            fancy-name: OdroidGo
-          - arduino-boards-fqbn: esp32:esp32:esp32wroverkit
-            fancy-name: Wrover-Kit
-          - arduino-boards-fqbn: esp32:esp32:d32_pro
-            fancy-name: LoLin D32 Pro
-          - arduino-boards-fqbn: esp32:esp32:twatch
-            fancy-name: TTGO TWatch
-          - arduino-boards-fqbn: esp32:esp32:ttgo-t1
-            fancy-name: TTGO T-1
+          # testable boards
+          - board: esp32
+          - board: esp32wroverkit
+          - board: m5stack-core2
+          - board: m5stack-core-esp32
+          - board: m5stick-c
+          - board: m5stack-fire
+          - board: twatch
+          - board: ttgo-t1
+          - board: d32_pro
+          - board: esp32s3box
+          - board: odroid_esp32
+
+          # testable sdk versions
+          - platform-version: 1.0.6
+          - platform-version: 2.0.0
+          - platform-version: 2.0.1
+          - platform-version: 2.0.2
+          - platform-version: 2.0.3-RC1
 
       fail-fast: false
 
@@ -74,15 +86,23 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Compile example
+      - name: Checkout custom library
+        uses: actions/checkout@v2
+        with:
+          repository: Lovyan03/LovyanGFX
+          ref: develop
+          path: CustomLGFX # must contain string "Custom"
+
+      - name: ${{ matrix.board }}
         uses: ArminJo/arduino-test-compile@v3
         with:
-          arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
-          platform-url: ${{ matrix.platform-url }}
-          required-libraries: ${{ matrix.required-libraries }}
-          build-properties: ${{ toJson(matrix.build-properties) }}
-          sketch-names: ${{ env.SKETCH_NAME }}
-          #platform-default-url: ${{ env.PLATFORM_DEFAULT_URL }}
-          #sketches-exclude: ${{ matrix.sketches-exclude }}
-
-
+          platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+          arduino-board-fqbn: esp32:esp32:${{ matrix.board }}
+          arduino-platform: esp32:esp32@${{ matrix.platform-version }}
+          #required-libraries: LovyanGFX
+          extra-arduino-lib-install-args: --no-deps
+          sketch-names: Display.ino
+          set-build-path: true
+          # extra-arduino-cli-args: ${{ matrix.extra-arduino-cli-args }}
+          # build-properties: ${{ toJson(matrix.build-properties) }}
+          # debug-install: true
