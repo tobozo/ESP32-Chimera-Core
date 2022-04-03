@@ -44,16 +44,16 @@ jobs:
 
         exclude:
           # There's no esp32s3box support before 2.0.3
-          - board: S3Box
+          - board: esp32s3box
             platform-version: 1.0.6
-          - board: S3Box
+          - board: esp32s3box
             platform-version: 2.0.0
-          - board: S3Box
+          - board: esp32s3box
             platform-version: 2.0.1
-          - board: S3Box
+          - board: esp32s3box
             platform-version: 2.0.2
-          # There's no ESP32-Wrover-Kit profile prior to 2.0.0
-          - board: ESP32 Wrover Kit
+          # There's no ESP32-Wrover-Kit profile before 2.0.0
+          - board: esp32wroverkit
             platform-version: 1.0.6
 
         include:
