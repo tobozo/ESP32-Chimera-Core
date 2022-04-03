@@ -28,7 +28,7 @@ jobs:
           - LovyanGFX
 
         sketch-names:
-          - ${{SKETCH_NAME}}
+          - ${{ env.SKETCH_NAME }}
 
         sdk-version:
           - 1.0.6
