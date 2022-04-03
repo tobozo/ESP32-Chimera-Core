@@ -1,19 +1,52 @@
 #pragma once
 
 #define HAS_SDCARD
+#define USE_SCREENSHOTS
+#define USE_NVSUTILS
 
 // buttons debounce time (milliseconds)
 #define DEBOUNCE_MS 10
+#define GPIO_BTN_INVERT true
 
+#include "pins_arduino.h"
 #include "esp32-hal-log.h"
 
 #if defined ESP_ARDUINO_VERSION_VAL
   #if __has_include("core_version.h") // for platformio
     #include "core_version.h"
   #endif
-  #if ESP_ARDUINO_VERSION_VAL(2,0,1) >= ESP_ARDUINO_VERSION || ARDUINO_ESP32_GIT_VER == 0x15bbd0a || ARDUINO_ESP32_GIT_VER == 0xd218e58f
-    // #pragma message "Filesystem can create subfolders on file creation"
+
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2,0,1) \
+   || ARDUINO_ESP32_GIT_VER == 0x15bbd0a1 \
+   || ARDUINO_ESP32_GIT_VER == 0xd218e58f \
+   || ARDUINO_ESP32_GIT_VER == 0xcaef4006 \
+   || ARDUINO_ESP32_GIT_VER == 0x1e388a24
+    // FS::open() can create subfolders
     #define FS_CAN_CREATE_PATH
+  #endif
+
+  #if ARDUINO_ESP32_GIT_VER == 0x44c11981
+    #pragma message "ESP32 Arduino 2.0.0 (0x44c11981) is supported"
+
+  #elif ARDUINO_ESP32_GIT_VER == 0x15bbd0a1
+    // Introduces Wire::end()
+    #pragma message "ESP32 Arduino 2.0.1 RC1 (0x15bbd0a1) is only partially supported"
+
+  #elif ARDUINO_ESP32_GIT_VER == 0xd218e58f
+    #pragma message "ESP32 Arduino 2.0.1 (0xd218e58f) has OTA support broken!!"
+
+  #elif ARDUINO_ESP32_GIT_VER == 0xcaef4006
+    // Introduces SD::readRAW() and SD::writeRAW() support
+    #pragma message "ESP32 Arduino 2.0.2 (0xcaef4006) has SD support broken!!"
+
+  #elif ARDUINO_ESP32_GIT_VER == 0x1e388a24
+    // Introduces ESP32S3, SD::numSectors() and SD::sectorSize() support
+    #pragma message "ESP32 Arduino 2.0.3 RC1 (0x1e388a24) is only partially supported"
+
+  #else
+    // unknown but probably 2.x.x
+    #pragma message "ESP32 Arduino 2.x.x (unknown)"
+
   #endif
 #endif
 
@@ -31,52 +64,6 @@
   #define BUTTON_C_PIN  -1
 
   //#undef LGFX_AUTODETECT
-
-#elif defined(ARDUINO_ESP32_DEV)
-
-  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "ESP32_DEV SELECTED"
-  #endif
-
-  #define TFT_LED_PIN  -1
-  #define TFT_DC_PIN   32
-  #define TFT_CS_PIN    5
-  #define TFT_MOSI_PIN 23
-  #define TFT_CLK_PIN  18
-  #define TFT_RST_PIN  -1
-  #define TFT_MISO_PIN 19
-
-  // SD card
-  #define TFCARD_CS_PIN 15
-  #define SD_ENABLE     0
-  #define TFCARD_CS_PIN       15
-  #define TFCARD_MISO_PIN     12
-  #define TFCARD_MOSI_PIN     13
-  #define TFCARD_SCLK_PIN     14
-  #define TFCARD_USE_WIRE1
-
-  #define SPEAKER_PIN  -1
-
-  #define BUTTON_A_PIN 39
-  #define BUTTON_B_PIN 27
-  #define BUTTON_C_PIN 26
-
-  #undef  TOUCH_CS // using I2C touch
-  #define HAS_TOUCH
-  #define TOUCH_SDA    21
-  #define TOUCH_SCL    22
-  #define TOUCH_INT     4
-
-  #define LORA_CS_PIN   33
-  #define LORA_RST_PIN  -1
-  #define LORA_IRQ_PIN  36
-
-  #define RTC_IRQ_PIN   34
-  #define IOE_IRQ_PIN   35
-  #define GNSS_IRQ_PIN   2
-
-  #define ETH_IRQ_PIN   25
-  #define ETH_CS_PIN     0
 
 #elif defined( ARDUINO_LOLIN_D32_PRO )
 
@@ -134,6 +121,7 @@
   #define NEOPIXEL_PIN 25    // Digital IO pin connected to the NeoPixels.
   #define SPEAKER_PIN  33
   #define SD_ENABLE     0
+  #define HAS_BUTTONS
   #define BUTTON_A_PIN  5
   #define BUTTON_B_PIN 18
   #define BUTTON_C_PIN 19
@@ -141,6 +129,7 @@
 
 #elif defined ARDUINO_TWATCH_BASE || defined ARDUINO_TWATCH_2020_V1 || defined ARDUINO_TWATCH_2020_V2 // TTGO T-Watch
 
+  #define HAS_BUTTONS
   #define BUTTON_A_PIN        36
   #define BUTTON_B_PIN        -1
   #define BUTTON_C_PIN        -1
@@ -249,6 +238,7 @@
   #define SPEAKER_PIN   25
   #define TFCARD_CS_PIN 13
   #define SD_ENABLE      0
+  #define HAS_BUTTONS
   #define BUTTON_A_PIN  39
   #define BUTTON_B_PIN  34
   #define BUTTON_C_PIN  35
@@ -273,6 +263,7 @@
   #define OLED_SDA        21
   #define OLED_SCL        22
   #define OLED_RST        16
+  #define HAS_OLED
   // LoRa device
   #define LORA_MOSI_PIN   27
   #define LORA_MISO_PIN   19
@@ -321,6 +312,7 @@
   #define TFCARD_CS_PIN     22
   #define SD_ENABLE          1
   #define SPEAKER_PIN       26
+  #define HAS_BUTTONS
   #define BUTTON_A_PIN      32
   #define BUTTON_B_PIN      33
   #define BUTTON_C_PIN      13  // BUTTON_MENU
@@ -351,6 +343,7 @@
   #define M5_BUTTON_HOME 37
   #define M5_BUTTON_RST  39
 
+  #define HAS_BUTTONS
   #define BUTTON_A_PIN 37
   #define BUTTON_B_PIN 39
   #define BUTTON_C_PIN  -1
@@ -379,6 +372,7 @@
   #define M5_BUTTON_HOME 37
   #define M5_BUTTON_RST  39
 
+  #define HAS_BUTTONS
   #define BUTTON_A_PIN 37
   #define BUTTON_B_PIN 39
   #define BUTTON_C_PIN  -1
@@ -409,6 +403,7 @@
   #define HAS_BM8563
   #define HAS_MPU6886
 
+  #define TOUCH_INT GPIO_NUM_39
   #define TFCARD_CS_PIN 4
   #define SD_ENABLE     1
   #define SPEAKER_PIN  25
@@ -436,10 +431,57 @@
   #define TFCARD_CS_PIN 4
   #define SD_ENABLE     1
   #define SPEAKER_PIN  25
+  #define HAS_BUTTONS
   #define BUTTON_A_PIN 39
   #define BUTTON_B_PIN 38
   #define BUTTON_C_PIN 37
 
+#elif defined(ARDUINO_ESP32_DEV)
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "ESP32_DEV SELECTED"
+  #endif
+
+  #define TFT_LED_PIN  -1
+  #define TFT_DC_PIN   32
+  #define TFT_CS_PIN    5
+  #define TFT_MOSI_PIN 23
+  #define TFT_CLK_PIN  18
+  #define TFT_RST_PIN  -1
+  #define TFT_MISO_PIN 19
+
+  // SD card
+  #define TFCARD_CS_PIN 15
+  #define SD_ENABLE     0
+  #define TFCARD_CS_PIN       15
+  #define TFCARD_MISO_PIN     12
+  #define TFCARD_MOSI_PIN     13
+  #define TFCARD_SCLK_PIN     14
+  #define TFCARD_USE_WIRE1
+
+  #define SPEAKER_PIN  -1
+
+  #define HAS_BUTTONS
+  #define BUTTON_A_PIN 39
+  #define BUTTON_B_PIN 27
+  #define BUTTON_C_PIN 26
+
+  #undef  TOUCH_CS // using I2C touch
+  #define HAS_TOUCH
+  #define TOUCH_SDA    21
+  #define TOUCH_SCL    22
+  #define TOUCH_INT     4
+
+  #define LORA_CS_PIN   33
+  #define LORA_RST_PIN  -1
+  #define LORA_IRQ_PIN  36
+
+  #define RTC_IRQ_PIN   34
+  #define IOE_IRQ_PIN   35
+  #define GNSS_IRQ_PIN   2
+
+  #define ETH_IRQ_PIN   25
+  #define ETH_CS_PIN     0
 
 #elif defined CONFIG_IDF_TARGET_ESP32S2 // ESP32-S2 basic support
 
@@ -454,6 +496,50 @@
   #define SPEAKER_PIN  -1
   #define VSPI FSPI
   #undef HAS_SDCARD
+
+
+#elif defined CONFIG_IDF_TARGET_ESP32S3 && defined ARDUINO_ESP32_S3_BOX // ESP32-S3-BOX support
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_WARN
+    #pragma message "ESP32-S3-BOX SELECTED"
+  #endif
+
+  //#undef HAS_SDCARD
+  //#define SD_ENABLE 0
+
+  #undef GPIO_BTN_INVERT
+  #define GPIO_BTN_INVERT false
+
+  #define SD_ENABLE     1
+  #define TFCARD_CS_PIN     GPIO_NUM_10
+  #define TFCARD_MISO_PIN   GPIO_NUM_13
+  #define TFCARD_MOSI_PIN   GPIO_NUM_11
+  #define TFCARD_SCLK_PIN   GPIO_NUM_12
+  //#define TFCARD_USE_WIRE1
+  #define TFCARD_SPI_FREQ   40000000
+
+  #define HAS_BUTTONS
+  #define BUTTON_A_PIN GPIO_NUM_1
+  #define BUTTON_B_PIN -1
+  #define BUTTON_C_PIN -1
+  #define SPEAKER_PIN  -1
+
+  #define HAS_TOUCH
+  #define TOUCH_INT GPIO_NUM_3
+
+  // #if !defined SDA
+  //   #define SDA I2C_SDA
+  // #endif
+  // #if !defined SCL
+  //   #define SCL I2C_SCL
+  // #endif
+  // #define HAS_SPEAKER
+  // #define PA_PIN     46 //Audio Amp Power
+  // #define MUTE_PIN    1 //MUTE Button
+
+
+  #undef USE_SCREENSHOTS
+  #undef USE_NVSUTILS
 
 #else
 

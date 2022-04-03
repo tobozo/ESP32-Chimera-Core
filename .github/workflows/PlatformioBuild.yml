@@ -32,6 +32,7 @@ jobs:
           - m5stack-core2
           - odroid_esp32
           - esp32wroverkit
+          - esp32s3box
           - d32_pro
           - twatch
           - ttgo-t1

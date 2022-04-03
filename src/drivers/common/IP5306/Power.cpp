@@ -9,10 +9,20 @@
 #include "Power.h"
 #include "../../../ESP32-Chimera-Core.h"
 
-#if !defined CONFIG_IDF_TARGET_ESP32S2
+//#if !defined CONFIG_IDF_TARGET_ESP32S2
 
 
-#if __has_include(<esp32/rom/rtc.h>)
+#if defined CONFIG_IDF_TARGET_ESP32S2
+  #include <esp32s2/rom/rtc.h>
+#elif defined CONFIG_IDF_TARGET_ESP32C3
+  #include <esp32c3/rom/rtc.h>
+#elif defined CONFIG_IDF_TARGET_ESP32S3
+  #include <rom/rtc.h>
+  #define SW_RESET RTC_SW_SYS_RESET
+  #define SW_CPU_RESET RTC_SW_CPU_RESET
+  #define OWDT_RESET TG0WDT_SYS_RESET
+  #define TGWDT_CPU_RESET TG0WDT_CPU_RESET
+#elif defined CONFIG_IDF_TARGET_ESP32
   #include <esp32/rom/rtc.h>
 #elif __has_include(<rom/rtc.h>)
   #include <rom/rtc.h>
@@ -439,4 +449,4 @@ void POWER::powerOFF(){
 
 }
 
-#endif
+//#endif

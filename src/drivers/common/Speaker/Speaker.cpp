@@ -1,5 +1,8 @@
 #include "Speaker.h"
 
+#include <esp32-hal-dac.h>
+#include "../../../Config.h"
+
 SPEAKER::SPEAKER(void) {
   _volume = 8;
   _begun = false;

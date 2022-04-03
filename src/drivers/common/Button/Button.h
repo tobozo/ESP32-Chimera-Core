@@ -11,7 +11,7 @@
 #pragma once
 #define Button_h
 
-#include <Arduino.h>
+#include <stdint.h>
 
 #define DPAD_V_FULL 2
 #define DPAD_V_HALF 1

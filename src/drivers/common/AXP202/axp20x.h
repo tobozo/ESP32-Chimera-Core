@@ -29,7 +29,6 @@ github:https://github.com/lewisxhe/AXP202X_Libraries
 /////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <Arduino.h>
 #include <Wire.h>
 
 // #define AXP_DEBUG_PORT  Serial

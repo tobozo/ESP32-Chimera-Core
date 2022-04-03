@@ -35,7 +35,7 @@ jobs:
           - esp32:esp32:d32_pro
           - esp32:esp32:twatch
           - esp32:esp32:ttgo-t1
-          #- esp32:esp32:ttgo-lora32-v2
+          - esp32:esp32:esp32s3box
           #- esp32:esp32:d-duino-32-xs
 
         platform-url:
@@ -65,6 +65,8 @@ jobs:
             fancy-name: TTGO TWatch
           - arduino-boards-fqbn: esp32:esp32:ttgo-t1
             fancy-name: TTGO T-1
+          - arduino-boards-fqbn: esp32:esp32:esp32s3box
+            fancy-name: ESP32-S3-Box
 
       fail-fast: false
 

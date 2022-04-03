@@ -1,17 +1,8 @@
 #pragma once
 #define _SPEAKER_H_
 
-  #include "Arduino.h"
-  #include "../../../Config.h"
 
-  #ifdef __cplusplus
-    extern "C"
-    {
-  #endif /* __cplusplus */
-  #include "esp32-hal-dac.h"
-  #ifdef __cplusplus
-    }
-  #endif /* __cplusplus */
+  #include <stdint.h>
 
   class SPEAKER {
     public:

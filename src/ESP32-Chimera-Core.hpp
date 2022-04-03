@@ -30,10 +30,16 @@
 #include "M5Display.h"
 
 // ChimeraCore utilities
-#include "utility/Memory.h"
-#include "utility/ScreenShotService/ScreenShot.h" // ScreenShot Service
+#if defined HAS_SDCARD && defined USE_SCREENSHOTS
+  #include "utility/Memory.h"
+  #include "utility/ScreenShotService/ScreenShot.h" // ScreenShot Service
+#endif
 #include "drivers/common/I2C/I2CUtil.h"           // I2C Scanner
-#include "drivers/common/NVS/NVSUtils.h"          // NVS Utilities
+
+
+#if defined USE_NVSUTILS
+  #include "drivers/common/NVS/NVSUtils.h"          // NVS Utilities
+#endif
 
 // Hardware misc drivers support
 
@@ -41,6 +47,7 @@
 
 #if defined HAS_SPEAKER
   #include "drivers/common/Speaker/Speaker.h"
+  //#include "drivers/common/Audio/Speaker_Class.hpp"
 #endif
 
 #if defined HAS_IP5306
@@ -134,27 +141,35 @@ namespace ChimeraCore
       bool sd_begin(void);
       bool sd_begun = false;
       void sd_end(void);
-      SPIClass *SD_SPI = nullptr;
+      #if defined ( TFCARD_USE_WIRE1 )
+        SPIClass *SD_SPI = nullptr;
+      #endif
       BaseType_t SD_CORE_ID = 1;
 
       M5Display Lcd; // LCD
-      ScreenShotService *ScreenShot; // ScreenShots !
-      NVSUtils NVS; // NVS Utilities
+
+      #if defined HAS_SDCARD && defined USE_SCREENSHOTS
+        ScreenShotService *ScreenShot; // ScreenShots !
+      #endif
+
+      #if defined USE_NVSUTILS
+        NVSUtils NVS; // NVS Utilities
+      #endif
       I2CUtil I2C = I2CUtil(); // I2C Scanner && Twatch I2C bus
 
       // TODO: source agnostic Button_Class
-      Button BtnA = Button(BUTTON_A_PIN, true, DEBOUNCE_MS);
-      Button BtnB = Button(BUTTON_B_PIN, true, DEBOUNCE_MS);
-      Button BtnC = Button(BUTTON_C_PIN, true, DEBOUNCE_MS);
+      Button BtnA = Button(BUTTON_A_PIN, GPIO_BTN_INVERT, DEBOUNCE_MS);
+      Button BtnB = Button(BUTTON_B_PIN, GPIO_BTN_INVERT, DEBOUNCE_MS);
+      Button BtnC = Button(BUTTON_C_PIN, GPIO_BTN_INVERT, DEBOUNCE_MS);
 
       #if defined ARDUINO_ODROID_ESP32
         #define DEBOUNCE_MS_XY 5
-        Button JOY_Y = Button(BUTTON_JOY_Y_PIN, true, DEBOUNCE_MS_XY);
-        Button JOY_X = Button(BUTTON_JOY_X_PIN, true, DEBOUNCE_MS_XY);
-        Button BtnMenu = Button(BUTTON_MENU_PIN, true, DEBOUNCE_MS);
-        Button BtnVolume = Button(BUTTON_VOLUME_PIN, true, DEBOUNCE_MS);
-        Button BtnSelect = Button(BUTTON_SELECT_PIN, true, DEBOUNCE_MS);
-        Button BtnStart = Button(BUTTON_START_PIN, true, DEBOUNCE_MS);
+        Button JOY_Y     = Button(BUTTON_JOY_Y_PIN,  GPIO_BTN_INVERT, DEBOUNCE_MS_XY);
+        Button JOY_X     = Button(BUTTON_JOY_X_PIN,  GPIO_BTN_INVERT, DEBOUNCE_MS_XY);
+        Button BtnMenu   = Button(BUTTON_MENU_PIN,   GPIO_BTN_INVERT, DEBOUNCE_MS);
+        Button BtnVolume = Button(BUTTON_VOLUME_PIN, GPIO_BTN_INVERT, DEBOUNCE_MS);
+        Button BtnSelect = Button(BUTTON_SELECT_PIN, GPIO_BTN_INVERT, DEBOUNCE_MS);
+        Button BtnStart  = Button(BUTTON_START_PIN,  GPIO_BTN_INVERT, DEBOUNCE_MS);
         // Odroid-Go battery controller uses raw readings on adc1
         Battery battery;
       #endif
