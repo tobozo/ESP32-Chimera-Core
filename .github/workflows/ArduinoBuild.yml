@@ -15,97 +15,67 @@ on:
 jobs:
 
   matrix_build:
-    name: ${{ matrix.matrix-context }}@${{ matrix.sdk-version }})
+    name: ${{ matrix.board }}@${{ matrix.platform-version }})
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
 
-        sdk-version:
+        platform-version:
           - 1.0.6
           - 2.0.0
           - 2.0.1
           - 2.0.2
           - 2.0.3-RC1
 
-
-        matrix-context:
+        board:
           # Supported boards fancy names
-          - ESP32Dev
-          - ESP32 Wrover Kit
-          - M5Core2
-          - M5Stack
-          - M5StickC
-          - M5Fire
-          - TTGO Twatch
-          - TTGO T1
-          - LoLin D32 Pro
-          - S3Box
-          - OdroidGo
+          - esp32
+          - esp32wroverkit
+          - m5stack-core2
+          - m5stack-core-esp32
+          - m5stick-c
+          - m5stack-fire
+          - twatch
+          - ttgo-t1
+          - d32_pro
+          - esp32s3box
+          - odroid_esp32
 
         exclude:
           # There's no esp32s3box support before 2.0.3
-          - matrix-context: S3Box
-            sdk-version: 1.0.6
-          - matrix-context: S3Box
-            sdk-version: 2.0.0
-          - matrix-context: S3Box
-            sdk-version: 2.0.1
-          - matrix-context: S3Box
-            sdk-version: 2.0.2
+          - board: S3Box
+            platform-version: 1.0.6
+          - board: S3Box
+            platform-version: 2.0.0
+          - board: S3Box
+            platform-version: 2.0.1
+          - board: S3Box
+            platform-version: 2.0.2
           # There's no ESP32-Wrover-Kit profile prior to 2.0.0
-          - matrix-context: ESP32 Wrover Kit
-            sdk-version: 1.0.6
-
+          - board: ESP32 Wrover Kit
+            platform-version: 1.0.6
 
         include:
+          # testable boards
+          - board: esp32
+          - board: esp32wroverkit
+          - board: m5stack-core2
+          - board: m5stack-core-esp32
+          - board: m5stick-c
+          - board: m5stack-fire
+          - board: twatch
+          - board: ttgo-t1
+          - board: d32_pro
+          - board: esp32s3box
+          - board: odroid_esp32
 
           # testable sdk versions
-          - sdk-version: 1.0.6
-            platform-url: https://phpsecu.re/esp32/packages/package_esp32_esp32-1.0.6_index.json
-          - sdk-version: 2.0.0
-            platform-url: https://phpsecu.re/esp32/packages/package_esp32_esp32-2.0.0_index.json
-          - sdk-version: 2.0.1
-            platform-url: https://phpsecu.re/esp32/packages/package_esp32_esp32-2.0.1_index.json
-          - sdk-version: 2.0.2
-            platform-url: https://phpsecu.re/esp32/packages/package_esp32_esp32-2.0.2_index.json
-          - sdk-version: 2.0.3-RC1
-            platform-url: https://phpsecu.re/esp32/packages/package_esp32_esp32-2.0.3-RC1_index.json
-
-
-          - matrix-context: ESP32Dev
-            arduino-board: esp32
-
-          - matrix-context: ESP32 Wrover Kit
-            arduino-board: esp32wroverkit
-
-          - matrix-context: LoLin D32 Pro
-            arduino-board: d32_pro
-
-          - matrix-context: TTGO Twatch
-            arduino-board: twatch
-
-          - matrix-context: TTGO T1
-            arduino-board: ttgo-t1
-
-          - matrix-context: M5Core2
-            arduino-board: m5stack-core2
-
-          - matrix-context: M5Stack
-            arduino-board: m5stack-core-esp32
-
-          - matrix-context: S3Box
-            arduino-board: esp32s3box
-
-          - matrix-context: M5StickC
-            arduino-board: m5stick-c
-
-          - matrix-context: M5Fire
-            arduino-board: m5stack-fire
-
-          - matrix-context: OdroidGo
-            arduino-board: odroid_esp32
-
+          - platform-version: 1.0.6
+          - platform-version: 2.0.0
+          - platform-version: 2.0.1
+          - platform-version: 2.0.2
+          - platform-version: 2.0.3-RC1
 
       fail-fast: false
 
@@ -114,12 +84,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      - name: ${{ matrix.matrix-context }}
+      - name: ${{ matrix.board }}
         uses: ArminJo/arduino-test-compile@v3
         with:
-          platform-url: ${{ matrix.platform-url }}
-          arduino-board-fqbn: esp32-${{ matrix.sdk-version }}:esp32:${{ matrix.arduino-board}}${{ matrix.extra-fqbn }}
-          required-libraries: LovyanGFX@develop
+          #platform-url: ${{ matrix.platform-url }}
+          platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+          arduino-board-fqbn: esp32-${{ matrix.platform-version }}:esp32:${{ matrix.board }}
+          arduino-platform: esp32:esp32@${{ matrix.platform-version }}
+          required-libraries: LovyanGFX
           extra-arduino-lib-install-args: --no-deps
           # extra-arduino-cli-args: ${{ matrix.extra-arduino-cli-args }}
           sketch-names: Display.ino
