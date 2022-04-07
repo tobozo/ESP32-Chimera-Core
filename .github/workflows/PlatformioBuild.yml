@@ -54,23 +54,22 @@ jobs:
             platform-version: 2.0.2
 
         include:
-          platform-version:
-            - 1.0.6
-            - 2.0.1
-            - 2.0.2
-            - 2.0.3-RC1
-          board:
-            - esp32
-            - m5stick-c
-            - m5stack-core-esp32
-            - m5stack-fire
-            - m5stack-core2
-            - odroid_esp32
-            - esp-wrover-kit
-            - esp32s3box
-            - lolin_d32_pro
-            - ttgo-t-watch
-            - ttgo-t1
+          platform-version: 1.0.6
+          platform-version: 2.0.1
+          platform-version: 2.0.2
+          platform-version: 2.0.3-RC1
+
+          board: - esp32
+          board: - m5stick-c
+          board: - m5stack-core-esp32
+          board: - m5stack-fire
+          board: - m5stack-core2
+          board: - odroid_esp32
+          board: - esp-wrover-kit
+          board: - esp32s3box
+          board: - lolin_d32_pro
+          board: - ttgo-t-watch
+          board: - ttgo-t1
 
       fail-fast: false
 
@@ -99,11 +98,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade platformio
-          pio lib install https://github.com/Lovyan03/LovyanGFX.git#develop
+#          pio lib install https://github.com/Lovyan03/LovyanGFX.git#develop
 #      - name: Deploy dev dependencies
 #        if branch != master:
 #        run: |
-
 
       - name: Run PlatformIO
         run: |
