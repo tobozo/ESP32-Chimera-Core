@@ -1,5 +1,6 @@
 #pragma once
 
+#if defined ARDUINO_ESP32_S3_BOX
 
 #include "../../../Config.h"
 #include <driver/i2s.h>
@@ -13,6 +14,8 @@ namespace ESP32S3BoxAudio
   static bool soundInited = false;
   static uint32_t audioProcessTime = 0;
   static int16_t soundLevel;
+  static bool muted = false;
+  static void (*onMuteBtn)(bool muted) = nullptr;
 
   bool init( AudioLoop_task_t audioloop = nullptr  );
   bool cfgInit();
@@ -26,3 +29,6 @@ namespace ESP32S3BoxAudio
   i2s_config_t getI2SConfig();
 
 }
+
+
+#endif

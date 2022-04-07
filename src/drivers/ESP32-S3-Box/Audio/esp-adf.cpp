@@ -1,5 +1,7 @@
 #include "esp-adf.hpp"
 
+#if defined ARDUINO_ESP32_S3_BOX
+
 #include <esp32-hal.h>
 #include <esp_arduino_version.h>
 
@@ -61,12 +63,27 @@ struct SpeakerCfg
 namespace ESP32S3BoxAudio
 {
 
-
   #ifdef __cplusplus
   extern "C" {
   #endif
     // load esp-adf components stolen from esp32-s3-box factorydemo
-    #include "src/bsp_board.h"
+    #include "src/esp32_s3_box.h"
+
+    // overwrite the weak function from esp-adf
+    void mute_btn_handler(void *arg)
+    {
+      muted = gpio_get_level((gpio_num_t)BUTTON_A_PIN) == 1 ? false : true;
+
+      if ( !muted ) {
+        log_d("Mute Off");
+        muted = false;
+      } else {
+        log_d("Mute On");
+        muted = true;
+      }
+      if( onMuteBtn ) onMuteBtn(muted);
+    }
+
 
   #ifdef __cplusplus
   }
@@ -80,6 +97,7 @@ namespace ESP32S3BoxAudio
 
   void sendSoundData16( int16_t* dataI, size_t bytes_sent, size_t bytes_written )
   {
+    if( muted ) return;
     i2s_write(cfg.Speak_I2S_NUMBER, (const unsigned char *)dataI, 2 * bytes_sent, &bytes_written, portMAX_DELAY);
     int16_t _soundLevel = 0;
     for( int i=0; i<bytes_sent; i++ ) {
@@ -87,7 +105,6 @@ namespace ESP32S3BoxAudio
     }
     _soundLevel /=bytes_sent;
     soundLevel = _soundLevel;
-    digitalWrite( GPIO_NUM_14, soundLevel );
   }
 
   bool init( AudioLoop_task_t audioloop )
@@ -96,6 +113,8 @@ namespace ESP32S3BoxAudio
     esp_err_t esp_err = ESP_OK;
     esp_err |= bsp_board_init();
     esp_err |= bsp_board_power_ctrl(POWER_MODULE_AUDIO, true);
+
+    muted = gpio_get_level((gpio_num_t)BUTTON_A_PIN) == 1 ? false : true;
 
     if( esp_err == ESP_OK ) {
 
@@ -107,7 +126,7 @@ namespace ESP32S3BoxAudio
       if( audioloop != nullptr ) {
         log_d("Assigning  audio loop");
         i2sWriter.write = (is2WriterCb_t)sendSoundData16;
-        xTaskCreateUniversal( audioloop, "audioLoop", 8192, (void*)&i2sWriter, 1, NULL, 0);
+        xTaskCreateUniversal( audioloop, "audioLoop", 2048, (void*)&i2sWriter, 1, NULL, 0);
         vTaskDelay(100);
         disableCore0WDT();
       } else {
@@ -199,3 +218,6 @@ namespace ESP32S3BoxAudio
 
 
 }
+
+
+#endif // defined ARDUINO_ESP32_S3_BOX

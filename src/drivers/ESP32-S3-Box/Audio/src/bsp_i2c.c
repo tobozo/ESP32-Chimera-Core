@@ -23,16 +23,6 @@ esp_err_t bsp_i2c_init(i2c_port_t i2c_num, uint32_t clk_speed, gpio_num_t scl_io
         ESP_LOGE(TAG, "I2C bus already initialized.");
         return ESP_FAIL;
     }
-/*
-    i2c_config_t conf;
-
-    conf.mode          = (i2c_mode_t)I2C_MODE_MASTER;
-    conf.sda_io_num    = sda_io;
-    conf.scl_io_num    = scl_io;
-    conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
-    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-    conf.master.clk_speed = clk_speed;
-*/
 
     i2c_config_t conf =
     {
