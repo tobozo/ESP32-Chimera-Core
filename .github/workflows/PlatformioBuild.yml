@@ -25,6 +25,11 @@ jobs:
 
       matrix:
 
+        # This matrix is highly dependant on platformio.ini contents
+        # It expects [env] values named after the board and the platform
+        # version e.g. [m5stack-fire@2.0.3-RC1] and trusts that env
+        # for loading the relevant platform version
+
         platform-version:
           - 1.0.6
           - 2.0.1
@@ -51,6 +56,9 @@ jobs:
             platform-version: 2.0.1
           - board: esp32s3box
             platform-version: 2.0.2
+#          - board: esp-wrover-kit
+#            platform-version: 1.0.6
+
 
         include:
           - platform-version: 1.0.6
