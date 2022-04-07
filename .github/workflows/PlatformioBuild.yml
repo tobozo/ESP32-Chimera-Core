@@ -17,8 +17,8 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.board }}@${{ matrix.platform-version }}
 
+    name: ${{ matrix.board }}@${{ matrix.platform-version }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -53,24 +53,23 @@ jobs:
             platform-version: 2.0.2
 
         include:
-          platform-version: 1.0.6
-          platform-version: 2.0.1
-          platform-version: 2.0.2
-          platform-version: 2.0.3-RC1
-          board: esp32
-          board: m5stick-c
-          board: m5stack-core-esp32
-          board: m5stack-fire
-          board: m5stack-core2
-          board: odroid_esp32
-          board: esp-wrover-kit
-          board: esp32s3box
-          board: lolin_d32_pro
-          board: ttgo-t-watch
-          board: ttgo-t1
+          - platform-version: 1.0.6
+          - platform-version: 2.0.1
+          - platform-version: 2.0.2
+          - platform-version: 2.0.3-RC1
+          - board: esp32
+          - board: m5stick-c
+          - board: m5stack-core-esp32
+          - board: m5stack-fire
+          - board: m5stack-core2
+          - board: odroid_esp32
+          - board: esp-wrover-kit
+          - board: esp32s3box
+          - board: lolin_d32_pro
+          - board: ttgo-t-watch
+          - board: ttgo-t1
 
       fail-fast: false
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -101,4 +100,4 @@ jobs:
         run: |
           mkdir -p /tmp/piolib
           cp -R ../ESP32-Chimera-Core /tmp/piolib/
-          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.board }} @ ${{ matrix.platform-version }}
+          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.board }}@${{ matrix.platform-version }}
