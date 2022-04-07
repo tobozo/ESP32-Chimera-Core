@@ -56,22 +56,22 @@ jobs:
           - odroid_esp32@2.0.2
           - odroid_esp32@2.0.3-RC1
 
-          - esp32wroverkit@1.0.6
-          - esp32wroverkit@2.0.1
-          - esp32wroverkit@2.0.2
-          - esp32wroverkit@2.0.3-RC1
+          - esp-wrover-kit@1.0.6
+          - esp-wrover-kit@2.0.1
+          - esp-wrover-kit@2.0.2
+          - esp-wrover-kit@2.0.3-RC1
 
           - esp32s3box@2.0.3-RC1
 
-          - d32_pro@1.0.6
-          - d32_pro@2.0.1
-          - d32_pro@2.0.2
-          - d32_pro@2.0.3-RC1
+          - lolin_d32_pro@1.0.6
+          - lolin_d32_pro@2.0.1
+          - lolin_d32_pro@2.0.2
+          - lolin_d32_pro@2.0.3-RC1
 
-          - twatch@1.0.6
-          - twatch@2.0.1
-          - twatch@2.0.2
-          - twatch@2.0.3-RC1
+          - ttgo-t-watch@1.0.6
+          - ttgo-t-watch@2.0.1
+          - ttgo-t-watch@2.0.2
+          - ttgo-t-watch@2.0.3-RC1
 
           - ttgo-t1@1.0.6
           - ttgo-t1@2.0.1
