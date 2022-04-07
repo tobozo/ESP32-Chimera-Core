@@ -54,12 +54,10 @@ jobs:
             platform-version: 2.0.2
 
         include:
-
           platform-version: 1.0.6
           platform-version: 2.0.1
           platform-version: 2.0.2
           platform-version: 2.0.3-RC1
-
           board: esp32
           board: m5stick-c
           board: m5stack-core-esp32
@@ -104,5 +102,4 @@ jobs:
         run: |
           mkdir -p /tmp/piolib
           cp -R ../ESP32-Chimera-Core /tmp/piolib/
-#          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.pio-env }}
-          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.board }}@${{ matrix.platform-version }}
+          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.pio-env }}
