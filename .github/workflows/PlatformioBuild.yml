@@ -17,66 +17,60 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.pio-env }}
+    name: ${{ matrix.board }}@${{ matrix.platform-version }}
 
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
 
-        pio-env:
+        # this matrix must match the env names in platformio.ini
+        # env names are like [board-name]@[arduino-esp32 version]
+        platform-version:
+          - 1.0.6
+          - 2.0.1
+          - 2.0.2
+          - 2.0.3-RC1
 
-          - esp32@1.0.6
-          - esp32@2.0.1
-          - esp32@2.0.2
-          - esp32@2.0.3-RC1
+        board:
+          - esp32
+          - m5stick-c
+          - m5stack-core-esp32
+          - m5stack-fire
+          - m5stack-core2
+          - odroid_esp32
+          - esp-wrover-kit
+          - esp32s3box
+          - lolin_d32_pro
+          - ttgo-t-watch
+          - ttgo-t1
 
-          - m5stick-c@1.0.6
-          - m5stick-c@2.0.1
-          - m5stick-c@2.0.2
-          - m5stick-c@2.0.3-RC1
+        exclude:
+          - boards: esp32s3box
+            platform-version: 1.0.6
+          - boards: esp32s3box
+            platform-version: 2.0.1
+          - boards: esp32s3box
+            platform-version: 2.0.2
 
-          - m5stack-core-esp32@1.0.6
-          - m5stack-core-esp32@2.0.1
-          - m5stack-core-esp32@2.0.2
-          - m5stack-core-esp32@2.0.3-RC1
-
-          - m5stack-fire@1.0.6
-          - m5stack-fire@2.0.1
-          - m5stack-fire@2.0.2
-          - m5stack-fire@2.0.3-RC1
-
-          - m5stack-core2@1.0.6
-          - m5stack-core2@2.0.1
-          - m5stack-core2@2.0.2
-          - m5stack-core2@2.0.3-RC1
-
-          - odroid_esp32@1.0.6
-          - odroid_esp32@2.0.1
-          - odroid_esp32@2.0.2
-          - odroid_esp32@2.0.3-RC1
-
-          - esp-wrover-kit@1.0.6
-          - esp-wrover-kit@2.0.1
-          - esp-wrover-kit@2.0.2
-          - esp-wrover-kit@2.0.3-RC1
-
-          - esp32s3box@2.0.3-RC1
-
-          - lolin_d32_pro@1.0.6
-          - lolin_d32_pro@2.0.1
-          - lolin_d32_pro@2.0.2
-          - lolin_d32_pro@2.0.3-RC1
-
-          - ttgo-t-watch@1.0.6
-          - ttgo-t-watch@2.0.1
-          - ttgo-t-watch@2.0.2
-          - ttgo-t-watch@2.0.3-RC1
-
-          - ttgo-t1@1.0.6
-          - ttgo-t1@2.0.1
-          - ttgo-t1@2.0.2
-          - ttgo-t1@2.0.3-RC1
+        include:
+          platform-version:
+            - 1.0.6
+            - 2.0.1
+            - 2.0.2
+            - 2.0.3-RC1
+          board:
+            - esp32
+            - m5stick-c
+            - m5stack-core-esp32
+            - m5stack-fire
+            - m5stack-core2
+            - odroid_esp32
+            - esp-wrover-kit
+            - esp32s3box
+            - lolin_d32_pro
+            - ttgo-t-watch
+            - ttgo-t1
 
       fail-fast: false
 
@@ -115,4 +109,5 @@ jobs:
         run: |
           mkdir -p /tmp/piolib
           cp -R ../ESP32-Chimera-Core /tmp/piolib/
-          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.pio-env }}
+#          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.pio-env }}
+          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.board }}@${{ matrix.platform-version }}
