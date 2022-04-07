@@ -25,23 +25,58 @@ jobs:
       matrix:
 
         pio-env:
-          #- esp32
+
           - esp32@1.0.6
-          #- esp32-2.0.0
           - esp32@2.0.1
           - esp32@2.0.2
           - esp32@2.0.3-RC1
-          - m5stick-c
-          - m5stack-core-esp32
-          - m5stack-fire
-          - m5stack-core2
-          - odroid_esp32
-          - esp32wroverkit
-          - esp32s3box
-          - d32_pro
-          - twatch
-          - ttgo-t1
-          #- ttgo-lora32-v2
+
+          - m5stick-c@1.0.6
+          - m5stick-c@2.0.1
+          - m5stick-c@2.0.2
+          - m5stick-c@2.0.3-RC1
+
+          - m5stack-core-esp32@1.0.6
+          - m5stack-core-esp32@2.0.1
+          - m5stack-core-esp32@2.0.2
+          - m5stack-core-esp32@2.0.3-RC1
+
+          - m5stack-fire@1.0.6
+          - m5stack-fire@2.0.1
+          - m5stack-fire@2.0.2
+          - m5stack-fire@2.0.3-RC1
+
+          - m5stack-core2@1.0.6
+          - m5stack-core2@2.0.1
+          - m5stack-core2@2.0.2
+          - m5stack-core2@2.0.3-RC1
+
+          - odroid_esp32@1.0.6
+          - odroid_esp32@2.0.1
+          - odroid_esp32@2.0.2
+          - odroid_esp32@2.0.3-RC1
+
+          - esp32wroverkit@1.0.6
+          - esp32wroverkit@2.0.1
+          - esp32wroverkit@2.0.2
+          - esp32wroverkit@2.0.3-RC1
+
+          - esp32s3box@2.0.3-RC1
+
+          - d32_pro@1.0.6
+          - d32_pro@2.0.1
+          - d32_pro@2.0.2
+          - d32_pro@2.0.3-RC1
+
+          - twatch@1.0.6
+          - twatch@2.0.1
+          - twatch@2.0.2
+          - twatch@2.0.3-RC1
+
+          - ttgo-t1@1.0.6
+          - ttgo-t1@2.0.1
+          - ttgo-t1@2.0.2
+          - ttgo-t1@2.0.3-RC1
 
       fail-fast: false
 
