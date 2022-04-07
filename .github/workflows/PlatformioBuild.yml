@@ -22,10 +22,9 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+
       matrix:
 
-        # this matrix must match the env names in platformio.ini
-        # env names are like [board-name]@[arduino-esp32 version]
         platform-version:
           - 1.0.6
           - 2.0.1
@@ -102,4 +101,4 @@ jobs:
         run: |
           mkdir -p /tmp/piolib
           cp -R ../ESP32-Chimera-Core /tmp/piolib/
-          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.board }}@${{ matrix.platform-version }}
+          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.board }} @ ${{ matrix.platform-version }}
