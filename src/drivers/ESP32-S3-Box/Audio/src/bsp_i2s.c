@@ -5,8 +5,8 @@
  */
 
 // attempt to detect esp-idf version
-#if __has_include(<esp_idf_version.h>)
-  #include <esp_idf_version.h>
+#if __has_include(<esp_arduino_version.h>)
+  #include <esp_arduino_version.h>
 #endif
 
 //   #error "Invalid esp-idf version (expected: >=4.4.0)"
@@ -14,8 +14,8 @@
 // #else
 //   #if defined ESP_IDF_VERSION && ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 4, 0)
 
-// esp32-2.0.0 and previous don't have the guts to handle this
-#if defined ESP_IDF_VERSION_VAL && ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 4, 0) // only after >=4.4.0
+// esp32-2.0.2 and previous don't have the guts to handle this
+#if defined ESP_ARDUINO_VERSION_VAL && ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2, 0, 3)
 
   #include "bsp_board.h"
   #include "bsp_i2s.h"
