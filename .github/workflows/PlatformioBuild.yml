@@ -46,11 +46,11 @@ jobs:
           - ttgo-t1
 
         exclude:
-          - boards: esp32s3box
+          - board: esp32s3box
             platform-version: 1.0.6
-          - boards: esp32s3box
+          - board: esp32s3box
             platform-version: 2.0.1
-          - boards: esp32s3box
+          - board: esp32s3box
             platform-version: 2.0.2
 
         include:
@@ -102,4 +102,4 @@ jobs:
         run: |
           mkdir -p /tmp/piolib
           cp -R ../ESP32-Chimera-Core /tmp/piolib/
-          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.pio-env }}
+          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.board }}@${{ matrix.platform-version }}
