@@ -108,4 +108,4 @@ jobs:
         run: |
           mkdir -p /tmp/piolib
           cp -R ../ESP32-Chimera-Core /tmp/piolib/
-          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.board }}@${{ matrix.platform-version }}
+          cd ${{ env.PROJECT_DIR }} && pio run -e "${{ matrix.board }}@${{ matrix.platform-version }}"
