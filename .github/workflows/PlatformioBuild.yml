@@ -25,12 +25,12 @@ jobs:
       matrix:
 
         pio-env:
-          - esp32
-          - esp32:1.0.6
-          - esp32:2.0.0
-          - esp32:2.0.1
-          - esp32:2.0.2
-          - esp32:2.0.3
+          #- esp32
+          - esp32-1_0_6
+          - esp32-2_0_0
+          - esp32-2_0_1
+          - esp32-2_0_2
+          - esp32-2_0_3
           - m5stick-c
           - m5stack-core-esp32
           - m5stack-fire
