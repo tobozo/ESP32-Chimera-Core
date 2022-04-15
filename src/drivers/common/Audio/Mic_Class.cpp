@@ -20,7 +20,7 @@
 #include <esp_log.h>
 #include <math.h>
 
-namespace m5
+namespace ChimeraCore
 {
 #if defined (ESP_IDF_VERSION_VAL)
  #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 0, 0)

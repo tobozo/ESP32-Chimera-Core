@@ -14,11 +14,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    CODEC_DEV_ES7210 = 0x01,
-    CODEC_DEV_ES7243 = 0x02,
-    CODEC_DEV_ES8156 = 0x04,
     CODEC_DEV_ES8311 = 0x08,
-    // CODEC_DEV_ES8388,
 } codec_dev_t;
 
 /**

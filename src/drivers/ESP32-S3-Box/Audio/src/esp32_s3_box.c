@@ -9,8 +9,6 @@
 #include "bsp_i2s.h"
 #include "bsp_codec.h"
 #include "es8311.h"
-//#include "button.h"
-//#include "bsp_btn.h"
 
 static const char *TAG = "board";
 
@@ -45,16 +43,14 @@ __attribute__((weak)) void mute_btn_handler(void *arg)
 {
     if (g_board_s3_box_res.GPIO_MUTE_LEVEL == gpio_get_level((gpio_num_t)g_board_s3_box_res.GPIO_MUTE_NUM)) {
         ets_printf(DRAM_STR("Mute Off!\n"));
-        //es8311_set_voice_mute( false );
     } else {
         ets_printf(DRAM_STR("Mute On!\n"));
-        //es8311_set_voice_mute( true );
     }
 }
 
 esp_err_t bsp_board_s3_box_init(void)
 {
-    /*!< Mute_Button on ESP32-S3-Box */
+    // Mute_Button on ESP32-S3-Box
     gpio_config_t io_conf_key =
     {
       .intr_type    = GPIO_INTR_ANYEDGE,
@@ -65,19 +61,9 @@ esp_err_t bsp_board_s3_box_init(void)
     };
     ESP_ERROR_CHECK(gpio_config(&io_conf_key));
 
-    /* Install GPIO ISR service to enable GPIO ISR callback */
+    // Install GPIO ISR service to enable GPIO ISR callback
     gpio_install_isr_service(0);
     ESP_ERROR_CHECK(gpio_isr_handler_add((gpio_num_t)g_board_s3_box_res.GPIO_MUTE_NUM, mute_btn_handler, NULL));
-
-    //bsp_btn_init_default();
-
-    /**
-     * @brief Initialize I2S and audio codec
-     *
-     * @note Actually the sampling rate can be reconfigured.
-     *       `MP3GetLastFrameInfo` can fill the `MP3FrameInfo`, which includes `samprate`.
-     *       So theoretically, the sampling rate can be dynamically changed according to the MP3 frame information.
-     */
     ESP_ERROR_CHECK(bsp_i2s_init(I2S_NUM_0, 16000));
     ESP_ERROR_CHECK(bsp_codec_init(AUDIO_HAL_16K_SAMPLES));
 
@@ -86,7 +72,7 @@ esp_err_t bsp_board_s3_box_init(void)
 
 esp_err_t bsp_board_s3_box_power_ctrl(power_module_t module, bool on)
 {
-    /* Config power control IO */
+    // Config power control IO
     static esp_err_t bsp_io_config_state = ESP_FAIL;
     if (ESP_OK != bsp_io_config_state) {
         gpio_config_t io_conf =
@@ -100,13 +86,13 @@ esp_err_t bsp_board_s3_box_power_ctrl(power_module_t module, bool on)
         bsp_io_config_state = gpio_config(&io_conf);
     }
 
-    /* Checko IO config result */
+    // Checko IO config result
     if (ESP_OK != bsp_io_config_state) {
         ESP_LOGE(TAG, "Failed initialize power control IO");
         return bsp_io_config_state;
     }
 
-    /* Control independent power domain */
+    // Control independent power domain
     switch (module) {
 
     case POWER_MODULE_AUDIO:

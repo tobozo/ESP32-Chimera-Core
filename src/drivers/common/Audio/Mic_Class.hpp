@@ -8,7 +8,7 @@
 #include <freertos/task.h>
 #include <driver/i2s.h>
 
-namespace m5
+namespace ChimeraCore
 {
   class ECCKernel;
 

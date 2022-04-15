@@ -9,12 +9,8 @@
   #include <esp_arduino_version.h>
 #endif
 
-//   #error "Invalid esp-idf version (expected: >=4.4.0)"
-// #endif
-// #else
-//   #if defined ESP_IDF_VERSION && ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 4, 0)
-
 // esp32-2.0.2 and previous don't have the guts to handle this
+// which is fine since esp32-s3-box wasn't supported before
 #if defined ESP_ARDUINO_VERSION_VAL
   #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2, 0, 3)
 
@@ -29,7 +25,6 @@
     /* Required for I2S driver workaround */
     #include "esp_rom_gpio.h"
     #include "hal/gpio_hal.h"
-    //#include "hal/i2s_ll.h"
 
     #define I2S_CONFIG_DEFAULT() { \
         .mode                   = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_RX), \
@@ -46,7 +41,6 @@
         .mclk_multiple          = I2S_MCLK_MULTIPLE_DEFAULT, \
         .bits_per_chan          = I2S_BITS_PER_CHAN_16BIT, \
     }
-
 
 
     esp_err_t bsp_i2s_init(i2s_port_t i2s_num, uint32_t sample_rate)

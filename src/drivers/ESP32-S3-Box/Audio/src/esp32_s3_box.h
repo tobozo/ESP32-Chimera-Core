@@ -8,6 +8,7 @@
 
 #include "esp_err.h"
 #include "bsp_board.h"
+#include "es8311.h"
 
 #ifdef __cplusplus
 extern "C" {

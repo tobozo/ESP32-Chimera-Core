@@ -11,8 +11,6 @@
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 #include "driver/adc.h"
-//#include "esp_lcd_panel_io.h"
-//#include "esp_lcd_types.h"
 #include "audio_hal.h"
 
 #ifdef __cplusplus
@@ -21,7 +19,6 @@ extern "C" {
 
 typedef enum {
     BOARD_S3_BOX,
-    //BOARD_S3_BOX_LITE,
 } boards_id_t;
 
 typedef enum {

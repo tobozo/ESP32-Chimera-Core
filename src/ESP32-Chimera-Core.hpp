@@ -200,7 +200,7 @@ namespace ChimeraCore
       #endif
 
       #if defined HAS_SPEAKER
-        // Can make noise
+        // PWM implementation
         SPEAKER Speaker;
       #endif
 
