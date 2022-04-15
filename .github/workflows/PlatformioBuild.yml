@@ -48,6 +48,7 @@ jobs:
           - lolin_d32_pro
           - ttgo-t-watch
           - ttgo-t1
+          #- ttgo-lora32-v2
 
         exclude:
           - board: esp32s3box
