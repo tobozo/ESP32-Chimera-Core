@@ -108,8 +108,6 @@ jobs:
 
       - name: Run PlatformIO
         run: |
-#          mkdir -p /tmp/piolib
-#          cp -R ../ESP32-Chimera-Core /tmp/piolib/
           [[ "${{ env.BRANCH_NAME }}" == "master" ]] && rm dev_lib_deps.ini || echo "Develop!" && pio system prune -f
           pio lib -e ${{ matrix.piocontext }}@${{ matrix.platform-version }} install --no-save file://$(realpath ../../../)
           cd ${{ env.PROJECT_DIR }} && pio run -e "${{ matrix.board }}@${{ matrix.platform-version }}"
