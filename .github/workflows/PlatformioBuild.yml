@@ -2,6 +2,7 @@ name: PlatformIOBuild
 
 env:
   PROJECT_DIR: examples/Tests/build_test
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 on:
   push:
