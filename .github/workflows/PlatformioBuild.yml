@@ -15,6 +15,12 @@ on:
     - '**PlatformioBuild.yml'
   pull_request:
   workflow_dispatch:
+    inputs:
+      master_branch:
+        description: 'Main branch'
+        required: true
+        type: environment
+        default: 'master'
 
 jobs:
   build:

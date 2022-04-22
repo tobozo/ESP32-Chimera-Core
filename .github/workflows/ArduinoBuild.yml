@@ -11,6 +11,15 @@ on:
     - '**ArduinoBuild.yml'
   pull_request:
   workflow_dispatch:
+    inputs:
+      lgfx_branch:
+        description: 'LovyanGFX Base branch'
+        required: true
+        default: 'develop'
+        type: choice
+        options:
+        - master
+        - develop
 
 jobs:
 
@@ -90,7 +99,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: Lovyan03/LovyanGFX
-          ref: develop
+          ref: ${{ github.event.inputs.lgfx_branch }}
           path: CustomLGFX # must contain string "Custom"
 
       - name: ${{ matrix.board }}
