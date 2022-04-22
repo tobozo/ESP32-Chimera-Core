@@ -20,7 +20,7 @@ on:
       master_branch:
         description: 'Main branch'
         required: true
-        type: environment
+        type: string
         default: 'master'
 
 jobs:
