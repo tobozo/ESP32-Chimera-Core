@@ -117,7 +117,7 @@ jobs:
       - name: Run PlatformIO
         run: |
           cd ${{ env.PROJECT_DIR }}
-          [[ "${{ env.BRANCH_NAME }}" == "master" ]] && rm dev_lib_deps.ini || echo "Develop!" && pio system prune -f
+          [[ "${{ env.BRANCH_NAME }}" == "${{ github.event.inputs.master_branch }}" ]] && rm dev_lib_deps.ini || echo "Develop!" && pio system prune -f
           pio lib -e ${{ matrix.board }}@${{ matrix.platform-version }} install --no-save file://$(realpath ../../../)
           pio run -e ${{ matrix.board }}@${{ matrix.platform-version }}
 
