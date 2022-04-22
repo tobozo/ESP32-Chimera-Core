@@ -2,11 +2,13 @@ name: PlatformIOBuild
 
 env:
   PROJECT_DIR: examples/Tests/build_test
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 on:
   push:
     paths:
     - '**.ino'
+    - '**.ini'
     - '**.cpp'
     - '**.hpp'
     - '**.h'
@@ -14,32 +16,77 @@ on:
     - '**PlatformioBuild.yml'
   pull_request:
   workflow_dispatch:
+    inputs:
+      master_branch:
+        description: 'Main branch'
+        required: true
+        type: environment
+        default: 'master'
 
 jobs:
   build:
-    name: ${{ matrix.pio-env }}
 
+    name: ${{ matrix.board }}@${{ matrix.platform-version }}
     runs-on: ubuntu-latest
 
     strategy:
+
       matrix:
 
-        pio-env:
+        # This matrix is highly dependant on platformio.ini contents
+        # It expects [env] values named after the board and the platform
+        # version e.g. [m5stack-fire@2.0.3-RC1] and trusts that env
+        # for loading the relevant platform version
+
+        platform-version:
+          - 1.0.6
+          - 2.0.0
+          - 2.0.1
+          - 2.0.2
+          - 2.0.3-RC1
+
+        board:
           - esp32
           - m5stick-c
           - m5stack-core-esp32
           - m5stack-fire
           - m5stack-core2
           - odroid_esp32
-          - esp32wroverkit
+          - esp-wrover-kit
           - esp32s3box
-          - d32_pro
-          - twatch
+          - lolin_d32_pro
+          - ttgo-t-watch
           - ttgo-t1
           #- ttgo-lora32-v2
 
-      fail-fast: false
+        exclude:
+          - { board: esp32s3box, platform-version: 1.0.6 }
+          - { board: esp32s3box, platform-version: 2.0.0 }
+          - { board: esp32s3box, platform-version: 2.0.1 }
+          - { board: esp32s3box, platform-version: 2.0.2 }
+#          - board: esp-wrover-kit
+#            platform-version: 1.0.6
 
+
+        include:
+          - platform-version: 1.0.6
+          - platform-version: 2.0.0
+          - platform-version: 2.0.1
+          - platform-version: 2.0.2
+          - platform-version: 2.0.3-RC1
+          - board: esp32
+          - board: m5stick-c
+          - board: m5stack-core-esp32
+          - board: m5stack-fire
+          - board: m5stack-core2
+          - board: odroid_esp32
+          - board: esp-wrover-kit
+          - board: esp32s3box
+          - board: lolin_d32_pro
+          - board: ttgo-t-watch
+          - board: ttgo-t1
+
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -65,9 +112,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade platformio
+#          pio upgrade --dev
 
       - name: Run PlatformIO
         run: |
-          mkdir -p /tmp/piolib
-          cp -R ../ESP32-Chimera-Core /tmp/piolib/
-          cd ${{ env.PROJECT_DIR }} && pio run -e ${{ matrix.pio-env }}
+          cd ${{ env.PROJECT_DIR }}
+          [[ "${{ env.BRANCH_NAME }}" == "${{ github.event.inputs.master_branch }}" ]] && rm dev_lib_deps.ini || echo "Develop!" && pio system prune -f
+          pio lib -e ${{ matrix.board }}@${{ matrix.platform-version }} install --no-save file://$(realpath ../../../)
+          pio run -e ${{ matrix.board }}@${{ matrix.platform-version }}
+

@@ -89,6 +89,11 @@
   #include "drivers/Odroid-Go/Battery/battery.h"
 #endif
 
+#if defined ARDUINO_ESP32_S3_BOX
+  // TODO: use https://github.com/pschatzmann/arduino-audiokit
+  #include "drivers/ESP32-S3-Box/Audio/esp-adf.hpp"
+#endif
+
 // primary and/or secondary MPU support
 
 #if defined( ARDUINO_M5Stack_Core_ESP32 ) || defined( ARDUINO_M5STACK_FIRE) // m5stack classic/fire
@@ -195,7 +200,7 @@ namespace ChimeraCore
       #endif
 
       #if defined HAS_SPEAKER
-        // Can make noise
+        // PWM implementation
         SPEAKER Speaker;
       #endif
 

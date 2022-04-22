@@ -20,26 +20,26 @@
 #include <esp_log.h>
 #include <math.h>
 
-namespace m5
+namespace ChimeraCore
 {
-#if defined (ESP_IDF_VERSION_VAL)
- #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 0, 0)
-  #define COMM_FORMAT_I2S (I2S_COMM_FORMAT_STAND_I2S)
-  #define COMM_FORMAT_MSB (I2S_COMM_FORMAT_STAND_MSB)
- #endif
- #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 3, 3)
-  #define SAMPLE_RATE_TYPE uint32_t
- #endif
-#endif
+  #if defined (ESP_IDF_VERSION_VAL)
+  #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 0, 0)
+    #define COMM_FORMAT_I2S (I2S_COMM_FORMAT_STAND_I2S)
+    #define COMM_FORMAT_MSB (I2S_COMM_FORMAT_STAND_MSB)
+  #endif
+  #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 3, 3)
+    #define SAMPLE_RATE_TYPE uint32_t
+  #endif
+  #endif
 
-#ifndef COMM_FORMAT_I2S
-#define COMM_FORMAT_I2S (I2S_COMM_FORMAT_I2S)
-#define COMM_FORMAT_MSB (I2S_COMM_FORMAT_I2S_MSB)
-#endif
+  #ifndef COMM_FORMAT_I2S
+  #define COMM_FORMAT_I2S (I2S_COMM_FORMAT_I2S)
+  #define COMM_FORMAT_MSB (I2S_COMM_FORMAT_I2S_MSB)
+  #endif
 
-#ifndef SAMPLE_RATE_TYPE
-#define SAMPLE_RATE_TYPE int
-#endif
+  #ifndef SAMPLE_RATE_TYPE
+  #define SAMPLE_RATE_TYPE int
+  #endif
 
   const uint8_t Speaker_Class::_default_tone_wav[2] = { 191, 64 };
 
