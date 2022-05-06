@@ -20,7 +20,6 @@ on:
       master_branch:
         description: 'Main branch'
         required: true
-        type: string
         default: 'master'
 
 jobs:
@@ -35,7 +34,7 @@ jobs:
 
         # This matrix is highly dependant on platformio.ini contents
         # It expects [env] values named after the board and the platform
-        # version e.g. [m5stack-fire@2.0.3-RC1] and trusts that env
+        # version e.g. [m5stack-fire@2.0.3] and trusts that env
         # for loading the relevant platform version
 
         platform-version:
@@ -43,7 +42,7 @@ jobs:
           - 2.0.0
           - 2.0.1
           - 2.0.2
-          - 2.0.3-RC1
+          - 2.0.3
 
         board:
           - esp32
@@ -73,7 +72,7 @@ jobs:
           - platform-version: 2.0.0
           - platform-version: 2.0.1
           - platform-version: 2.0.2
-          - platform-version: 2.0.3-RC1
+          - platform-version: 2.0.3
           - board: esp32
           - board: m5stick-c
           - board: m5stack-core-esp32
