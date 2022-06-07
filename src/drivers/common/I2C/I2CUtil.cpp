@@ -1,7 +1,7 @@
 #include "I2CUtil.h"
 
 
-bool I2CUtil::begin( signed char sdaPin, signed char sclPin, TwoWire *i2cPort )
+bool I2CUtil::begin( int sdaPin, int sclPin, TwoWire *i2cPort )
 {
   if( sdaPin != _sdaPin || sclPin != _sclPin ) {
     log_d("New I2C pins Context (old=%d/%d, new=%d/%d)", _sdaPin, _sclPin, sdaPin, sclPin );

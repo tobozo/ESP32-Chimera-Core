@@ -12,7 +12,7 @@
 #include "esp32-hal-log.h"
 
 #if defined ESP_ARDUINO_VERSION_VAL
-  #if __has_include(<core_version.h>) // for platformio
+  #if __has_include(<core_version.h>) // platformio has no core_version.h
     #include <core_version.h>
   #endif
 
@@ -20,22 +20,26 @@
    || ARDUINO_ESP32_GIT_VER == 0x15bbd0a1 \
    || ARDUINO_ESP32_GIT_VER == 0xd218e58f \
    || ARDUINO_ESP32_GIT_VER == 0xcaef4006 \
-   || ARDUINO_ESP32_GIT_VER == 0x1e388a24
+   || ARDUINO_ESP32_GIT_VER == 0x1e388a24 \
+   || ARDUINO_ESP32_GIT_VER == 0x142fceb8
     // FS::open() can create subfolders
     #define FS_CAN_CREATE_PATH
   #endif
 
-  #if ARDUINO_ESP32_GIT_VER == 0x44c11981
+  #if ESP_ARDUINO_VERSION > ESP_ARDUINO_VERSION_VAL(2,0,3) // highest version supported by ESP32-Chimera-Core
+    #pragma message "ESP32 Arduino x.x.x (edge)"
+
+  #elif ARDUINO_ESP32_GIT_VER == 0x44c11981
     #pragma message "ESP32 Arduino 2.0.0 (0x44c11981) is supported"
 
   #elif ARDUINO_ESP32_GIT_VER == 0x15bbd0a1
     // Introduces Wire::end()
     #pragma message "ESP32 Arduino 2.0.1 RC1 (0x15bbd0a1) is only partially supported"
 
-  #elif ARDUINO_ESP32_GIT_VER == 0xd218e58f
+  #elif ARDUINO_ESP32_GIT_VER == 0xd218e58f|| ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,1)
     #pragma message "ESP32 Arduino 2.0.1 (0xd218e58f) has OTA support broken!!"
 
-  #elif ARDUINO_ESP32_GIT_VER == 0xcaef4006
+  #elif ARDUINO_ESP32_GIT_VER == 0xcaef4006 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,2)
     // Introduces SD::readRAW() and SD::writeRAW() support
     #pragma message "ESP32 Arduino 2.0.2 (0xcaef4006) has SD support broken!!"
 
@@ -43,219 +47,17 @@
     // Introduces ESP32S3, SD::numSectors() and SD::sectorSize() support
     #pragma message "ESP32 Arduino 2.0.3 RC1 (0x1e388a24) is only partially supported"
 
+  #elif ARDUINO_ESP32_GIT_VER == 0x142fceb8 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,3)
+
+    // Introduces ESP32S3, SD::numSectors() and SD::sectorSize() support
+    #pragma message "ESP32 Arduino 2.0.3 (0x142fceb8) detected"
+
   #else
     // unknown but probably 2.x.x
     #pragma message "ESP32 Arduino 2.x.x (unknown)"
 
   #endif
 #endif
-
-#if 0
-
-#include "M5Display.h"
-
-#include <map>
-#include <vector>
-struct cmp_str
-{
-   bool operator()(char const *a, char const *b) const
-   {
-      return strcmp(a, b) < 0;
-   }
-};
-
-
-/*
-struct ECCDriverset_t
-{
-  ECCi2cConf_t axp192  ; // power
-  ECCi2cConf_t axp202  ; // power
-  ECCi2cConf_t bma423  ; // accel meter (twatch)
-  ECCi2cConf_t bm8563  ; // RTC (m5stickc)
-  ECCi2cConf_t ip5306  ; // Power (m5stack )
-  ECCi2cConf_t pcf8563 ; // RTC (twatch)
-  ECCi2cConf_t mpu6886 ; // accel/gyro
-  ECCi2cConf_t mpu6050 ; // accel/gyro
-  ECCi2cConf_t mpu9250 ; // accel/gyro
-};
-*/
-
-struct pin_config_t
-{
-  gpio_num_t pin_number;
-  gpio_config_t pin_cfg; // not used yet
-};
-
-typedef std::vector<pin_config_t> btns_config_t;
-
-struct spi_config_t
-{
-  int spi_host;
-  pin_config_t miso;
-  pin_config_t mosi;
-  pin_config_t sck;
-  pin_config_t rst;
-  pin_config_t ss;
-  pin_config_t cs;
-};
-
-
-enum ECCDriverType_t
-{
-  ECC_DRIVER_NONE,  // dummy
-  ECC_DRIVER_I2C,   // two wires
-  ECC_DRIVER_BTN,   // BtnA/BtnB/BtnC
-  ECC_DRIVER_JOY,   // BtnA/BtnB/BtnC
-  ECC_DRIVER_SD,    // SD/SD_MMC
-  ECC_DRIVER_TOUCH, //
-  ECC_DRIVER_LORA,  //
-  ECC_DRIVER_RTC,   //
-  ECC_DRIVER_SPKR
-};
-
-enum ECCSDType_t
-{
-  ECC_SD_NONE,
-  ECC_SD,
-  ECC_SD_MMC
-};
-
-
-struct EDDSDProfile_t
-{
-  ECCSDType_t type;
-  bool enable;
-  spi_config_t conf;
-};
-
-
-
-// for named configs
-struct ECCi2cConf_t
-{
-  const char *desc;
-  ECCDriverType_t type;
-  i2c_config_t i2c_conf;
-  spi_config_t lora_conf;
-  btns_config_t btn_conf;
-  btns_config_t joy_conf;
-  pin_config_t spk_conf;
-  EDDSDProfile_t sd_conf; // if using sdcard
-};
-
-
-typedef std::map<const char*, ECCi2cConf_t, cmp_str> drivers_map_t;
-
-
-struct ECCBoard_t
-{
-  const char* name; // board name
-  lgfx::boards::board_t board;
-  bool has_touch   ; // display has a touch screen
-  bool has_rtc     ; // device has external rtc
-  drivers_map_t drivers;
-
-};
-
-
-namespace ChimeraCore
-{
-  namespace board
-  {
-
-
-    const ECCBoard_t cfg =
-    {
-
-    // #if defined ARDUINO_MYBOARD
-      .name = "My Custom Board",
-      .board = lgfx::boards::board_M5Stack, // Based on M5Stack pinout
-      .drivers =
-      {
-        {
-          "sd", (ECCi2cConf_t){
-            .desc = "SD Module",
-            .type = ECC_DRIVER_SD,
-            .sd_conf = (EDDSDProfile_t) {
-              .type = ECC_SD,
-              .enable = true,
-              .conf = {
-                .cs = { .pin_number = (gpio_num_t)4 }
-              }
-            }
-          }
-        },
-        {
-          "ip5306", (ECCi2cConf_t){
-            .desc = "IP5306 Power Module",
-            .type = ECC_DRIVER_I2C,
-            .i2c_conf = (i2c_config_t){
-              //.mode = I2C_MODE_MASTER,
-              .sda_io_num = 21,
-              .scl_io_num = 22
-              //.sda_pullup_en = GPIO_PULLUP_ENABLE,
-              //.scl_pullup_en = GPIO_PULLUP_ENABLE,
-            }
-          }
-        },
-        {
-          "mpu9250", (ECCi2cConf_t){
-            .desc = "MPU9250 Accel/Gyro Module",
-            .type = ECC_DRIVER_I2C,
-            .i2c_conf = (i2c_config_t){
-              //.mode = I2C_MODE_MASTER,
-              .sda_io_num = 21,
-              .scl_io_num = 22
-              //.sda_pullup_en = GPIO_PULLUP_ENABLE,
-              //.scl_pullup_en = GPIO_PULLUP_ENABLE,
-            }
-          }
-        },
-        {
-          "buttons", (ECCi2cConf_t){
-            .desc = "BtnA/BtnB/BtnC Module",
-            .type = ECC_DRIVER_BTN,
-            .btn_conf = (btns_config_t){ { .pin_number = (gpio_num_t)39 }, { .pin_number = (gpio_num_t)38 }, { .pin_number = (gpio_num_t)37 } }
-          }
-        },
-        {
-          "speaker", (ECCi2cConf_t){
-            .desc = "Speaker Module",
-            .type = ECC_DRIVER_SPKR,
-            .spk_conf = (pin_config_t){ .pin_number = (gpio_num_t)25 }
-          }
-        }
-
-      }
-    // #endif
-
-    };
-
-
-    // ECCDrivers[ECC_I2C_DRIVER_ip5306]->name; // const char*
-    // ECCDrivers[ECC_I2C_DRIVER_ip5306]->conf; // i2c_config_t
-/*
-
-    static const ECCi2cConf_t *ECCDrivers[ECC_I2C_DRIVERS_COUNT] =
-    {
-      &cfg.drivers.axp192,
-      &cfg.drivers.axp202,
-      &cfg.drivers.bma423,
-      &cfg.drivers.bm8563,
-      &cfg.drivers.ip5306,
-      &cfg.drivers.pcf8563,
-      &cfg.drivers.mpu6886,
-      &cfg.drivers.mpu6050,
-      &cfg.drivers.mpu9250
-    };
-*/
-
-
-  }
-
-}
-#endif
-
 
 
 #if defined( LGFX_ONLY ) // LGFX config loaded externally
@@ -732,13 +534,13 @@ namespace ChimeraCore
   #define I2S_MCLK_PIN    GPIO_NUM_2
   #define AUDIO_POWER_PIN GPIO_NUM_46
 
-  #define HAS_BUTTONS
+  //#define HAS_BUTTONS
   #define BUTTON_A_PIN GPIO_NUM_1
   #define BUTTON_B_PIN -1
   #define BUTTON_C_PIN -1
   #define SPEAKER_PIN  -1
 
-  #define HAS_TOUCH
+  //#define HAS_TOUCH
   #define TOUCH_INT GPIO_NUM_3
 
   // #if !defined SDA

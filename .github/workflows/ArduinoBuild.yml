@@ -36,7 +36,7 @@ jobs:
           - 2.0.0
           - 2.0.1
           - 2.0.2
-          - 2.0.3-RC1
+          - 2.0.3
 
         board:
           # Supported boards fancy names
@@ -85,7 +85,7 @@ jobs:
           - platform-version: 2.0.0
           - platform-version: 2.0.1
           - platform-version: 2.0.2
-          - platform-version: 2.0.3-RC1
+          - platform-version: 2.0.3
 
       fail-fast: false
 

@@ -13,7 +13,7 @@ class I2CUtil
     I2CUtil( TwoWire *i2cPort = &Wire, uint32_t clockspeed = 0 ) { _i2cPort = i2cPort; _clockspeed = clockspeed; }
 
     //bool begin( signed char sdaPin, signed char sclPin );
-    bool begin( signed char sdaPin, signed char sclPin, TwoWire *i2cPort = nullptr );
+    bool begin( int sdaPin, int sclPin, TwoWire *i2cPort = nullptr );
     bool begun() { return _begun; };
 
     bool writeCommand( unsigned char i2c_addr, unsigned char reg);
