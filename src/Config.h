@@ -26,17 +26,20 @@
     #define FS_CAN_CREATE_PATH
   #endif
 
-  #if ARDUINO_ESP32_GIT_VER == 0x44c11981
+  #if ESP_ARDUINO_VERSION > ESP_ARDUINO_VERSION_VAL(2,0,3) // highest version supported by ESP32-Chimera-Core
+    #pragma message "ESP32 Arduino x.x.x (edge)"
+
+  #elif ARDUINO_ESP32_GIT_VER == 0x44c11981
     #pragma message "ESP32 Arduino 2.0.0 (0x44c11981) is supported"
 
   #elif ARDUINO_ESP32_GIT_VER == 0x15bbd0a1
     // Introduces Wire::end()
     #pragma message "ESP32 Arduino 2.0.1 RC1 (0x15bbd0a1) is only partially supported"
 
-  #elif ARDUINO_ESP32_GIT_VER == 0xd218e58f
+  #elif ARDUINO_ESP32_GIT_VER == 0xd218e58f|| ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,1)
     #pragma message "ESP32 Arduino 2.0.1 (0xd218e58f) has OTA support broken!!"
 
-  #elif ARDUINO_ESP32_GIT_VER == 0xcaef4006
+  #elif ARDUINO_ESP32_GIT_VER == 0xcaef4006 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,2)
     // Introduces SD::readRAW() and SD::writeRAW() support
     #pragma message "ESP32 Arduino 2.0.2 (0xcaef4006) has SD support broken!!"
 
@@ -44,7 +47,7 @@
     // Introduces ESP32S3, SD::numSectors() and SD::sectorSize() support
     #pragma message "ESP32 Arduino 2.0.3 RC1 (0x1e388a24) is only partially supported"
 
-  #elif ARDUINO_ESP32_GIT_VER == 0x142fceb8
+  #elif ARDUINO_ESP32_GIT_VER == 0x142fceb8 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,3)
 
     // Introduces ESP32S3, SD::numSectors() and SD::sectorSize() support
     #pragma message "ESP32 Arduino 2.0.3 (0x142fceb8) detected"
@@ -55,7 +58,6 @@
 
   #endif
 #endif
-
 
 
 #if defined( LGFX_ONLY ) // LGFX config loaded externally

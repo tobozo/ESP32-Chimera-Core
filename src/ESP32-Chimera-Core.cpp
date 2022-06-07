@@ -141,7 +141,7 @@ namespace ChimeraCore
       if (I2CEnable == true) {
         log_d("Will start I2C");
         if (M5.Lcd.getBoard() != lgfx::board_M5StackCore2) {
-          I2C.begin(SDA, SCL);
+          I2C.begin((int)SDA, (int)SCL);
         } else {
           I2C.begin(32, 33);
         }
