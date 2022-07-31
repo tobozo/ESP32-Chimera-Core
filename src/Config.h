@@ -21,7 +21,8 @@
    || ARDUINO_ESP32_GIT_VER == 0xd218e58f \
    || ARDUINO_ESP32_GIT_VER == 0xcaef4006 \
    || ARDUINO_ESP32_GIT_VER == 0x1e388a24 \
-   || ARDUINO_ESP32_GIT_VER == 0x142fceb8
+   || ARDUINO_ESP32_GIT_VER == 0x142fceb8 \
+   || ARDUINO_ESP32_GIT_VER == 0xc93bf11f
     // FS::open() can create subfolders
     #define FS_CAN_CREATE_PATH
   #endif
@@ -51,6 +52,11 @@
 
     // Introduces ESP32S3, SD::numSectors() and SD::sectorSize() support
     #pragma message "ESP32 Arduino 2.0.3 (0x142fceb8) detected"
+
+  #elif ARDUINO_ESP32_GIT_VER == 0xc93bf11f || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,4)
+
+    // Misc fixes, however the qspi_opi => qio_opi renaming messed up some S3 devices (including S3Box) in boards.txt
+    #pragma message "ESP32 Arduino 2.0.4 (0xc93bf11f) detected"
 
   #else
     // unknown but probably 2.x.x
