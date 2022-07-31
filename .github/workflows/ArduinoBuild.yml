@@ -54,18 +54,12 @@ jobs:
           - odroid_esp32
 
         exclude:
-          # No esp32s3box support before 2.0.3
-          - board: esp32s3box
-            platform-version: 1.0.6
-          - board: esp32s3box
-            platform-version: 2.0.0
-          - board: esp32s3box
-            platform-version: 2.0.1
-          - board: esp32s3box
-            platform-version: 2.0.2
-          # No ESP32-Wrover-Kit board profile before 2.0.0
-          - board: esp32wroverkit
-            platform-version: 1.0.6
+          - { board: esp32wroverkit, platform-version: 1.0.6 } # No ESP32-Wrover-Kit board profile before 2.0.0
+          - { board: esp32s3box, platform-version: 1.0.6 } # No esp32s3box support before 2.0.3
+          - { board: esp32s3box, platform-version: 2.0.0 } # No esp32s3box support before 2.0.3
+          - { board: esp32s3box, platform-version: 2.0.1 } # No esp32s3box support before 2.0.3
+          - { board: esp32s3box, platform-version: 2.0.2 } # No esp32s3box support before 2.0.3
+          - { board: esp32s3box, platform-version: 2.0.4 } # broken in 2.0.4, fixed in 2.0.5, see https://github.com/espressif/arduino-esp32/pull/6962/files
 
         include:
           # testable boards
