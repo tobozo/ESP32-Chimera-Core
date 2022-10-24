@@ -12,7 +12,7 @@
 #include "esp32-hal-log.h"
 
 #if defined ESP_ARDUINO_VERSION_VAL
-  #if __has_include(<core_version.h>) // platformio has no core_version.h
+  #if __has_include(<core_version.h>) // platformio has optional core_version.h
     #include <core_version.h>
   #endif
 
@@ -22,12 +22,13 @@
    || ARDUINO_ESP32_GIT_VER == 0xcaef4006 \
    || ARDUINO_ESP32_GIT_VER == 0x1e388a24 \
    || ARDUINO_ESP32_GIT_VER == 0x142fceb8 \
-   || ARDUINO_ESP32_GIT_VER == 0xc93bf11f
+   || ARDUINO_ESP32_GIT_VER == 0xc93bf11f \
+   || ARDUINO_ESP32_GIT_VER == 0x2d6ca351 \
     // FS::open() can create subfolders
     #define FS_CAN_CREATE_PATH
   #endif
 
-  #if ESP_ARDUINO_VERSION > ESP_ARDUINO_VERSION_VAL(2,0,3) // highest version supported by ESP32-Chimera-Core
+  #if ESP_ARDUINO_VERSION > ESP_ARDUINO_VERSION_VAL(2,0,5) // highest version supported by ESP32-Chimera-Core
     #pragma message "ESP32 Arduino x.x.x (edge)"
 
   #elif ARDUINO_ESP32_GIT_VER == 0x44c11981
@@ -57,6 +58,14 @@
 
     // Misc fixes, however the qspi_opi => qio_opi renaming messed up some S3 devices (including S3Box) in boards.txt
     #pragma message "ESP32 Arduino 2.0.4 (0xc93bf11f) detected"
+
+    #if defined ARDUINO_M5STACK_FIRE && defined BOARD_HAS_PSRAM && defined CONFIG_SPIRAM_SPEED_80M && defined CONFIG_SPIRAM_OCCUPY_VSPI_HOST
+      #pragma message "4MB PSRAM modules may conflict with SD ( see https://github.com/espressif/arduino-esp32/issues/7192 )"
+    #endif
+
+  #elif ARDUINO_ESP32_GIT_VER == 0x2d6ca351 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,5)
+
+    #pragma message "ESP32 Arduino 2.0.5 (0x2d6ca351) detected"
 
   #else
     // unknown but probably 2.x.x
