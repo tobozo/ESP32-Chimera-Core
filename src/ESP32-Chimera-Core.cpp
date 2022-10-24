@@ -168,13 +168,12 @@ namespace ChimeraCore
   void ECCKernel::update()
   {
     //Button update
-    auto ms = lgfx::millis();
-    uint_fast8_t btn_bits = 0;
-
     #if defined HAS_TOUCH
+      auto ms = lgfx::millis();
       if (Touch.isEnabled()) {
         Touch.update(ms);
         #if defined ARDUINO_M5STACK_Core2
+          uint_fast8_t btn_bits = 0;
           if (Touch.isEnabled()) {
             Touch.update(ms);
             int i = Touch.getCount();

@@ -37,6 +37,7 @@ jobs:
           - 2.0.1
           - 2.0.2
           - 2.0.3
+          - 2.0.4
 
         board:
           # Supported boards fancy names
@@ -53,18 +54,12 @@ jobs:
           - odroid_esp32
 
         exclude:
-          # No esp32s3box support before 2.0.3
-          - board: esp32s3box
-            platform-version: 1.0.6
-          - board: esp32s3box
-            platform-version: 2.0.0
-          - board: esp32s3box
-            platform-version: 2.0.1
-          - board: esp32s3box
-            platform-version: 2.0.2
-          # No ESP32-Wrover-Kit board profile before 2.0.0
-          - board: esp32wroverkit
-            platform-version: 1.0.6
+          - { board: esp32wroverkit, platform-version: 1.0.6 } # No ESP32-Wrover-Kit board profile before 2.0.0
+          - { board: esp32s3box, platform-version: 1.0.6 } # No esp32s3box support before 2.0.3
+          - { board: esp32s3box, platform-version: 2.0.0 } # No esp32s3box support before 2.0.3
+          - { board: esp32s3box, platform-version: 2.0.1 } # No esp32s3box support before 2.0.3
+          - { board: esp32s3box, platform-version: 2.0.2 } # No esp32s3box support before 2.0.3
+          - { board: esp32s3box, platform-version: 2.0.4 } # broken in 2.0.4, fixed in 2.0.5, see https://github.com/espressif/arduino-esp32/pull/6962/files
 
         include:
           # testable boards
@@ -82,21 +77,22 @@ jobs:
 
           # testable sdk versions
           - platform-version: 1.0.6
-          - platform-version: 2.0.0
-          - platform-version: 2.0.1
-          - platform-version: 2.0.2
+          #- platform-version: 2.0.0
+          #- platform-version: 2.0.1
+          #- platform-version: 2.0.2
           - platform-version: 2.0.3
+          - platform-version: 2.0.4
 
       fail-fast: false
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Checkout custom library
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: Lovyan03/LovyanGFX
           ref: ${{ github.event.inputs.lgfx_branch }}
@@ -110,6 +106,7 @@ jobs:
           arduino-platform: esp32:esp32@${{ matrix.platform-version }}
           #required-libraries: LovyanGFX
           extra-arduino-lib-install-args: --no-deps
+          extra-arduino-cli-args: "--warnings default " # see https://github.com/ArminJo/arduino-test-compile/issues/28
           sketch-names: Display.ino
           set-build-path: true
           # extra-arduino-cli-args: ${{ matrix.extra-arduino-cli-args }}
