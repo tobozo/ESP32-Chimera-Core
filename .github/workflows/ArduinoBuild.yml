@@ -87,12 +87,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Checkout custom library
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: Lovyan03/LovyanGFX
           ref: ${{ github.event.inputs.lgfx_branch }}
