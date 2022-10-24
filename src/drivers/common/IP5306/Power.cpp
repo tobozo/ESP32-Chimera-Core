@@ -107,7 +107,6 @@ POWER::POWER() {
 }
 
 void POWER::begin() {
-  uint8_t data;
 
   //Initial I2C
   if( ! M5.I2C.begun() ) {
@@ -115,6 +114,7 @@ void POWER::begin() {
   }
 
   #if defined ARDUINO_M5STACK_FIRE
+    uint8_t data;
     // 450ma
     setVinMaxCurrent(CURRENT_400MA);
     setChargeVolt(BAT_4_2V);

@@ -298,14 +298,14 @@ bool LoRaWanClass::transferPacket(char *buffer, unsigned char timeout)
 
 bool LoRaWanClass::transferPacket(unsigned char *buffer, unsigned char length, unsigned char timeout)
 {
-    char temp[2] = {0};
+    char temp[3] = {0,0,0};
 
     while(SerialLoRa.available())SerialLoRa.read();
 
     sendCommand("AT+MSGHEX=\"");
     for(unsigned char i = 0; i < length; i ++)
     {
-        sprintf(temp,"%02x", buffer[i]);
+        snprintf(temp,3,"%02x", buffer[i]);
         SerialLoRa.write(temp);
     }
     sendCommand("\"\r\n");
@@ -383,20 +383,21 @@ bool LoRaWanClass::transferPacketWithConfirmed(char *buffer, unsigned char timeo
 
 bool LoRaWanClass::transferPacketWithConfirmed(unsigned char *buffer, unsigned char length, unsigned char timeout)
 {
-    char temp[2] = {0};
+    char temp[3] = {0,0,0};
     int i;
-    unsigned char *ptr;
+
 
     while(SerialLoRa.available())SerialLoRa.read();
 
     sendCommand("AT+CMSGHEX=\"");
     for(unsigned char i = 0; i < length; i ++)
     {
-        sprintf(temp,"%02x", buffer[i]);
+        snprintf(temp,3,"%02x", buffer[i]);
         SerialLoRa.write(temp);
     }
     sendCommand("\"\r\n");
 #if _DEBUG_SERIAL_
+    unsigned char *ptr;
     ptr = buffer;
     for (i = 0; i < length; i++)
       SerialUSB.print(*(ptr++));
@@ -527,14 +528,14 @@ bool LoRaWanClass::transferProprietaryPacket(char *buffer, unsigned char timeout
 
 bool LoRaWanClass::transferProprietaryPacket(unsigned char *buffer, unsigned char length, unsigned char timeout)
 {
-    char temp[2] = {0};
+    char temp[3] = {0,0,0};
 
     while(SerialLoRa.available())SerialLoRa.read();
 
     sendCommand("AT+PMSGHEX=\"");
     for(unsigned char i = 0; i < length; i ++)
     {
-        sprintf(temp,"%02x", buffer[i]);
+        snprintf(temp,3,"%02x", buffer[i]);
         SerialLoRa.write(temp);
     }
     sendCommand("\"\r\n");
@@ -822,12 +823,12 @@ void LoRaWanClass::transferPacketP2PMode(char *buffer)
 
 void LoRaWanClass::transferPacketP2PMode(unsigned char *buffer, unsigned char length)
 {
-    char temp[2] = {0};
+    char temp[3] = {0,0,0};
 
     sendCommand("AT+TEST=TXLRPKT,\"");
     for(unsigned char i = 0; i < length; i ++)
     {
-        sprintf(temp,"%02x", buffer[i]);
+        snprintf(temp, 3, "%02x", buffer[i]);
         SerialLoRa.write(temp);
     }
     sendCommand("\"\r\n");
