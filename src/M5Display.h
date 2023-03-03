@@ -2,6 +2,8 @@
 
 #define M5STACK
 
+#include "Config.h"
+
 #include <FS.h>
 #define LGFX_AUTODETECT
 #define LGFX_USE_V1

@@ -5,6 +5,9 @@
 #include <esp32-hal.h>
 #include <esp_arduino_version.h>
 
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+
 struct SpeakerCfg
 {
   // handle I2S migration across SDK versions
@@ -236,11 +239,9 @@ namespace ESP32S3BoxAudio
   }
 
 
+};
 
-
-
-
-}
+#pragma GCC diagnostic pop
 
 
 #endif // defined ARDUINO_ESP32_S3_BOX

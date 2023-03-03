@@ -2,6 +2,8 @@
 
 #if defined ARDUINO_ESP32_S3_BOX
 
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 #include "../../../Config.h"
 #include <driver/i2s.h>
 
@@ -35,5 +37,6 @@ namespace ESP32S3BoxAudio
 
 }
 
+#pragma GCC diagnostic pop
 
 #endif

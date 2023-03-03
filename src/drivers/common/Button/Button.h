@@ -20,7 +20,7 @@
 class Button
 {
   public:
-    Button(uint8_t pin, uint8_t invert, uint32_t dbTime);
+    Button(uint8_t pin=0xff, uint8_t invert=0, uint32_t dbTime_millis=10);
     uint8_t  read();
     uint8_t  setState(uint8_t);
     uint8_t  isPressed();
@@ -31,7 +31,7 @@ class Button
     uint8_t  releasedFor(uint32_t ms);
     uint8_t  wasReleasefor(uint32_t ms);
     uint32_t lastChange();
-    void     setDebounce( uint32_t dbTime) { _dbTime = dbTime; }
+    void     setDebounce( uint32_t dbTime_millis) { _dbTime_millis = dbTime_millis; }
 #ifdef ARDUINO_ODROID_ESP32
     uint8_t  readAxis();
     uint8_t  isAxisPressed(void);
@@ -47,7 +47,7 @@ class Button
     uint32_t _time;         //time of current state (all times are in ms)
     uint32_t _lastTime;     //time of previous state
     uint32_t _lastChange;   //time of last state change
-    uint32_t _dbTime;       //debounce time
+    uint32_t _dbTime_millis;//debounce time
     uint32_t _pressTime;    //press time
     uint32_t _hold_time;    //hold time call wasreleasefor
 

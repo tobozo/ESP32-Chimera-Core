@@ -33,7 +33,11 @@ namespace ChimeraCore
     if (SerialEnable == true) {
       Serial.begin(115200);
       Serial.flush();
-      delay(50);
+      #if defined CONFIG_IDF_TARGET_ESP32S3 || defined CONFIG_IDF_TARGET_ESP32S2
+        delay(2000);
+      #else
+        delay(50);
+      #endif
       Serial.print("ESP32-Chimera-Core initializing ");
       #if defined ARDUINO_BOARD
         Serial.printf("[Board=%s] ", ARDUINO_BOARD );
@@ -89,7 +93,7 @@ namespace ChimeraCore
     #endif
 
     // LCD INIT
-    if (LCDEnable == true) {
+    if (LCDEnable) {
       log_d("Enabling LCD");
 
       Lcd.begin();
@@ -97,7 +101,7 @@ namespace ChimeraCore
       #if defined HAS_SDCARD && defined USE_SCREENSHOTS
         // note: builds without prefefined filesystem will need to run this manually
         ScreenShot = new ScreenShotService( &Lcd, &M5STACK_SD );
-        if( ScreenShotEnable == true ) {
+        if( Lcd.isReadable() && ScreenShotEnable == true ) {
           ScreenShot->init();
           ScreenShot->begin();
         }
@@ -237,23 +241,30 @@ namespace ChimeraCore
 
         if ( SD_SPI == nullptr ) {
           #if defined TFCARD_SPI_HOST
-            if( TFCARD_SPI_HOST==VSPI_HOST ) {
-              SD_SPI = new SPIClass(VSPI);
-              log_d("SD will use VSPI");
-            }else if( TFCARD_SPI_HOST==HSPI_HOST ) {
-              SD_SPI = new SPIClass(HSPI);
-              log_d("SD will use HSPI");
-            } else if( TFCARD_SPI_HOST==SPI_HOST ) {
-              SD_SPI = new SPIClass(SPI);
-              log_d("SD will use SPI");
-            } else {
-              log_e("No TFCARD_SPI_HOST selected in config");
-              return false;
-            }
-            log_d("TFCARD_SPI_HOST=%d, SPI_HOST=%d, HSPI_HOST=%d, VSPI_HOST=%d from core #%d", TFCARD_SPI_HOST, SPI_HOST, HSPI_HOST, VSPI_HOST, SD_CORE_ID );
-            //           #define SPI_HOST    SPI1_HOST
-            //           #define HSPI_HOST   SPI2_HOST
-            //           #define VSPI_HOST   SPI3_HOST
+            #if defined CONFIG_IDF_TARGET_ESP32S3
+              SD_SPI = new SPIClass(TFCARD_SPI_HOST);
+              log_d("SD will use SPI HOST #%d", (int)TFCARD_SPI_HOST);
+            #elif defined CONFIG_IDF_TARGET_ESP32S2
+              // not supported yet
+            #else
+              if( TFCARD_SPI_HOST==VSPI_HOST ) {
+                SD_SPI = new SPIClass(VSPI);
+                log_d("SD will use VSPI");
+              }else if( TFCARD_SPI_HOST==HSPI_HOST ) {
+                SD_SPI = new SPIClass(HSPI);
+                log_d("SD will use HSPI");
+              } else if( TFCARD_SPI_HOST==SPI_HOST ) {
+                SD_SPI = new SPIClass(SPI);
+                log_d("SD will use SPI");
+              } else {
+                log_e("No TFCARD_SPI_HOST selected in config");
+                return false;
+              }
+              log_d("TFCARD_SPI_HOST=%d, SPI_HOST=%d, HSPI_HOST=%d, VSPI_HOST=%d from core #%d", TFCARD_SPI_HOST, SPI_HOST, HSPI_HOST, VSPI_HOST, SD_CORE_ID );
+              //           #define SPI_HOST    SPI1_HOST
+              //           #define HSPI_HOST   SPI2_HOST
+              //           #define VSPI_HOST   SPI3_HOST
+            #endif
           #else
             log_d("SD will use HSPI (default)");
             SD_SPI = new SPIClass(HSPI);

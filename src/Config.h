@@ -24,11 +24,13 @@
    || ARDUINO_ESP32_GIT_VER == 0x142fceb8 \
    || ARDUINO_ESP32_GIT_VER == 0xc93bf11f \
    || ARDUINO_ESP32_GIT_VER == 0x2d6ca351 \
+   || ARDUINO_ESP32_GIT_VER == 0xb63f9470 \
+   || ARDUINO_ESP32_GIT_VER == 0x213f9769
     // FS::open() can create subfolders
     #define FS_CAN_CREATE_PATH
   #endif
 
-  #if ESP_ARDUINO_VERSION > ESP_ARDUINO_VERSION_VAL(2,0,5) // highest version supported by ESP32-Chimera-Core
+  #if ESP_ARDUINO_VERSION > ESP_ARDUINO_VERSION_VAL(2,0,7) // highest version supported by ESP32-Chimera-Core
     #pragma message "ESP32 Arduino x.x.x (edge)"
 
   #elif ARDUINO_ESP32_GIT_VER == 0x44c11981
@@ -64,8 +66,13 @@
     #endif
 
   #elif ARDUINO_ESP32_GIT_VER == 0x2d6ca351 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,5)
-
     #pragma message "ESP32 Arduino 2.0.5 (0x2d6ca351) detected"
+
+  #elif ARDUINO_ESP32_GIT_VER == 0xb63f9470 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,6)
+    #pragma message "ESP32 Arduino 2.0.6 (0xb63f9470) detected"
+
+  #elif ARDUINO_ESP32_GIT_VER == 0x213f9769 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,7)
+    #pragma message "ESP32 Arduino 2.0.7 (0x213f9769) detected"
 
   #else
     // unknown but probably 2.x.x
@@ -73,6 +80,7 @@
 
   #endif
 #endif
+
 
 
 #if defined( LGFX_ONLY ) // LGFX config loaded externally
@@ -109,6 +117,34 @@
   #define TFCARD_MOSI_PIN     MOSI
   #define TFCARD_SCLK_PIN     SCK
   #define TFCARD_SPI_HOST     SPI_HOST
+
+
+#elif defined ARDUINO_LOLIN_S3 || defined ARDUINO_LOLIN_S3_PRO || defined LGFX_LOLIN_S3_PRO
+
+  #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    #pragma message "LOLIN_S32_PRO SELECTED"
+  #endif
+
+  #define SPEAKER_PIN   -1
+  #define SD_ENABLE      1
+  #define BUTTON_A_PIN  -1
+  #define BUTTON_B_PIN  -1
+  #define BUTTON_C_PIN  -1 // BUTTON_MENU
+
+  #define TFCARD_SPI_FREQ 20000000
+  #define TFCARD_CS_PIN   46
+  #define TFCARD_MISO_PIN 13
+  #define TFCARD_MOSI_PIN 11
+  #define TFCARD_SCLK_PIN 12
+  #define TFCARD_USE_WIRE1
+  #define TFCARD_SPI_HOST SPI2_HOST
+
+  #define LGFX_LOLIN_S3_PRO
+
+  #define ECC_SDA_PIN 9
+  #define ECC_SCL_PIN 10
+
+
 
 #elif defined( ARDUINO_ESP32_WROVER_KIT )
 
@@ -539,7 +575,7 @@
   #define TFCARD_MISO_PIN   GPIO_NUM_13
   #define TFCARD_MOSI_PIN   GPIO_NUM_11
   #define TFCARD_SCLK_PIN   GPIO_NUM_12
-  //#define TFCARD_USE_WIRE1
+  #define TFCARD_USE_WIRE1
   #define TFCARD_SPI_FREQ   40000000
 
   #define I2S_BCK_PIN     GPIO_NUM_17
@@ -569,7 +605,7 @@
   // #define MUTE_PIN    1 //MUTE Button
 
 
-  #undef USE_SCREENSHOTS
+  //#undef USE_SCREENSHOTS
   #undef USE_NVSUTILS
 
 #else
