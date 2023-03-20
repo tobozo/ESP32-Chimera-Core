@@ -39,11 +39,14 @@ jobs:
 
         platform-version:
           - 1.0.6
-          - 2.0.0
-          - 2.0.1
-          - 2.0.2
+          #- 2.0.0
+          #- 2.0.1
+          #- 2.0.2
           - 2.0.3
           - 2.0.4
+          - 2.0.5
+          - 2.0.6
+          - 2.0.7
 
         board:
           - esp32
@@ -61,21 +64,26 @@ jobs:
 
         exclude:
           - { board: esp32s3box, platform-version: 1.0.6 }
-          - { board: esp32s3box, platform-version: 2.0.0 }
-          - { board: esp32s3box, platform-version: 2.0.1 }
-          - { board: esp32s3box, platform-version: 2.0.2 }
+          #- { board: esp32s3box, platform-version: 2.0.0 }
+          #- { board: esp32s3box, platform-version: 2.0.1 }
+          #- { board: esp32s3box, platform-version: 2.0.2 }
+          - { board: esp32s3box, platform-version: 2.0.4 }
 #          - board: esp-wrover-kit
 #            platform-version: 1.0.6
           - { board: m5stack-core2, platform-version: 1.0.6 } # M5Core2.h broken I2S support with 1.0.6
-          - { board: m5stack-core2, platform-version: 2.0.0 } # M5Core2.h broken I2S support with 2.0.0
+          #- { board: m5stack-core2, platform-version: 2.0.0 } # M5Core2.h broken I2S support with 2.0.0
 
 
         include:
           - platform-version: 1.0.6
-          - platform-version: 2.0.0
-          - platform-version: 2.0.1
-          - platform-version: 2.0.2
+          #- platform-version: 2.0.0
+          #- platform-version: 2.0.1
+          #- platform-version: 2.0.2
           - platform-version: 2.0.3
+          - platform-version: 2.0.4
+          - platform-version: 2.0.5
+          - platform-version: 2.0.6
+          - platform-version: 2.0.7
           - board: esp32
           - board: m5stick-c
           - board: m5stack-core-esp32
