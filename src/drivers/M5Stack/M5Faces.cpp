@@ -1,6 +1,7 @@
 // Copyright (c) M5Stack. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+#include "../common/I2C/I2CUtil.h"
 #include "M5Faces.h"
 
 // ================ Faces Keyboard ===================
@@ -13,7 +14,7 @@
  *----------------------------------------------------------------------*/
 bool M5Faces::canControlFaces()
 {
-  return M5.I2C.writeCommand(KEYBOARD_I2C_ADDR,READI2CSUBADDR);
+  return I2CUtil_Core.writeCommand(KEYBOARD_I2C_ADDR,READI2CSUBADDR);
 }
 
 M5Faces::M5Faces()
@@ -23,12 +24,10 @@ M5Faces::M5Faces()
 
 uint8_t M5Faces::getch(void)
 {
-    uint8_t data=0x00;
-
+  uint8_t data=0x00;
   if (kbhit()) {
-
     while (data==0x00){
-      if (!M5.I2C.readByte(KEYBOARD_I2C_ADDR,&data)) {
+      if (! I2CUtil_Core.readByte(KEYBOARD_I2C_ADDR,&data) ) {
         return 0x00;
       }
       delay(1);

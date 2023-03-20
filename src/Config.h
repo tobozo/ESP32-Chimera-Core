@@ -10,6 +10,7 @@
 
 #include "pins_arduino.h"
 #include "esp32-hal-log.h"
+#include <sdkconfig.h>
 
 #if defined ESP_ARDUINO_VERSION_VAL
   #if __has_include(<core_version.h>) // platformio has optional core_version.h
@@ -675,6 +676,4 @@
   #define HAS_MPU6886
 #endif
 
-
-
-
+#define M5STACK

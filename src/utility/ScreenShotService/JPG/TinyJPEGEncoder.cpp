@@ -57,7 +57,7 @@
 #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 
 
-#include "TinyJPEGEncoder.h"
+#include "TinyJPEGEncoder.hpp"
 // ============================================================
 // Table definitions.
 //

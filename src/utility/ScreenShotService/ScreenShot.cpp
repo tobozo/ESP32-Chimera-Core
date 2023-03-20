@@ -27,7 +27,7 @@
  *
  */
 
-#include "ScreenShot.h"
+#include "ScreenShot.hpp"
 
 /*
 ScreenShotService::ScreenShotService( M5Display *tft, fs::FS &fileSystem )
@@ -133,7 +133,7 @@ static uint32_t jpeg_encoder_w       = 0;
 
 static void jpeg_encoder_callback(uint32_t y, uint32_t h, unsigned char* rgbBuffer, void* device)
 {
-  auto tft = (M5Display*)device;
+  auto tft = (LGFX*)device;
   tft->readRectRGB( jpeg_encoder_xoffset, jpeg_encoder_yoffset+y, jpeg_encoder_w, h, rgbBuffer );
 }
 

@@ -259,4 +259,4 @@ void I2CUtil::scan()
 }
 
 
-//I2CUtil I2CUtil_Core;
+I2CUtil I2CUtil_Core;

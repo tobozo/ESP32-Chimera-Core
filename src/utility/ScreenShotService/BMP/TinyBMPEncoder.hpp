@@ -1,8 +1,8 @@
-/*\
+/*
  *
- * FatPNGEncoder
+ * TinyBMPEncoder
  *
- * Copyright 2020 tobozo http://github.com/tobozo
+ * Copyright 2019 tobozo http://github.com/tobozo
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,24 +25,26 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
-\*/
+ */
 #pragma once
-#define __FAT_PNG_ENCODER_H
+#define __TINY_BMP_ENCODER_H
 
+#include "../ScreenShot.hpp"
 
-#include "../../../M5Display.h"
-
-class PNG_Encoder {
+class BMP_Encoder
+{
 
   public:
-    PNG_Encoder( M5Display *tft, fs::FS *fileSystem  ) : _tft(tft), _fileSystem(fileSystem) { };
-    void init();
+
+    BMP_Encoder( LGFX *tft, fs::FS *fileSystem  ) : _tft(tft), _fileSystem(fileSystem) { };
+
     bool encodeToFile( const char* filename, const int imageW, const int imageH );
     bool encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH );
 
   private:
 
-    M5Display *_tft;
+    RGBColor *rgbBuffer = NULL;
+    LGFX *_tft;
     fs::FS * _fileSystem;
 
 };

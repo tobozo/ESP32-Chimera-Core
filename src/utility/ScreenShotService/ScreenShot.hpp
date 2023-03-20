@@ -31,18 +31,22 @@
 #define __SCREENSHOT_SERVICE_H_
 
 
-//#pragma message ("Screenshots support enabled !!")
-#include "../../M5Display.h"
-#include "./JPG/TinyJPEGEncoder.h"
-#include "./BMP/TinyBMPEncoder.h"
-#include "./PNG/FatPNGEncoder.h" // requires miniz.c patched with TDEFL_LESS_MEMORY=1
-#include "./GIF/TinyGIFEncoder.h"
+#include <FS.h>
+#define LGFX_AUTODETECT
+#define LGFX_USE_V1
+#include <LovyanGFX.hpp>
 
-class ScreenShotService {
+class JPEG_Encoder;
+class BMP_Encoder;
+class PNG_Encoder;
+class GIF_Encoder;
+
+class ScreenShotService
+{
 
   public:
 
-    ScreenShotService( M5Display *tft, fs::FS *fileSystem ) : _tft(tft), _fileSystem(fileSystem) { };
+    ScreenShotService( LGFX *tft, fs::FS *fileSystem ) : _tft(tft), _fileSystem(fileSystem) { };
     ~ScreenShotService();
 
     void init();
@@ -72,7 +76,7 @@ class ScreenShotService {
     char        fileName[255]  = {0};
     char        folderName[32] = {0};
 
-    M5Display* _tft;
+    LGFX* _tft;
     fs::FS*    _fileSystem;
 
     void        genFileName( const char* name, const char* extension );
@@ -90,3 +94,8 @@ class ScreenShotService {
 
 }; // end class
 
+
+#include "./JPG/TinyJPEGEncoder.hpp"
+#include "./BMP/TinyBMPEncoder.hpp"
+#include "./PNG/FatPNGEncoder.hpp" // requires miniz.c patched with TDEFL_LESS_MEMORY=1
+#include "./GIF/TinyGIFEncoder.hpp"

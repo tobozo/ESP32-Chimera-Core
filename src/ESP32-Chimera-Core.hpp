@@ -14,28 +14,30 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <FS.h>
-#include "Config.h"
+#include "./Config.h"
 
 #ifdef BOARD_HAS_1BIT_SDMMC
   #include <SD_MMC.h>
   #define M5STACK_SD SD_MMC
-#else
-  #if defined HAS_SDCARD
-    #include <SD.h>
-    #define M5STACK_SD SD
-    #define USE_TFCARD_CS_PIN
-  #endif
+#elif defined HAS_SDCARD
+  #include <SD.h>
+  #define M5STACK_SD SD
+  #define USE_TFCARD_CS_PIN
 #endif
 
-#include "M5Display.h"
+#define LGFX_AUTODETECT
+#define LGFX_USE_V1
+#define TouchButton LGFX_Button
+#include <LovyanGFX.hpp>
+using M5Display = LGFX;
 
 // ChimeraCore utilities
 #if defined HAS_SDCARD && defined USE_SCREENSHOTS
   #include "utility/Memory.h"
-  #include "utility/ScreenShotService/ScreenShot.h" // ScreenShot Service
+  #include "utility/ScreenShotService/ScreenShot.hpp" // ScreenShot Service
 #endif
-#include "drivers/common/I2C/I2CUtil.h"           // I2C Scanner
 
+#include "drivers/common/I2C/I2CUtil.h"           // I2C Scanner
 
 #if defined USE_NVSUTILS
   #include "drivers/common/NVS/NVSUtils.h"          // NVS Utilities
@@ -78,10 +80,11 @@
   #include "drivers/common/MPU9250/MPU9250.h"
 #endif
 
+
 #if defined HAS_TOUCH
   // hardware support
   #include "utility/Touch/Touch_Class.hpp" // Touch Support with gestures from M5Unified
-  #include "utility/Touch/TouchButton.hpp" // alias to LGFX_Button, used as UI Draw helpers for Touch Buttons
+  //#include "utility/Touch/TouchButton.hpp" // alias to LGFX_Button, used as UI Draw helpers for Touch Buttons
 #endif
 
 #if defined ARDUINO_ODROID_ESP32
@@ -160,7 +163,8 @@ namespace ChimeraCore
       #if defined USE_NVSUTILS
         NVSUtils NVS; // NVS Utilities
       #endif
-      I2CUtil I2C = I2CUtil(); // I2C Scanner && Twatch I2C bus
+
+      I2CUtil &I2C = I2CUtil_Core; // I2C Scanner && Twatch I2C bus
 
       // TODO: source agnostic Button_Class
       Button BtnA = Button(BUTTON_A_PIN, GPIO_BTN_INVERT, DEBOUNCE_MS);

@@ -4,7 +4,14 @@
 
 #pragma once
 
-#include "../../M5Display.h"
+
+#if __has_include(<LovyanGFX.hpp>)
+
+  #define LGFX_AUTODETECT
+  #define LGFX_USE_V1
+  #include <LovyanGFX.hpp>
+
+#endif
 
 namespace ChimeraCore
 {

@@ -45,4 +45,4 @@ class I2CUtil
 
 };
 
-//extern I2CUtil I2CUtil_Core; // I2C Scanner && Twatch I2C bus
+extern I2CUtil I2CUtil_Core; // I2C Scanner && Twatch I2C bus

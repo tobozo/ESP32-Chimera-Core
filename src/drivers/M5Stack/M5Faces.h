@@ -3,8 +3,6 @@
 #pragma once
 #define M5Faces_h
 
-#include "../../ESP32-Chimera-Core.h"
-
 class M5Faces
 {
   public:
