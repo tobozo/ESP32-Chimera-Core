@@ -41,12 +41,12 @@ class SpriteFS
       bool ret = false;
       if( sprite->width()<=0 || sprite->height() <= 0 || sprite->bufferLength() <= 0 ) return false;
       SpriteFS_t spriteInfo = { (uint16_t)sprite->width(), (uint16_t)sprite->height(), sprite->bufferLength() };
-      float bits_per_pixel = float(spriteInfo.buffer_length) / float( spriteInfo.width*spriteInfo.height );
+      float bits_per_pixel = float(spriteInfo.buffer_length) / float( spriteInfo.width*spriteInfo.height ) * 8.0;
       if( bits_per_pixel <= 0 ) return false;
       size_t written_bytes = 0;
       written_bytes += stream->write( (char*)&spriteInfo, sizeof( SpriteFS_t ) );
       written_bytes += stream->write( (char*)sprite->getBuffer(), spriteInfo.buffer_length );
-      log_d("Written %d*%d@%dbpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, int(8*bits_per_pixel), spriteInfo.buffer_length );
+      log_d("Written %d*%d@%dbpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, int(bits_per_pixel), spriteInfo.buffer_length );
       return written_bytes == spriteInfo.buffer_length + sizeof( SpriteFS_t );
     }
 
@@ -56,11 +56,11 @@ class SpriteFS
       SpriteFS_t spriteInfo = {0,0,0};
       if( ! stream->readBytes( (uint8_t*)&spriteInfo, sizeof( SpriteFS_t ) ) ) return false;
       if( spriteInfo.width==0 || spriteInfo.height == 0 || spriteInfo.buffer_length == 0 ) return false;
-      float bits_per_pixel = float(spriteInfo.buffer_length) / float( spriteInfo.width*spriteInfo.height );
+      float bits_per_pixel = float(spriteInfo.buffer_length) / float( spriteInfo.width*spriteInfo.height ) * 8.0;
       if( bits_per_pixel <= 0 ) return false;
-      log_d("Will create %d*%d@%dpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, int(8*bits_per_pixel), spriteInfo.buffer_length);
+      log_d("Will create %d*%d@%dpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, int(bits_per_pixel), spriteInfo.buffer_length);
       if( !sprite->createSprite( spriteInfo.width, spriteInfo.height ) ) return false;
-      sprite->setColorDepth( 8*bits_per_pixel );
+      sprite->setColorDepth( bits_per_pixel );
       ret = stream->readBytes( (uint8_t*)sprite->getBuffer(), spriteInfo.buffer_length );
       return ret;
     }
