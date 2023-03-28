@@ -39,13 +39,15 @@ class SpriteFS
     bool save( Stream* stream )
     {
       bool ret = false;
+      if( sprite->width()<=0 || sprite->height() <= 0 || sprite->bufferLength() <= 0 ) return false;
       SpriteFS_t spriteInfo = { (uint16_t)sprite->width(), (uint16_t)sprite->height(), sprite->bufferLength() };
-      if( spriteInfo.width==0 || spriteInfo.height == 0 || spriteInfo.buffer_length == 0 ) return false;
+      float bits_per_pixel = float(spriteInfo.buffer_length) / float( spriteInfo.width*spriteInfo.height );
+      if( bits_per_pixel <= 0 ) return false;
       size_t written_bytes = 0;
       written_bytes += stream->write( (char*)&spriteInfo, sizeof( SpriteFS_t ) );
-      written_bytes += stream->write( (char*)sprite->getBuffer(), sprite->bufferLength() );
-      log_d("Written %d*%d@%dbpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, sprite->getColorDepth(), spriteInfo.buffer_length );
-      return written_bytes == sprite->bufferLength() + sizeof( SpriteFS_t );
+      written_bytes += stream->write( (char*)sprite->getBuffer(), spriteInfo.buffer_length );
+      log_d("Written %d*%d@%dbpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, int(8*bits_per_pixel), spriteInfo.buffer_length );
+      return written_bytes == spriteInfo.buffer_length + sizeof( SpriteFS_t );
     }
 
     bool load( Stream* stream )
@@ -54,11 +56,11 @@ class SpriteFS
       SpriteFS_t spriteInfo = {0,0,0};
       if( ! stream->readBytes( (uint8_t*)&spriteInfo, sizeof( SpriteFS_t ) ) ) return false;
       if( spriteInfo.width==0 || spriteInfo.height == 0 || spriteInfo.buffer_length == 0 ) return false;
-      uint8_t bytes_per_pixel = spriteInfo.buffer_length / ( spriteInfo.width*spriteInfo.height );
-      if( bytes_per_pixel == 0 ) return false;
-      log_d("Will create %d*%d@%dbpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, bytes_per_pixel*8, spriteInfo.buffer_length);
+      float bits_per_pixel = float(spriteInfo.buffer_length) / float( spriteInfo.width*spriteInfo.height );
+      if( bits_per_pixel <= 0 ) return false;
+      log_d("Will create %d*%d@%dpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, int(8*bits_per_pixel), spriteInfo.buffer_length);
       if( !sprite->createSprite( spriteInfo.width, spriteInfo.height ) ) return false;
-      sprite->setColorDepth( 8*bytes_per_pixel );
+      sprite->setColorDepth( 8*bits_per_pixel );
       ret = stream->readBytes( (uint8_t*)sprite->getBuffer(), spriteInfo.buffer_length );
       return ret;
     }
@@ -73,15 +75,16 @@ void setup()
   M5.begin();
 
   sprite->createSprite( 128, 128 );
-  sprite->fillSprite( TFT_YELLOW );
+  sprite->setColorDepth(1);
+  sprite->fillSprite( TFT_WHITE );
 
   M5.Lcd.fillScreen( TFT_BLUE );
 
   SpriteFS spriteFS( sprite );
 
-  if( spriteFS.save( &SD, "/yellow.sprite" ) ) {
+  if( spriteFS.save( &SD, "/white.sprite" ) ) {
     Serial.println("Sprite saved!");
-    if( spriteFS.load( &SD, "/yellow.sprite") ) {
+    if( spriteFS.load( &SD, "/white.sprite") ) {
       Serial.println("Sprite loaded !");
       sprite->pushSprite(0,0);
     } else {
