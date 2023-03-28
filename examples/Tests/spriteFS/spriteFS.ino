@@ -40,9 +40,11 @@ class SpriteFS
     {
       bool ret = false;
       SpriteFS_t spriteInfo = { (uint16_t)sprite->width(), (uint16_t)sprite->height(), sprite->bufferLength() };
+      if( spriteInfo.width==0 || spriteInfo.height == 0 || spriteInfo.buffer_length == 0 ) return false;
       size_t written_bytes = 0;
       written_bytes += stream->write( (char*)&spriteInfo, sizeof( SpriteFS_t ) );
       written_bytes += stream->write( (char*)sprite->getBuffer(), sprite->bufferLength() );
+      log_d("Written %d*%d@%dbpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, sprite->getColorDepth(), spriteInfo.buffer_length );
       return written_bytes == sprite->bufferLength() + sizeof( SpriteFS_t );
     }
 
@@ -55,7 +57,7 @@ class SpriteFS
       uint8_t bytes_per_pixel = spriteInfo.buffer_length / ( spriteInfo.width*spriteInfo.height );
       if( bytes_per_pixel == 0 ) return false;
       log_d("Will create %d*%d@%dbpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, bytes_per_pixel*8, spriteInfo.buffer_length);
-      sprite->createSprite( spriteInfo.width, spriteInfo.height );
+      if( !sprite->createSprite( spriteInfo.width, spriteInfo.height ) ) return false;
       sprite->setColorDepth( 8*bytes_per_pixel );
       ret = stream->readBytes( (uint8_t*)sprite->getBuffer(), spriteInfo.buffer_length );
       return ret;
@@ -79,7 +81,6 @@ void setup()
 
   if( spriteFS.save( &SD, "/yellow.sprite" ) ) {
     Serial.println("Sprite saved!");
-    sprite->fillSprite( TFT_BLACK ); // fill with black
     if( spriteFS.load( &SD, "/yellow.sprite") ) {
       Serial.println("Sprite loaded !");
       sprite->pushSprite(0,0);
