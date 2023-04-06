@@ -2,15 +2,31 @@
 
 #if defined ARDUINO_ESP32_S3_BOX
 
+  // - S3BoxLite has no touch, and ST7789 display
+  // - S3Box     has TT21xxx touch, and ILI9342 display
+
+  // #define S3_BOX_LITE
+
   #include <LovyanGFX.hpp>
   #include <driver/i2c.h>
 
   class LGFX_S3Box : public lgfx::LGFX_Device {
 
-    lgfx::Panel_ILI9342  _panel_instance;
     lgfx::Bus_SPI        _bus_instance;
-    lgfx::Touch_TT21xxx  _touch_instance;
     lgfx::Light_PWM      _light_instance;
+
+    #if !defined S3_BOX_LITE
+      #pragma message "S3Box support (panel=ILI9342,touch=TT21xxx)"
+      lgfx::Panel_ILI9342  _panel_instance;
+      lgfx::Touch_TT21xxx  _touch_instance;
+      #define PANEL_INVERT false
+      #define PANEL_OFFSET_ROTATION 1
+    #else
+      #pragma message "S3Box 'lite' support (panel=ST7789,no touch)"
+      lgfx::Panel_ST7789   _panel_instance;
+      #define PANEL_INVERT true
+      #define PANEL_OFFSET_ROTATION 2
+    #endif
 
     public:
 
@@ -24,8 +40,6 @@
           cfg.spi_mode = 0;
           cfg.freq_write = 40000000;
           cfg.freq_read  = 16000000;
-          //cfg.use_lock   = true;
-          //cfg.dma_channel = SPI_DMA_CH_AUTO;
           cfg.pin_sclk = GPIO_NUM_7;
           cfg.pin_mosi = GPIO_NUM_6;
           cfg.pin_miso = GPIO_NUM_0;
@@ -45,19 +59,19 @@
           log_d("Attached Light instance");
         }
 
-
         {
           auto cfg = _panel_instance.config();
           cfg.pin_cs   = GPIO_NUM_5;
           cfg.pin_rst  = GPIO_NUM_48;
-          cfg.offset_rotation = 1;
+          cfg.offset_rotation = PANEL_OFFSET_ROTATION;
+          cfg.invert = PANEL_INVERT;
           _panel_instance.config(cfg);
           _panel_instance.setRotation(1);
           _panel_instance.light( &_light_instance );
           log_d("Attached Panel instance");
         }
 
-
+        #if !defined S3_BOX_LITE
         {
           auto cfg = _touch_instance.config();
           cfg.pin_int    = GPIO_NUM_3;
@@ -77,6 +91,7 @@
           _panel_instance.setCalibrateAffine(affine);
           log_d("Attached Touch instance");
         }
+        #endif
 
         setPanel(&_panel_instance);
       }
