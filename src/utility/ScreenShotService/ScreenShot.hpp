@@ -40,6 +40,7 @@ class JPEG_Encoder;
 class BMP_Encoder;
 class PNG_Encoder;
 class GIF_Encoder;
+class QOI_Encoder;
 
 class ScreenShotService
 {
@@ -61,6 +62,7 @@ class ScreenShotService
     void snapBMP( const char* name = "screenshot", bool displayAfter = false );
     void snapPNG( const char* name = "screenshot", bool displayAfter = false );
     void snapGIF( const char* name = "screenshot", bool displayAfter = false );
+    void snapQOI( const char* name = "screenshot", bool displayAfter = false );
     void setWindow( uint32_t x=0, uint32_t y=0, uint32_t w=0, uint32_t h=0 );
     bool readPixelSuccess  = false; // result of tft pixel read test
     bool jpegCapture       = true; // default yes until tested, BMP capture will be used if not enough ram is available
@@ -88,6 +90,7 @@ class ScreenShotService
     BMP_Encoder  *BMPEncoder  = nullptr;
     PNG_Encoder  *PNGEncoder  = nullptr;
     GIF_Encoder  *GIFEncoder  = nullptr;
+    QOI_Encoder  *QOIEncoder  = nullptr;
 
     uint8_t*    rgbBuffer      = NULL; // used for jpeg only, bmp has his own
 
@@ -99,3 +102,4 @@ class ScreenShotService
 #include "./BMP/TinyBMPEncoder.hpp"
 #include "./PNG/FatPNGEncoder.hpp" // requires miniz.c patched with TDEFL_LESS_MEMORY=1
 #include "./GIF/TinyGIFEncoder.hpp"
+#include "./QOI/QOIEncoder.hpp"

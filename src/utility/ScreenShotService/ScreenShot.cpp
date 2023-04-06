@@ -251,6 +251,28 @@ void ScreenShotService::snapGIF( const char* name, bool displayAfter )
 }
 
 
+void ScreenShotService::snapQOI( const char* name, bool displayAfter )
+{
+  genFileName( name, "qoi" );
+  uint32_t time_start = millis();
+  QOIEncoder = new QOI_Encoder( _tft, _fileSystem );
+  if( !QOIEncoder->encodeToFile( fileName, _x, _y, _w, _h ) )  {
+    log_e( "[ERROR] Could not write QOI file to: %s", fileName );
+  } else {
+    fs::File outFile = _fileSystem->open( fileName );
+    size_t fileSize = outFile.size();
+    outFile.close();
+    log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
+    if( displayAfter ) {
+      snapAnimation();
+      _tft->drawQoiFile( *_fileSystem, fileName, _x, _y );
+      delay(5000);
+    }
+  }
+  delete QOIEncoder;
+}
+
+
 void ScreenShotService::checkFolder( const char* path )
 {
   *folderName = {0};
