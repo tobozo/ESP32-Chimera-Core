@@ -173,32 +173,37 @@ namespace ChimeraCore
   {
     //Button update
     #if defined HAS_TOUCH
+      #if ! defined TOUCH_WATERLINE // Note: M5Core2 has TOUCH_WATERLINE set to tft.height(), because touch zone is larger than display
+        uint32_t TOUCH_WATERLINE = M5.Lcd.height()/6; // occupy 40px for buttons
+      #endif
       auto ms = lgfx::millis();
       if (Touch.isEnabled()) {
         Touch.update(ms);
-        #if defined ARDUINO_M5STACK_Core2
-          uint_fast8_t btn_bits = 0;
-          if (Touch.isEnabled()) {
-            Touch.update(ms);
-            int i = Touch.getCount();
-            while (--i >= 0) {
-              auto det = Touch.getDetail(i);
-              if ((det.state & (touch_state_t::mask_touch | touch_state_t::mask_moving)) == touch_state_t::mask_touch) {
-                auto raw = Touch.getTouchPointRaw(i);
-                if (raw.y > 240) {
-                  int x = raw.x;
-                  size_t idx = x / 110;
-                  if (x - (idx * 110) < 100) {
-                    btn_bits = 1 << idx;
-                  }
+        uint_fast8_t btn_bits = 0;
+        if (Touch.isEnabled()) {
+          Touch.update(ms);
+          int i = Touch.getCount();
+          while (--i >= 0) {
+            auto det = Touch.getDetail(i);
+            if ((det.state & (touch_state_t::mask_touch | touch_state_t::mask_moving)) == touch_state_t::mask_touch) {
+              auto raw = Touch.getTouchPointRaw(i);
+              if( TOUCH_WATERLINE != M5.Lcd.height() ) {
+                // Touch and display share the same coords system
+                M5.Lcd.convertRawXY(&raw);
+              }
+              if (raw.y > TOUCH_WATERLINE) {
+                int x = raw.x;
+                size_t idx = x / 110;
+                if (x - (idx * 110) < 100) {
+                  btn_bits = 1 << idx;
                 }
               }
             }
-            BtnA.setState( btn_bits & 1 );
-            BtnB.setState( btn_bits & 2 );
-            BtnC.setState( btn_bits & 4 );
           }
-        #endif // ARDUINO_M5STACK_Core2
+          BtnA.setState( btn_bits & 1 );
+          BtnB.setState( btn_bits & 2 );
+          BtnC.setState( btn_bits & 4 );
+        }
       }
     #endif
 

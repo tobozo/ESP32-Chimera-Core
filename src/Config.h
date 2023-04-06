@@ -465,6 +465,7 @@
   #define HAS_MPU6886
 
   #define TOUCH_INT GPIO_NUM_39
+  #define TOUCH_WATERLINE 240 // any Y touch coord higher is in buttons zone
   #define TFCARD_CS_PIN 4
   #define SD_ENABLE     1
   #define SPEAKER_PIN  25
@@ -578,6 +579,7 @@
   #define TFCARD_SCLK_PIN   GPIO_NUM_12
   #define TFCARD_USE_WIRE1
   #define TFCARD_SPI_FREQ   40000000
+  #define TFCARD_SPI_HOST   SPI2_HOST
 
   #define I2S_BCK_PIN     GPIO_NUM_17
   #define I2S_LRCK_PIN    GPIO_NUM_47
@@ -592,8 +594,9 @@
   #define BUTTON_C_PIN -1
   #define SPEAKER_PIN  -1
 
-  //#define HAS_TOUCH
+  #define HAS_TOUCH
   #define TOUCH_INT GPIO_NUM_3
+  #define TOUCH_WATERLINE 200 // any Y touch coord higher is in buttons zone
 
   // #if !defined SDA
   //   #define SDA I2C_SDA

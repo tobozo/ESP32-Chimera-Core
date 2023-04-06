@@ -25,11 +25,18 @@
   #define USE_TFCARD_CS_PIN
 #endif
 
-#define LGFX_AUTODETECT
+
 #define LGFX_USE_V1
 #define TouchButton LGFX_Button
-#include <LovyanGFX.hpp>
-using M5Display = LGFX;
+
+#if defined ARDUINO_ESP32_S3_BOX
+  #include "ext_confs/ESP32-S3-Box.hpp"
+#else
+  #define LGFX_AUTODETECT
+  #include <LovyanGFX.hpp>
+  using M5Display = LGFX;
+#endif
+
 
 // ChimeraCore utilities
 #if defined HAS_SDCARD && defined USE_SCREENSHOTS
