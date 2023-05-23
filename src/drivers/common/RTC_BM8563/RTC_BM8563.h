@@ -1,6 +1,7 @@
 #pragma once
 #define __RTC_H__
 
+#include "pins_arduino.h"
 #include <Wire.h>
 
 /*\
