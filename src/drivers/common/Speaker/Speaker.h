@@ -2,14 +2,13 @@
 #define _SPEAKER_H_
 
 #include <stdint.h>
+#include <esp32-hal-dac.h>
 
-
-
-
-class SPEAKER {
+class SPEAKER
+{
   public:
-    SPEAKER(int pin, uint8_t channel);
 
+    SPEAKER(const int8_t pin=-1, const uint8_t channel=0) :  _pin(pin), _channel(channel), _volume(8), _begun(false) { };
     void begin();
     void end();
     void mute();
@@ -24,12 +23,12 @@ class SPEAKER {
     void playMusic(const uint8_t *music_data, uint16_t sample_rate);
 
   private:
-    uint32_t _count;
-    uint8_t _volume;
-    uint16_t _beep_duration;
-    uint16_t _beep_freq;
-    int _pin;     // SPEAKER_PIN
-    uint8_t _channel; // TONE_PIN_CHANNEL
-    bool _begun;
-    bool speaker_on;
+    int8_t _pin = -1;     // SPEAKER_PIN
+    uint8_t _channel = 0; // TONE_PIN_CHANNEL
+    uint32_t _count = 0;
+    uint8_t _volume = 0;
+    uint16_t _beep_duration = 0;
+    uint16_t _beep_freq = 0;
+    bool _begun = false;
+    bool speaker_on = false;
 };

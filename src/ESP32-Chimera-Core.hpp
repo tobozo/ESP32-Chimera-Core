@@ -245,9 +245,12 @@ namespace ChimeraCore
         void setRtcTime( uint16_t year, uint8_t month, uint8_t day , uint8_t hours, uint8_t minutes, uint8_t seconds );
       #endif
 
-      #if defined HAS_SPEAKER
+      #if defined HAS_SPEAKER && defined SPEAKER_PIN && defined TONE_PIN_CHANNEL
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wignored-qualifiers" // fuck that GCC pedantism
         // PWM implementation
-        SPEAKER Speaker(SPEAKER_PIN, TONE_PIN_CHANNEL);
+        SPEAKER Speaker{ (const int8_t)SPEAKER_PIN, (const uint8_t)TONE_PIN_CHANNEL };
+        #pragma GCC diagnostic pop
       #endif
 
       #if defined HAS_PRIMARY_IMU
