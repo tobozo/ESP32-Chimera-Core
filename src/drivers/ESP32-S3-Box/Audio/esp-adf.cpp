@@ -1,9 +1,13 @@
+//#define ECC_NO_PRAGMAS
 #include "esp-adf.hpp"
 
 #if defined ARDUINO_ESP32_S3_BOX
 
 #include <esp32-hal.h>
 #include <esp_arduino_version.h>
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
 struct SpeakerCfg
 {
@@ -236,11 +240,9 @@ namespace ESP32S3BoxAudio
   }
 
 
+};
 
-
-
-
-}
+#pragma GCC diagnostic pop
 
 
 #endif // defined ARDUINO_ESP32_S3_BOX

@@ -26,7 +26,7 @@
 // Finally, call GifEnd() to close the file handle and free memory.
 //
 
-#include "TinyGIFEncoder.h"
+#include "TinyGIFEncoder.hpp"
 
 
 void GIF_Encoder::init() {

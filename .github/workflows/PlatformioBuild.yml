@@ -39,11 +39,16 @@ jobs:
 
         platform-version:
           - 1.0.6
-          - 2.0.0
-          - 2.0.1
-          - 2.0.2
-          - 2.0.3
-          - 2.0.4
+          #- 2.0.0
+          #- 2.0.1
+          #- 2.0.2
+          #- 2.0.3
+          #- 2.0.4
+          - 2.0.5
+          - 2.0.6
+          - 2.0.7
+          - 2.0.8
+          - 2.0.9
 
         board:
           - esp32
@@ -57,25 +62,34 @@ jobs:
           - lolin_d32_pro
           - ttgo-t-watch
           - ttgo-t1
+          - CoreS3
           #- ttgo-lora32-v2
 
         exclude:
           - { board: esp32s3box, platform-version: 1.0.6 }
-          - { board: esp32s3box, platform-version: 2.0.0 }
-          - { board: esp32s3box, platform-version: 2.0.1 }
-          - { board: esp32s3box, platform-version: 2.0.2 }
+          #- { board: esp32s3box, platform-version: 2.0.0 }
+          #- { board: esp32s3box, platform-version: 2.0.1 }
+          #- { board: esp32s3box, platform-version: 2.0.2 }
+          #- { board: esp32s3box, platform-version: 2.0.4 }
 #          - board: esp-wrover-kit
 #            platform-version: 1.0.6
           - { board: m5stack-core2, platform-version: 1.0.6 } # M5Core2.h broken I2S support with 1.0.6
-          - { board: m5stack-core2, platform-version: 2.0.0 } # M5Core2.h broken I2S support with 2.0.0
+          - { board: CoreS3, platform-version: 1.0.6 } # M5Core2.h broken I2S support with 1.0.6
+          #- { board: m5stack-core2, platform-version: 2.0.0 } # M5Core2.h broken I2S support with 2.0.0
 
 
         include:
           - platform-version: 1.0.6
-          - platform-version: 2.0.0
-          - platform-version: 2.0.1
-          - platform-version: 2.0.2
-          - platform-version: 2.0.3
+          #- platform-version: 2.0.0
+          #- platform-version: 2.0.1
+          #- platform-version: 2.0.2
+          #- platform-version: 2.0.3
+          #- platform-version: 2.0.4
+          - platform-version: 2.0.5
+          - platform-version: 2.0.6
+          - platform-version: 2.0.7
+          - platform-version: 2.0.8
+          - platform-version: 2.0.9
           - board: esp32
           - board: m5stick-c
           - board: m5stack-core-esp32
@@ -87,6 +101,7 @@ jobs:
           - board: lolin_d32_pro
           - board: ttgo-t-watch
           - board: ttgo-t1
+          - board: CoreS3
 
       fail-fast: false
     steps:
@@ -109,6 +124,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
       - name: Set up Python
         uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
       - name: Install PlatformIO
         run: |
@@ -119,7 +136,9 @@ jobs:
       - name: Run PlatformIO
         run: |
           cd ${{ env.PROJECT_DIR }}
+          export pio_ver=${{ matrix.platform-version }}
+          export pio_env="${pio_ver//./_}"
           [[ "${{ env.BRANCH_NAME }}" == "${{ github.event.inputs.master_branch }}" ]] && rm dev_lib_deps.ini || echo "Develop!" && pio system prune -f
-          pio lib -e ${{ matrix.board }}@${{ matrix.platform-version }} install --no-save file://$(realpath ../../../)
-          pio run -e ${{ matrix.board }}@${{ matrix.platform-version }}
+          pio lib -e ${{ matrix.board }}_$pio_env install --no-save file://$(realpath ../../../)
+          pio run -e ${{ matrix.board }}_$pio_env
 

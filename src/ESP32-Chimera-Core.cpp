@@ -1,6 +1,7 @@
 // Copyright (c) ECCKernel. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+#define ECC_NO_PRAGMAS // prevent multiple triggering of pragmas
 #include "ESP32-Chimera-Core.hpp"
 
 ChimeraCore::ECCKernel M5;
@@ -33,7 +34,11 @@ namespace ChimeraCore
     if (SerialEnable == true) {
       Serial.begin(115200);
       Serial.flush();
-      delay(50);
+      #if defined CONFIG_IDF_TARGET_ESP32S3 || defined CONFIG_IDF_TARGET_ESP32S2
+        delay(2000);
+      #else
+        delay(50);
+      #endif
       Serial.print("ESP32-Chimera-Core initializing ");
       #if defined ARDUINO_BOARD
         Serial.printf("[Board=%s] ", ARDUINO_BOARD );
@@ -84,12 +89,12 @@ namespace ChimeraCore
       //#endif  /*LILYGO_WATCH_2020_V2*/
     #endif
 
-    #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
+    #if defined HAS_AXP192 // M5Core2 starts APX after display is on
       Axp.SetLDOEnable( 3,0 ); // turn any vibration off
     #endif
 
     // LCD INIT
-    if (LCDEnable == true) {
+    if (LCDEnable) {
       log_d("Enabling LCD");
 
       Lcd.begin();
@@ -97,7 +102,7 @@ namespace ChimeraCore
       #if defined HAS_SDCARD && defined USE_SCREENSHOTS
         // note: builds without prefefined filesystem will need to run this manually
         ScreenShot = new ScreenShotService( &Lcd, &M5STACK_SD );
-        if( ScreenShotEnable == true ) {
+        if( Lcd.isReadable() && ScreenShotEnable == true ) {
           ScreenShot->init();
           ScreenShot->begin();
         }
@@ -109,6 +114,21 @@ namespace ChimeraCore
         Touch.begin(&Lcd);
       }
     #endif
+
+    #if defined HAS_AXP2101
+      log_d("Enabling AXP2101");
+      Axp.begin(&Wire1);
+      #if defined ARDUINO_M5STACK_CORES3
+        uint8_t val = Axp.read8Bit( 0x03 ); // knock knock
+        if( val != 0x4a ) {
+          log_d("SD Card not visible (resp: 0x%02x, expects 0x4A), setting SDEnable = false", val);
+          SDEnable = false;
+        } else {
+          Axp.coreS3_init();
+        }
+      #endif
+    #endif
+
 
     #if defined HAS_SDCARD
       if (SDEnable == true /*&& M5STACK_SD.cardSize() == 0*/) {
@@ -169,32 +189,37 @@ namespace ChimeraCore
   {
     //Button update
     #if defined HAS_TOUCH
+      #if ! defined TOUCH_WATERLINE // Note: M5Core2 has TOUCH_WATERLINE set to tft.height(), because touch zone is larger than display
+        uint32_t TOUCH_WATERLINE = M5.Lcd.height()/6; // occupy 40px for buttons
+      #endif
       auto ms = lgfx::millis();
       if (Touch.isEnabled()) {
         Touch.update(ms);
-        #if defined ARDUINO_M5STACK_Core2
-          uint_fast8_t btn_bits = 0;
-          if (Touch.isEnabled()) {
-            Touch.update(ms);
-            int i = Touch.getCount();
-            while (--i >= 0) {
-              auto det = Touch.getDetail(i);
-              if ((det.state & (touch_state_t::mask_touch | touch_state_t::mask_moving)) == touch_state_t::mask_touch) {
-                auto raw = Touch.getTouchPointRaw(i);
-                if (raw.y > 240) {
-                  int x = raw.x;
-                  size_t idx = x / 110;
-                  if (x - (idx * 110) < 100) {
-                    btn_bits = 1 << idx;
-                  }
+        uint_fast8_t btn_bits = 0;
+        if (Touch.isEnabled()) {
+          Touch.update(ms);
+          int i = Touch.getCount();
+          while (--i >= 0) {
+            auto det = Touch.getDetail(i);
+            if ((det.state & (touch_state_t::mask_touch | touch_state_t::mask_moving)) == touch_state_t::mask_touch) {
+              auto raw = Touch.getTouchPointRaw(i);
+              if( TOUCH_WATERLINE != M5.Lcd.height() ) {
+                // Touch and display share the same coords system
+                M5.Lcd.convertRawXY(&raw);
+              }
+              if (raw.y > TOUCH_WATERLINE) {
+                int x = raw.x;
+                size_t idx = x / 110;
+                if (x - (idx * 110) < 100) {
+                  btn_bits = 1 << idx;
                 }
               }
             }
-            BtnA.setState( btn_bits & 1 );
-            BtnB.setState( btn_bits & 2 );
-            BtnC.setState( btn_bits & 4 );
           }
-        #endif // ARDUINO_M5STACK_Core2
+          BtnA.setState( btn_bits & 1 );
+          BtnB.setState( btn_bits & 2 );
+          BtnC.setState( btn_bits & 4 );
+        }
       }
     #endif
 
@@ -237,23 +262,30 @@ namespace ChimeraCore
 
         if ( SD_SPI == nullptr ) {
           #if defined TFCARD_SPI_HOST
-            if( TFCARD_SPI_HOST==VSPI_HOST ) {
-              SD_SPI = new SPIClass(VSPI);
-              log_d("SD will use VSPI");
-            }else if( TFCARD_SPI_HOST==HSPI_HOST ) {
-              SD_SPI = new SPIClass(HSPI);
-              log_d("SD will use HSPI");
-            } else if( TFCARD_SPI_HOST==SPI_HOST ) {
-              SD_SPI = new SPIClass(SPI);
-              log_d("SD will use SPI");
-            } else {
-              log_e("No TFCARD_SPI_HOST selected in config");
-              return false;
-            }
-            log_d("TFCARD_SPI_HOST=%d, SPI_HOST=%d, HSPI_HOST=%d, VSPI_HOST=%d from core #%d", TFCARD_SPI_HOST, SPI_HOST, HSPI_HOST, VSPI_HOST, SD_CORE_ID );
-            //           #define SPI_HOST    SPI1_HOST
-            //           #define HSPI_HOST   SPI2_HOST
-            //           #define VSPI_HOST   SPI3_HOST
+            #if defined CONFIG_IDF_TARGET_ESP32S3
+              SD_SPI = new SPIClass(TFCARD_SPI_HOST);
+              log_d("SD will use SPI HOST #%d", (int)TFCARD_SPI_HOST);
+            #elif defined CONFIG_IDF_TARGET_ESP32S2
+              // not supported yet
+            #else
+              if( TFCARD_SPI_HOST==VSPI_HOST ) {
+                SD_SPI = new SPIClass(VSPI);
+                log_d("SD will use VSPI");
+              }else if( TFCARD_SPI_HOST==HSPI_HOST ) {
+                SD_SPI = new SPIClass(HSPI);
+                log_d("SD will use HSPI");
+              } else if( TFCARD_SPI_HOST==SPI_HOST ) {
+                SD_SPI = new SPIClass(SPI);
+                log_d("SD will use SPI");
+              } else {
+                log_e("No TFCARD_SPI_HOST selected in config");
+                return false;
+              }
+              log_d("TFCARD_SPI_HOST=%d, SPI_HOST=%d, HSPI_HOST=%d, VSPI_HOST=%d from core #%d", TFCARD_SPI_HOST, SPI_HOST, HSPI_HOST, VSPI_HOST, SD_CORE_ID );
+              //           #define SPI_HOST    SPI1_HOST
+              //           #define HSPI_HOST   SPI2_HOST
+              //           #define VSPI_HOST   SPI3_HOST
+            #endif
           #else
             log_d("SD will use HSPI (default)");
             SD_SPI = new SPIClass(HSPI);
@@ -274,7 +306,7 @@ namespace ChimeraCore
         #if defined HAS_SDCARD
           log_d("Enabling SD from TFCARD_CS_PIN #%d at %d Hz from core #%d", TFCARD_CS_PIN, TFCARD_SPI_FREQ, SD_CORE_ID );
           M5STACK_SD.end();
-          ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);
+          ret = M5STACK_SD.begin(TFCARD_CS_PIN/*, SPI, TFCARD_SPI_FREQ*/);
         #endif
 
       #endif
@@ -309,7 +341,7 @@ namespace ChimeraCore
       struct tm sysnow;
       time_t unixtime;
 
-      #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
+      #if defined HAS_BM8563 // defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
         // BM8563: "Core2/M5StickC/Plus" style RTC
         RTC_TimeTypeDef RTCtime;
         RTC_DateTypeDef RTCDate;
@@ -361,7 +393,7 @@ namespace ChimeraCore
 
     void ECCKernel::setRtcTime( uint16_t year, uint8_t month, uint8_t day , uint8_t hours, uint8_t minutes, uint8_t seconds )
     {
-      #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
+      #if defined HAS_BM8563 // ( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
         // BM8563: "Core2/M5StickC/Plus" style RTC
         RTC_DateTypeDef RTCDate;
         RTC_TimeTypeDef RTCtime;

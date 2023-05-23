@@ -29,13 +29,14 @@
 #pragma once
 #define __TINY_BMP_ENCODER_H
 
-#include "../../../M5Display.h"
+#include "../ScreenShot.hpp"
 
-class BMP_Encoder {
+class BMP_Encoder
+{
 
   public:
 
-    BMP_Encoder( M5Display *tft, fs::FS *fileSystem  ) : _tft(tft), _fileSystem(fileSystem) { };
+    BMP_Encoder( LGFX *tft, fs::FS *fileSystem  ) : _tft(tft), _fileSystem(fileSystem) { };
 
     bool encodeToFile( const char* filename, const int imageW, const int imageH );
     bool encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH );
@@ -43,7 +44,7 @@ class BMP_Encoder {
   private:
 
     RGBColor *rgbBuffer = NULL;
-    M5Display *_tft;
+    LGFX *_tft;
     fs::FS * _fileSystem;
 
 };

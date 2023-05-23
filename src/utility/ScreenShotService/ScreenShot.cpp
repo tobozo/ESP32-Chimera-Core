@@ -27,7 +27,7 @@
  *
  */
 
-#include "ScreenShot.h"
+#include "ScreenShot.hpp"
 
 /*
 ScreenShotService::ScreenShotService( M5Display *tft, fs::FS &fileSystem )
@@ -133,7 +133,7 @@ static uint32_t jpeg_encoder_w       = 0;
 
 static void jpeg_encoder_callback(uint32_t y, uint32_t h, unsigned char* rgbBuffer, void* device)
 {
-  auto tft = (M5Display*)device;
+  auto tft = (LGFX*)device;
   tft->readRectRGB( jpeg_encoder_xoffset, jpeg_encoder_yoffset+y, jpeg_encoder_w, h, rgbBuffer );
 }
 
@@ -251,8 +251,32 @@ void ScreenShotService::snapGIF( const char* name, bool displayAfter )
 }
 
 
+void ScreenShotService::snapQOI( const char* name, bool displayAfter )
+{
+  genFileName( name, "qoi" );
+  uint32_t time_start = millis();
+  QOIEncoder = new QOI_Encoder( _tft, _fileSystem );
+  if( !QOIEncoder->encodeToFile( fileName, _x, _y, _w, _h ) )  {
+    log_e( "[ERROR] Could not write QOI file to: %s", fileName );
+  } else {
+    fs::File outFile = _fileSystem->open( fileName );
+    size_t fileSize = outFile.size();
+    outFile.close();
+    log_n( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, fileSize, millis()-time_start);
+    if( displayAfter ) {
+      snapAnimation();
+      _tft->drawQoiFile( *_fileSystem, fileName, _x, _y );
+      delay(5000);
+    }
+  }
+  delete QOIEncoder;
+}
+
+
 void ScreenShotService::checkFolder( const char* path )
 {
+  assert(path);
+  assert(_fileSystem);
   *folderName = {0};
   sprintf( folderName, "%s%s", path[0] =='/'?"":"/", path );
   if( ! _fileSystem->exists( folderName ) ) {
@@ -266,6 +290,8 @@ void ScreenShotService::checkFolder( const char* path )
 
 void ScreenShotService::genFileName( const char* name, const char* extension )
 {
+  assert(name);
+  assert(_fileSystem);
   bool isPrefix = name[0] !='/';
   *fileName = {0};
   if( isPrefix ) {
@@ -273,9 +299,9 @@ void ScreenShotService::genFileName( const char* name, const char* extension )
     struct tm now;
     getLocalTime( &now, 0 );
     sprintf( fileName, "%s/%s-%04d-%02d-%02d_%02dh%02dm%02ds.%s", folderName, name, (now.tm_year)+1900,( now.tm_mon)+1, now.tm_mday,now.tm_hour , now.tm_min, now.tm_sec, extension );
-    log_v( "has prefix: %s, has folder:%s, has extension: /%s, got fileName: %s", name, folderName, extension, fileName );
+    log_d( "has prefix: %s, has folder:%s, has extension: /%s, got fileName: %s", name, folderName, extension, fileName );
   } else {
-    log_v( "has path: %s", name );
+    log_d( "has path: %s", name );
     sprintf( fileName, "%s", name );
   }
 }

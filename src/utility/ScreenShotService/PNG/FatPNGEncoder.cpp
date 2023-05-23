@@ -28,7 +28,7 @@
 \*/
 
 
-#include "FatPNGEncoder.h"
+#include "FatPNGEncoder.hpp"
 
 #if __has_include(<utility/miniz.h>)
   #include <utility/miniz.h>

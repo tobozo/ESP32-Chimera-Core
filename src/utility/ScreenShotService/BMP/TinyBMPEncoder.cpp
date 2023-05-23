@@ -26,7 +26,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-#include "TinyBMPEncoder.h"
+#include "TinyBMPEncoder.hpp"
 
 
 bool BMP_Encoder::encodeToFile( const char* filename, const int imageW, const int imageH ) {

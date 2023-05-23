@@ -1,6 +1,7 @@
 #pragma once
 #define __RTC_H__
 
+#include "pins_arduino.h"
 #include <Wire.h>
 
 /*\
@@ -60,8 +61,8 @@ class RTC_BM8563
 
   private:
 
-    int PIN_SDA = 21;
-    int PIN_SCL = 22;
+    int PIN_SDA = SDA;
+    int PIN_SCL = SCL;
     int I2C_PORT = 1; // defaults to: Wire1
     uint8_t BM8563_ADDR = 0x51; // BM8563 I2C address
 

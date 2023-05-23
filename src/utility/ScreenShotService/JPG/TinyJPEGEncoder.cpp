@@ -52,7 +52,12 @@
  *
  */
 
-#include "TinyJPEGEncoder.h"
+// why would espressif suddenly make these behave like errors?
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+
+
+#include "TinyJPEGEncoder.hpp"
 // ============================================================
 // Table definitions.
 //
@@ -224,6 +229,8 @@ int JPEG_Encoder::encodeToFile( const char* dest_path, const int width, const in
 }
 
 
+
+
 // Usage
 //  Same as encodeToFileAtQuality, but it takes a callback that knows
 //  how to handle (or ignore) `context`. The callback receives an array `data`
@@ -269,6 +276,8 @@ int JPEG_Encoder::encodeWithFunc( writeFunc* func, fs::File jpegFile, const int 
   int result = encodeMain( &state, src_data, fp, device, width, height, numComponents );
   return result;
 }
+
+
 
 
 
@@ -895,3 +904,5 @@ int JPEG_Encoder::encodeToFileAtQuality( const char* dest_path, const int qualit
   jpegFile.close();
   return _fileSystem->exists( dest_path );
 }
+
+#pragma GCC diagnostic pop

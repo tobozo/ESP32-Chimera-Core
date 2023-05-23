@@ -56,7 +56,8 @@
 #pragma once
 #define __TINY_JPEG_ENCODER__
 
-#include "../../../M5Display.h"
+#include "../ScreenShot.hpp"
+
 // C std lib
 #include <assert.h>
 #include <inttypes.h>

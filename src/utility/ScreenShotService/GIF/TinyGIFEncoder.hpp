@@ -29,7 +29,8 @@
 #pragma once
 #define gif_h
 
-#include "../../../M5Display.h"
+#include "../ScreenShot.hpp"
+
 #include "../../Memory.h"
 
 // Define these macros to hook into a custom memory allocator.
@@ -88,12 +89,14 @@ struct GifLzwNode
 };
 
 
+//class LGFX;
+
 
 class GIF_Encoder
 {
 
   public:
-    GIF_Encoder( M5Display *tft, fs::FS *fileSystem  ) : _tft(tft), _fileSystem(fileSystem) { };
+    GIF_Encoder( LGFX *tft, fs::FS *fileSystem  ) : _tft(tft), _fileSystem(fileSystem) { };
     void init();
     bool encodeToFile( const char* filename, const int width, const int height );
     bool encodeToFile( const char* filename, const int imageX, const int imageY, const int width, const int height );
@@ -116,7 +119,7 @@ class GIF_Encoder
 
     uint8_t *rgbBuffer = NULL;
     uint8_t *rgbaBuffer = NULL;
-    M5Display *_tft;
+    LGFX *_tft;
     fs::FS * _fileSystem;
 
     bool writerFirstFrame;

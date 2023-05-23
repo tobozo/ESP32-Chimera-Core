@@ -1,5 +1,108 @@
 #include "I2CUtil.h"
 
+//I2CUtil() { };
+void I2CUtil::init(TwoWire* wire, uint8_t address, int sdaPin, int sclPin)
+{
+  _address = address;
+  begin( sdaPin, sclPin, wire );
+}
+
+bool I2CUtil::available()
+{
+  if(!_i2cPort) return false;
+  _i2cPort->beginTransmission(_address);
+  return (_i2cPort->endTransmission() ? true : false);
+}
+
+
+void I2CUtil::write1Byte(uint8_t subAddress, uint8_t data)
+{
+  _i2cPort->beginTransmission(_address);
+  _i2cPort->write(subAddress);
+  _i2cPort->write(data);
+  _i2cPort->endTransmission();
+}
+
+void I2CUtil::write1Byte(uint8_t address, uint8_t subAddress, uint8_t data)
+{
+  _i2cPort->beginTransmission(address);
+  _i2cPort->write(subAddress);
+  _i2cPort->write(data);
+  _i2cPort->endTransmission();
+}
+
+uint8_t I2CUtil::read8Bit(uint8_t subAddress)
+{
+  _i2cPort->beginTransmission(_address);
+  _i2cPort->write(subAddress);
+  _i2cPort->endTransmission();
+  _i2cPort->requestFrom(_address, (size_t)1);
+  return _i2cPort->read();
+}
+
+uint16_t I2CUtil::read12Bit(uint8_t subAddress)
+{
+  uint8_t buff[2];
+  readBuff(subAddress, 2, buff);
+  return (buff[0] << 4) + buff[1];
+}
+
+uint16_t I2CUtil::read13Bit(uint8_t subAddress)
+{
+  uint8_t buff[2];
+  readBuff(subAddress, 2, buff);
+  return (buff[0] << 5) + buff[1];
+}
+
+uint16_t I2CUtil::read16Bit(uint8_t subAddress)
+{
+  uint8_t buff[2];
+  readBuff(subAddress, 2, buff);
+  return (buff[0] << 8) + buff[1];
+}
+
+uint32_t I2CUtil::read24Bit(uint8_t subAddress)
+{
+  uint8_t buff[4];
+  readBuff(subAddress, 3, buff);
+  return (buff[0] << 16) + (buff[1] << 8) + buff[2];
+}
+
+uint32_t I2CUtil::read32Bit(uint8_t subAddress)
+{
+  uint8_t buff[4];
+  readBuff(subAddress, 4, buff);
+  return (buff[0] << 24) + (buff[1] << 16) + (buff[2] << 8) + buff[3];
+}
+
+void I2CUtil::readBuff(uint8_t subAddress, int size, uint8_t buff[])
+{
+  _i2cPort->beginTransmission(_address);
+  _i2cPort->write(subAddress);
+  _i2cPort->endTransmission();
+  _i2cPort->requestFrom(_address, (size_t)size);
+  for (int i = 0; i < size; i++) {
+    buff[i] = _i2cPort->read();
+  }
+}
+
+uint16_t I2CUtil::read16Bit_lowFirst(uint8_t subAddress)
+{
+  uint8_t buff[2];
+  readBuff(subAddress, 2, buff);
+  return buff[0] + (buff[1] << 8);
+}
+
+void I2CUtil::write16Bit(uint8_t subAddress, uint8_t data_1, uint8_t data_2)
+{
+  _i2cPort->beginTransmission(_address);
+  _i2cPort->write(subAddress);
+  _i2cPort->write(data_1);
+  _i2cPort->write(data_2);
+  _i2cPort->endTransmission();
+}
+
+
 
 bool I2CUtil::begin( int sdaPin, int sclPin, TwoWire *i2cPort )
 {
@@ -259,4 +362,4 @@ void I2CUtil::scan()
 }
 
 
-//I2CUtil I2CUtil_Core;
+I2CUtil I2CUtil_Core;

@@ -23,7 +23,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "M5Timer.h"
+#include "M5Timer.hpp"
 
 // Select time function:
 //static inline unsigned long elapsed() { return micros(); }

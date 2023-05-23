@@ -22,28 +22,29 @@
 #include <esp32-hal-gpio.h>
 
 /*----------------------------------------------------------------------*
- * Button(pin, puEnable, invert, dbTime) instantiates a button object.  *
+ * Button(pin, puEnable, invert, dbTime_millis) instantiates a button object.  *
  * pin      Is the Arduino pin the button is connected to.              *
  * puEnable Enables the AVR internal pullup resistor if != 0 (can also  *
  *          use true or false).                                         *
  * invert   If invert == 0, interprets a high state as pressed, low as  *
  *          released. If invert != 0, interprets a high state as        *
  *          released, low as pressed  (can also use true or false).     *
- * dbTime   Is the debounce time in milliseconds.                       *
+ * dbTime_millis   Is the debounce time in milliseconds.                       *
  *                                                                      *
  * (Note that invert cannot be implied from puEnable since an external  *
  *  pullup could be used.)                                              *
  *----------------------------------------------------------------------*/
-Button::Button(uint8_t pin, uint8_t invert, uint32_t dbTime)
+Button::Button(uint8_t pin, uint8_t invert, uint32_t dbTime_millis)
 {
   _pin = pin;
   _invert = invert;
-  _dbTime = dbTime;
-  log_d("Button on pin %d, invert=%d, debounce=%dms", pin, invert, dbTime);
+  _dbTime_millis = dbTime_millis;
   if( pin != 0xff ) {
+    log_d("Button on pin %d, invert=%d, debounce=%dms", pin, invert, dbTime_millis);
     pinMode(_pin, INPUT_PULLUP);
     _state = digitalRead(_pin);
   }
+
   if (_invert != 0) _state = !_state;
   _time = millis();
   _lastState = _state;
@@ -77,7 +78,7 @@ uint8_t Button::setState(uint8_t pinVal)
   static uint32_t ms;
 
   ms = millis();
-  if (ms - _lastChange < _dbTime) {
+  if (ms - _lastChange < _dbTime_millis) {
     _lastTime = _time;
     _time = ms;
     _changed = 0;
@@ -186,7 +187,7 @@ uint8_t Button::readAxis()
   }
 
   if (_invert == 0) pinVal = !pinVal;
-  if (ms - _lastChange < _dbTime) {
+  if (ms - _lastChange < _dbTime_millis) {
     _lastTime = _time;
     _time = ms;
     _changed = 0;
