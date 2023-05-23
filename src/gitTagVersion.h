@@ -2,7 +2,7 @@
 
 #define ECC_VERSION_MAJOR 1
 #define ECC_VERSION_MINOR 4
-#define ECC_VERSION_PATCH 7
+#define ECC_VERSION_PATCH 9
 #if !defined _ECC_STR
   #define _ECC_STR(x) #x
 #endif
