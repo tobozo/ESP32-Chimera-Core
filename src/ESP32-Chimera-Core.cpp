@@ -1,6 +1,7 @@
 // Copyright (c) ECCKernel. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+#define ECC_NO_PRAGMAS // prevent multiple triggering of pragmas
 #include "ESP32-Chimera-Core.hpp"
 
 ChimeraCore::ECCKernel M5;
@@ -88,7 +89,7 @@ namespace ChimeraCore
       //#endif  /*LILYGO_WATCH_2020_V2*/
     #endif
 
-    #if defined( ARDUINO_M5STACK_Core2 ) // M5Core2 starts APX after display is on
+    #if defined HAS_AXP192 // M5Core2 starts APX after display is on
       Axp.SetLDOEnable( 3,0 ); // turn any vibration off
     #endif
 
@@ -113,6 +114,21 @@ namespace ChimeraCore
         Touch.begin(&Lcd);
       }
     #endif
+
+    #if defined HAS_AXP2101
+      log_d("Enabling AXP2101");
+      Axp.begin(&Wire1);
+      #if defined ARDUINO_M5STACK_CORES3
+        uint8_t val = Axp.read8Bit( 0x03 ); // knock knock
+        if( val != 0x4a ) {
+          log_d("SD Card not visible (resp: 0x%02x, expects 0x4A), setting SDEnable = false", val);
+          SDEnable = false;
+        } else {
+          Axp.coreS3_init();
+        }
+      #endif
+    #endif
+
 
     #if defined HAS_SDCARD
       if (SDEnable == true /*&& M5STACK_SD.cardSize() == 0*/) {
@@ -290,7 +306,7 @@ namespace ChimeraCore
         #if defined HAS_SDCARD
           log_d("Enabling SD from TFCARD_CS_PIN #%d at %d Hz from core #%d", TFCARD_CS_PIN, TFCARD_SPI_FREQ, SD_CORE_ID );
           M5STACK_SD.end();
-          ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);
+          ret = M5STACK_SD.begin(TFCARD_CS_PIN/*, SPI, TFCARD_SPI_FREQ*/);
         #endif
 
       #endif
@@ -325,7 +341,7 @@ namespace ChimeraCore
       struct tm sysnow;
       time_t unixtime;
 
-      #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
+      #if defined HAS_BM8563 // defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
         // BM8563: "Core2/M5StickC/Plus" style RTC
         RTC_TimeTypeDef RTCtime;
         RTC_DateTypeDef RTCDate;
@@ -377,7 +393,7 @@ namespace ChimeraCore
 
     void ECCKernel::setRtcTime( uint16_t year, uint8_t month, uint8_t day , uint8_t hours, uint8_t minutes, uint8_t seconds )
     {
-      #if defined( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
+      #if defined HAS_BM8563 // ( ARDUINO_M5Stick_C ) || defined ( ARDUINO_M5Stick_C_Plus ) || defined ARDUINO_M5STACK_Core2
         // BM8563: "Core2/M5StickC/Plus" style RTC
         RTC_DateTypeDef RTCDate;
         RTC_TimeTypeDef RTCtime;

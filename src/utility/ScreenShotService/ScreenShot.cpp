@@ -275,6 +275,8 @@ void ScreenShotService::snapQOI( const char* name, bool displayAfter )
 
 void ScreenShotService::checkFolder( const char* path )
 {
+  assert(path);
+  assert(_fileSystem);
   *folderName = {0};
   sprintf( folderName, "%s%s", path[0] =='/'?"":"/", path );
   if( ! _fileSystem->exists( folderName ) ) {
@@ -288,6 +290,8 @@ void ScreenShotService::checkFolder( const char* path )
 
 void ScreenShotService::genFileName( const char* name, const char* extension )
 {
+  assert(name);
+  assert(_fileSystem);
   bool isPrefix = name[0] !='/';
   *fileName = {0};
   if( isPrefix ) {
@@ -295,9 +299,9 @@ void ScreenShotService::genFileName( const char* name, const char* extension )
     struct tm now;
     getLocalTime( &now, 0 );
     sprintf( fileName, "%s/%s-%04d-%02d-%02d_%02dh%02dm%02ds.%s", folderName, name, (now.tm_year)+1900,( now.tm_mon)+1, now.tm_mday,now.tm_hour , now.tm_min, now.tm_sec, extension );
-    log_v( "has prefix: %s, has folder:%s, has extension: /%s, got fileName: %s", name, folderName, extension, fileName );
+    log_d( "has prefix: %s, has folder:%s, has extension: /%s, got fileName: %s", name, folderName, extension, fileName );
   } else {
-    log_v( "has path: %s", name );
+    log_d( "has path: %s", name );
     sprintf( fileName, "%s", name );
   }
 }

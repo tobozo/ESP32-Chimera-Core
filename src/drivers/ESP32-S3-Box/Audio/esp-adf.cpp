@@ -1,3 +1,4 @@
+//#define ECC_NO_PRAGMAS
 #include "esp-adf.hpp"
 
 #if defined ARDUINO_ESP32_S3_BOX

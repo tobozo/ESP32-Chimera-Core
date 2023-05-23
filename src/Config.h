@@ -1,8 +1,22 @@
 #pragma once
 
+#define ECC_XSTR(x) ECC_STR(x)
+#define ECC_STR(x) #x
+
+#if !defined ECC_NO_PRAGMAS
+  #define ECC_PRAGMA_XMESSAGE(msg) ECC_PRAGMA_MESSAGE(msg)
+  #define ECC_PRAGMA_MESSAGE(msg) \
+    _Pragma( ECC_STR( message msg ) )
+  #define ECC_NO_PRAGMAS // stop flag propagation
+#else
+  #define ECC_PRAGMA_XMESSAGE(msg)
+  #define ECC_PRAGMA_MESSAGE(msg)
+#endif
+
+
 #define HAS_SDCARD
-#define USE_SCREENSHOTS
-#define USE_NVSUTILS
+//#define USE_SCREENSHOTS
+//#define USE_NVSUTILS
 
 // buttons debounce time (milliseconds)
 #define DEBOUNCE_MS 10
@@ -26,59 +40,31 @@
    || ARDUINO_ESP32_GIT_VER == 0xc93bf11f \
    || ARDUINO_ESP32_GIT_VER == 0x2d6ca351 \
    || ARDUINO_ESP32_GIT_VER == 0xb63f9470 \
-   || ARDUINO_ESP32_GIT_VER == 0x213f9769
+   || ARDUINO_ESP32_GIT_VER == 0x213f9769 \
+   || ARDUINO_ESP32_GIT_VER == 0xd3254f75 \
+   || ARDUINO_ESP32_GIT_VER == 0x3670e2bf
     // FS::open() can create subfolders
     #define FS_CAN_CREATE_PATH
   #endif
 
-  #if ESP_ARDUINO_VERSION > ESP_ARDUINO_VERSION_VAL(2,0,7) // highest version supported by ESP32-Chimera-Core
-    #pragma message "ESP32 Arduino x.x.x (edge)"
+  #define ECC_VERSION_MSG esp32-arduino ESP_ARDUINO_VERSION_MAJOR.ESP_ARDUINO_VERSION_MINOR.ESP_ARDUINO_VERSION_PATCH (ARDUINO_ESP32_GIT_VER) detected
+  ECC_PRAGMA_XMESSAGE( ECC_XSTR(ECC_VERSION_MSG) )
 
-  #elif ARDUINO_ESP32_GIT_VER == 0x44c11981
-    #pragma message "ESP32 Arduino 2.0.0 (0x44c11981) is supported"
-
-  #elif ARDUINO_ESP32_GIT_VER == 0x15bbd0a1
-    // Introduces Wire::end()
-    #pragma message "ESP32 Arduino 2.0.1 RC1 (0x15bbd0a1) is only partially supported"
-
+  #if ARDUINO_ESP32_GIT_VER == 0x15bbd0a1 // Introduces Wire::end()
+    ECC_PRAGMA_MESSAGE("ESP32 Arduino 2.0.1 RC1 (0x15bbd0a1) is only partially supported")
   #elif ARDUINO_ESP32_GIT_VER == 0xd218e58f|| ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,1)
-    #pragma message "ESP32 Arduino 2.0.1 (0xd218e58f) has OTA support broken!!"
-
-  #elif ARDUINO_ESP32_GIT_VER == 0xcaef4006 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,2)
-    // Introduces SD::readRAW() and SD::writeRAW() support
-    #pragma message "ESP32 Arduino 2.0.2 (0xcaef4006) has SD support broken!!"
-
-  #elif ARDUINO_ESP32_GIT_VER == 0x1e388a24
-    // Introduces ESP32S3, SD::numSectors() and SD::sectorSize() support
-    #pragma message "ESP32 Arduino 2.0.3 RC1 (0x1e388a24) is only partially supported"
-
-  #elif ARDUINO_ESP32_GIT_VER == 0x142fceb8 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,3)
-
-    // Introduces ESP32S3, SD::numSectors() and SD::sectorSize() support
-    #pragma message "ESP32 Arduino 2.0.3 (0x142fceb8) detected"
-
+    ECC_PRAGMA_MESSAGE("ESP32 Arduino 2.0.1 (0xd218e58f) has OTA support broken!!")
+  #elif ARDUINO_ESP32_GIT_VER == 0xcaef4006 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,2) // Introduces SD::readRAW() and SD::writeRAW() support
+    ECC_PRAGMA_MESSAGE("ESP32 Arduino 2.0.2 (0xcaef4006) has SD support broken!!")
+  #elif ARDUINO_ESP32_GIT_VER == 0x1e388a24 // Introduces ESP32S3, SD::numSectors() and SD::sectorSize() support
+    ECC_PRAGMA_MESSAGE("ESP32 Arduino 2.0.3 RC1 (0x1e388a24) is only partially supported")
+  #elif ARDUINO_ESP32_GIT_VER == 0x142fceb8 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,3) // Introduces ESP32S3, SD::numSectors() and SD::sectorSize() support
+    //ECC_PRAGMA_MESSAGE("ESP32 Arduino 2.0.3 (0x142fceb8) detected")
   #elif ARDUINO_ESP32_GIT_VER == 0xc93bf11f || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,4)
-
-    // Misc fixes, however the qspi_opi => qio_opi renaming messed up some S3 devices (including S3Box) in boards.txt
-    #pragma message "ESP32 Arduino 2.0.4 (0xc93bf11f) detected"
-
+    // // Misc fixes, however the qspi_opi => qio_opi renaming messed up some S3 devices (including S3Box) in boards.txt
     #if defined ARDUINO_M5STACK_FIRE && defined BOARD_HAS_PSRAM && defined CONFIG_SPIRAM_SPEED_80M && defined CONFIG_SPIRAM_OCCUPY_VSPI_HOST
-      #pragma message "4MB PSRAM modules may conflict with SD ( see https://github.com/espressif/arduino-esp32/issues/7192 )"
+      ECC_PRAGMA_MESSAGE("4MB PSRAM modules may conflict with SD ( see https://github.com/espressif/arduino-esp32/issues/7192 )")
     #endif
-
-  #elif ARDUINO_ESP32_GIT_VER == 0x2d6ca351 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,5)
-    #pragma message "ESP32 Arduino 2.0.5 (0x2d6ca351) detected"
-
-  #elif ARDUINO_ESP32_GIT_VER == 0xb63f9470 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,6)
-    #pragma message "ESP32 Arduino 2.0.6 (0xb63f9470) detected"
-
-  #elif ARDUINO_ESP32_GIT_VER == 0x213f9769 || ESP_ARDUINO_VERSION == ESP_ARDUINO_VERSION_VAL(2,0,7)
-    #pragma message "ESP32 Arduino 2.0.7 (0x213f9769) detected"
-
-  #else
-    // unknown but probably 2.x.x
-    #pragma message "ESP32 Arduino 2.x.x (unknown)"
-
   #endif
 #endif
 
@@ -87,7 +73,7 @@
 #if defined( LGFX_ONLY ) // LGFX config loaded externally
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "LGFX Only"
+    ECC_PRAGMA_MESSAGE("LGFX Only")
   #endif
 
   #define SPEAKER_PIN   -1
@@ -101,7 +87,7 @@
 #elif defined( ARDUINO_LOLIN_D32_PRO )
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "LOLIN_D32_PRO SELECTED"
+    ECC_PRAGMA_MESSAGE("LOLIN_D32_PRO SELECTED")
   #endif
 
   //#pragma message "USING LoLin D32 Pro setup with Touch enabled for ESP32Marauder"
@@ -123,7 +109,7 @@
 #elif defined ARDUINO_LOLIN_S3 || defined ARDUINO_LOLIN_S3_PRO || defined LGFX_LOLIN_S3_PRO
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "LOLIN_S32_PRO SELECTED"
+    ECC_PRAGMA_MESSAGE("LOLIN_S32_PRO SELECTED")
   #endif
 
   #define SPEAKER_PIN   -1
@@ -150,7 +136,7 @@
 #elif defined( ARDUINO_ESP32_WROVER_KIT )
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "WROVER_KIT SELECTED"
+    ECC_PRAGMA_MESSAGE("WROVER_KIT SELECTED")
   #endif
 
   #define TFT_LED_PIN   14
@@ -171,7 +157,7 @@
 #elif defined(ARDUINO_D) || defined(ARDUINO_DDUINO32_XS)
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "DDUINO32_XS SELECTED"
+    ECC_PRAGMA_MESSAGE("DDUINO32_XS SELECTED")
   #endif
 
   #define TFT_LED_PIN  22
@@ -216,7 +202,7 @@
 
   #if defined( LILYGO_WATCH_2019_WITH_TOUCH )
     #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-      #pragma message "LILYGO_WATCH_2019_WITH_TOUCH SELECTED"
+      ECC_PRAGMA_MESSAGE("LILYGO_WATCH_2019_WITH_TOUCH SELECTED")
     #endif
     // #include "board/twatch2019_with_touch.h"
     //#pragma message "Selected LILYGO_WATCH_2019_WITH_TOUCH"
@@ -228,7 +214,7 @@
     #define HAS_TOUCH
   #elif defined(LILYGO_WATCH_2019_NO_TOUCH)
     #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-      #pragma message "LILYGO_WATCH_2019_NO_TOUCH SELECTED"
+      ECC_PRAGMA_MESSAGE("LILYGO_WATCH_2019_NO_TOUCH SELECTED")
     #endif
     //#include "board/twatch2019_with_not_touch.h"
     //#pragma message "Selected LILYGO_WATCH_2019_NO_TOUCH"
@@ -239,7 +225,7 @@
     #define LILYGO_WATCH_HAS_BUTTON
   #elif defined(LILYGO_WATCH_BLOCK) // should be called "brick" :-)
     #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-      #pragma message "LILYGO_WATCH_BLOCK SELECTED"
+      ECC_PRAGMA_MESSAGE("LILYGO_WATCH_BLOCK SELECTED")
     #endif
     //#include "board/twatch_block.h"
     //#pragma message "Selected LILYGO_WATCH_BLOCK"
@@ -251,7 +237,7 @@
     #define HAS_TOUCH
   #else // all LILYGO_WATCH_2020 models
     #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-      #pragma message "LILYGO_WATCH_2020 SELECTED"
+      ECC_PRAGMA_MESSAGE("LILYGO_WATCH_2020 SELECTED")
     #endif
     // common settings across v1/v2/v3
     #define SD_ENABLE            0
@@ -284,7 +270,7 @@
 
 #elif defined(ARDUINO_TTGO_T1)
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "ARDUINO_TTGO_T1 SELECTED"
+    ECC_PRAGMA_MESSAGE("ARDUINO_TTGO_T1 SELECTED")
   #endif
   // TFT/OLED display
   #define TFT_CS_PIN    16
@@ -306,13 +292,13 @@
 
 
 
-#elif defined ARDUINO_TTGO_LoRa32_V2 // || defined ARDUINO_TTGO_LoRa32_V1 || defined ARDUINO_TTGO_LoRa32_v21new
+#elif defined ARDUINO_TTGO_LoRa32_V2 || defined ARDUINO_TTGO_LORA32_V2// || defined ARDUINO_TTGO_LoRa32_V1 || defined ARDUINO_TTGO_LoRa32_v21new
 
   // ARDUINO_BOARD="TTGO_LoRa32_V2"
   // ARDUINO_VARIANT="ttgo-lora32-v2"
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_DEBUG
-    #pragma message "TTGO_LoRa32_v2 SELECTED"
+    ECC_PRAGMA_MESSAGE("TTGO_LoRa32_v2 SELECTED")
     #undef LGFX_AUTODETECT
   #endif
 
@@ -359,7 +345,7 @@
 #elif defined( ARDUINO_ODROID_ESP32 )
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "ODROID_ESP32 SELECTED"
+    ECC_PRAGMA_MESSAGE("ODROID_ESP32 SELECTED")
   #endif
 
   #define TFT_LED_PIN       32
@@ -385,10 +371,10 @@
   #define BUTTON_JOY_Y_PIN  35
   #define BUTTON_JOY_X_PIN  34
 
-#elif defined( ARDUINO_M5Stick_C ) // M5Stick C
+#elif defined ARDUINO_M5Stick_C || defined ARDUINO_M5STICK_C // M5Stick C
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "M5Stick_C SELECTED"
+    ECC_PRAGMA_MESSAGE("M5Stick_C SELECTED")
   #endif
 
   #define SPEAKER_PIN   -1
@@ -414,7 +400,7 @@
   #define HAS_AXP192
   #define HAS_BM8563
 
-#elif defined( ARDUINO_M5Stick_C_Plus ) // M5Stick C Plus
+#elif defined ARDUINO_M5Stick_C_Plus || defined ARDUINO_M5STICK_C_PLUS  // M5Stick C Plus
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
     #pragma message "M5Stick_C_Plus SELECTED"
@@ -443,10 +429,10 @@
   #define HAS_AXP192
   #define HAS_BM8563
 
-#elif defined( ARDUINO_M5STACK_Core2  ) // M5Core2
+#elif defined ARDUINO_M5STACK_Core2 || defined ARDUINO_M5STACK_CORE2 // M5Core2
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "M5STACK_Core2 SELECTED"
+    ECC_PRAGMA_MESSAGE("M5STACK_Core2 SELECTED")
   #endif
 
   #define TFT_LED_PIN  -1
@@ -473,10 +459,52 @@
   #define BUTTON_B_PIN -1
   #define BUTTON_C_PIN -1
 
-#elif defined( ARDUINO_M5Stack_Core_ESP32 ) || defined( ARDUINO_M5STACK_FIRE) // m5stack classic/fire
+
+#elif defined ARDUINO_M5STACK_CORES3
+
+  //#if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
+    ECC_PRAGMA_MESSAGE("M5STACK_CoreS3 SELECTED")
+  //#endif
+
+  #undef HAS_SPEAKER
+  //#define SPEAKER_PIN  -1
+  #define HAS_TOUCH
+  #define TFCARD_CS_PIN    4
+  // #define TFCARD_MISO_PIN 35
+  // #define TFCARD_MOSI_PIN 37
+  // #define TFCARD_SCLK_PIN 36
+
+  #define SD_ENABLE     1
+  #define BUTTON_A_PIN -1
+  #define BUTTON_B_PIN -1
+  #define BUTTON_C_PIN -1
+
+  #define USE_SCREENSHOTS
+
+  //       I2C
+  //  Chip     Addr
+  // ========|======
+  // GC0308  | 0X21
+  // LTR553  | 0x23
+  // AXP2101 | 0x34
+  // AW88298 | 0x36
+  // FT6336  | 0x38
+  // ES7210  | 0x40
+  // BM8563  | 0x51
+  // AW9523  | 0x58
+  // BMI270  | 0x69
+  // BMM150  | 0x10
+
+  //#define HAS_BM8563
+  //#define HAS_RTC
+
+  #define HAS_AXP2101
+
+
+#elif defined ARDUINO_M5Stack_Core_ESP32 || defined ARDUINO_M5STACK_CORE_ESP32 || defined( ARDUINO_M5STACK_FIRE) // m5stack classic/fire
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "M5Stack_Core_ESP32 / M5STACK_FIRE SELECTED"
+    ECC_PRAGMA_MESSAGE("M5Stack_Core_ESP32 / M5STACK_FIRE SELECTED")
   #endif
 
   #define HAS_IP5306
@@ -498,10 +526,10 @@
   #define BUTTON_B_PIN 38
   #define BUTTON_C_PIN 37
 
-#elif defined(ARDUINO_ESP32_DEV)
+#elif defined ARDUINO_ESP32_DEV
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "ESP32_DEV SELECTED"
+    ECC_PRAGMA_MESSAGE("ESP32_DEV SELECTED")
   #endif
 
   #define TFT_LED_PIN  -1
@@ -548,7 +576,7 @@
 #elif defined CONFIG_IDF_TARGET_ESP32S2 // ESP32-S2 basic support
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
-    #pragma message "ESP32S2 SELECTED"
+    ECC_PRAGMA_MESSAGE("ESP32S2 SELECTED")
   #endif
 
   #define BUTTON_A_PIN -1
@@ -563,7 +591,7 @@
 #elif defined ARDUINO_ESP32_S3_BOX // ESP32-S3-BOX support
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_WARN
-    #pragma message "ESP32-S3-BOX SELECTED"
+    ECC_PRAGMA_MESSAGE("ESP32-S3-BOX SELECTED")
   #endif
 
   //#undef HAS_SDCARD
@@ -615,7 +643,7 @@
 #else
 
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_WARN
-    #pragma message "NO BOARD SELECTED"
+    ECC_PRAGMA_MESSAGE("NO BOARD SELECTED")
   #endif
 
   #pragma message "No know board detected, disabling Buttons and SD"
@@ -645,9 +673,13 @@
   #define HAS_MPU9250
 #endif
 
-#if SPEAKER_PIN != -1
+#if defined SPEAKER_PIN && SPEAKER_PIN != -1
   #define HAS_SPEAKER
 #else
+  #if !defined SPEAKER_PIN
+    #define SPEAKER_PIN -1
+  #endif
+  #undef HAS_SPEAKER
   #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_WARN
     //#pragma message "Speaker disabled"
   #endif

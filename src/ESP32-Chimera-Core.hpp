@@ -39,52 +39,82 @@
 
 
 // ChimeraCore utilities
-#if defined HAS_SDCARD && defined USE_SCREENSHOTS
+#if defined HAS_SDCARD && (defined USE_SCREENSHOTS || !defined ECC_NO_SCREENSHOT)
   #include "utility/Memory.h"
   #include "utility/ScreenShotService/ScreenShot.hpp" // ScreenShot Service
+#else
+  #undef USE_SCREENSHOTS
 #endif
 
 #include "drivers/common/I2C/I2CUtil.h"           // I2C Scanner
 
-#if defined USE_NVSUTILS
+#if defined USE_NVSUTILS && !defined ECC_NO_NVSUTILS
   #include "drivers/common/NVS/NVSUtils.h"          // NVS Utilities
+#else
+  #undef USE_NVSUTILS
 #endif
 
 // Hardware misc drivers support
 
 #include "drivers/common/Button/Button.h"         // BtnA/BtnB/BtnC Support
 
-#if defined HAS_SPEAKER
+#if defined ECC_NO_RTC
+  #undef HAS_RTC
+#endif
+
+#if defined HAS_SPEAKER && (!defined ECC_NO_SPEAKER)
   #include "drivers/common/Speaker/Speaker.h"
   //#include "drivers/common/Audio/Speaker_Class.hpp"
+#else
+  #undef HAS_SPEAKER
 #endif
 
-#if defined HAS_IP5306
+#if defined HAS_IP5306 && !defined ECC_NO_POWER
   #include "drivers/common/IP5306/Power.h"
+#else
+  #undef HAS_IP5306
 #endif
 
-#if defined HAS_AXP192
+#if defined HAS_AXP192 && !defined ECC_NO_POWER
   #include "drivers/common/AXP192/AXP192.h"
+#else
+  #undef HAS_AXP192
 #endif
 
-#if defined HAS_AXP202
+#if defined HAS_AXP202 && !defined ECC_NO_POWER
   #include "drivers/common/AXP202/axp20x.h"
+#else
+  #undef HAS_AXP202
 #endif
 
-#if defined HAS_BM8563
+#if defined HAS_AXP2101 && !defined ECC_NO_POWER
+  #include "drivers/common/AXP2101/AXP2101.hpp"
+#else
+  #undef HAS_AXP2101
+#endif
+
+#if defined HAS_BM8563 && !defined ECC_NO_RTC
   #include "drivers/common/RTC_BM8563/RTC_BM8563.h"
+#else
+  #undef HAS_BM8563
 #endif
 
-#if defined HAS_PCF8563
+#if defined HAS_PCF8563 && !defined ECC_NO_RTC
   #include "drivers/common/RTC_PCF8563/pcf8563.h"
+#else
+  #undef HAS_PCF8563
 #endif
 
-#if defined HAS_MPU6886
+#if defined HAS_MPU6886 && !defined ECC_NO_MPU
   #include "drivers/common/MPU6886/MPU6886.h"
+#else
+  #undef HAS_MPU6886
 #endif
 
-#if defined HAS_MPU9250
+#if defined HAS_MPU9250 && !defined ECC_NO_MPU
   #include "drivers/common/MPU9250/MPU9250.h"
+#else
+  #undef HAS_MPU9250
 #endif
 
 
@@ -103,6 +133,7 @@
   // TODO: use https://github.com/pschatzmann/arduino-audiokit
   #include "drivers/ESP32-S3-Box/Audio/esp-adf.hpp"
 #endif
+
 
 // primary and/or secondary MPU support
 
@@ -205,6 +236,10 @@ namespace ChimeraCore
         AXP20X_Class *Axp = new AXP20X_Class();
       #endif
 
+      #if defined HAS_AXP2101
+        AXP2101 Axp;// = new AXP2101();
+      #endif
+
       #if defined HAS_RTC
         void setSystemTimeFromRtc();
         void setRtcTime( uint16_t year, uint8_t month, uint8_t day , uint8_t hours, uint8_t minutes, uint8_t seconds );
@@ -212,7 +247,7 @@ namespace ChimeraCore
 
       #if defined HAS_SPEAKER
         // PWM implementation
-        SPEAKER Speaker;
+        SPEAKER Speaker(SPEAKER_PIN, TONE_PIN_CHANNEL);
       #endif
 
       #if defined HAS_PRIMARY_IMU
