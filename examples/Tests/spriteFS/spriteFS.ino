@@ -13,31 +13,38 @@ class SpriteFS
   public:
     SpriteFS( LGFX_Sprite* sptr ) : sprite( sptr ) { assert( sprite ); }
     LGFX_Sprite* sprite;
+    uint32_t fsduration = 0;
+    uint32_t streamduration = 0;
 
     bool save( fs::FS* fs, const char* filename )
     {
+      uint32_t start = millis();
       bool ret = false;
       fs::File outFile = fs->open( filename, "w" );
       if( outFile ) {
         ret = save( (Stream*)&outFile );
         outFile.close();
       }
+      fsduration = millis() - start;
       return ret;
     }
 
     bool load( fs::FS* fs, const char* filename )
     {
+      uint32_t start = millis();
       bool ret = false;
       fs::File inFile = fs->open( filename );
       if( inFile ) {
         ret = load( (Stream*)&inFile );
         inFile.close();
       }
+      fsduration = millis() - start;
       return ret;
     }
 
     bool save( Stream* stream )
     {
+      uint32_t start = millis();
       bool ret = false;
       if( sprite->width()<=0 || sprite->height() <= 0 || sprite->bufferLength() <= 0 ) return false;
       SpriteFS_t spriteInfo = { (uint16_t)sprite->width(), (uint16_t)sprite->height(), sprite->bufferLength() };
@@ -47,11 +54,13 @@ class SpriteFS
       written_bytes += stream->write( (char*)&spriteInfo, sizeof( SpriteFS_t ) );
       written_bytes += stream->write( (char*)sprite->getBuffer(), spriteInfo.buffer_length );
       log_d("Written %d*%d@%dbpp sprite (%d bytes)", spriteInfo.width, spriteInfo.height, int(bits_per_pixel), spriteInfo.buffer_length );
+      streamduration = millis() - start;
       return written_bytes == spriteInfo.buffer_length + sizeof( SpriteFS_t );
     }
 
     bool load( Stream* stream )
     {
+      uint32_t start = millis();
       bool ret = false;
       SpriteFS_t spriteInfo = {0,0,0};
       if( ! stream->readBytes( (uint8_t*)&spriteInfo, sizeof( SpriteFS_t ) ) ) return false;
@@ -62,6 +71,7 @@ class SpriteFS
       if( !sprite->createSprite( spriteInfo.width, spriteInfo.height ) ) return false;
       sprite->setColorDepth( bits_per_pixel );
       ret = stream->readBytes( (uint8_t*)sprite->getBuffer(), spriteInfo.buffer_length );
+      streamduration = millis() - start;
       return ret;
     }
 };
@@ -83,9 +93,9 @@ void setup()
   SpriteFS spriteFS( sprite );
 
   if( spriteFS.save( &SD, "/white.sprite" ) ) {
-    Serial.println("Sprite saved!");
+    Serial.printf("Sprite saved! (fs: %dms, stream %dms)\n", spriteFS.fsduration, spriteFS.streamduration );
     if( spriteFS.load( &SD, "/white.sprite") ) {
-      Serial.println("Sprite loaded !");
+      Serial.printf("Sprite loaded! (fs: %dms, stream %dms)\n", spriteFS.fsduration, spriteFS.streamduration );
       sprite->pushSprite(0,0);
     } else {
       Serial.println("Failed to reload sprite");
