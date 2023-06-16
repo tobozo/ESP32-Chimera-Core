@@ -470,9 +470,12 @@
   //#define SPEAKER_PIN  -1
   #define HAS_TOUCH
   #define TFCARD_CS_PIN    4
-  // #define TFCARD_MISO_PIN 35
-  // #define TFCARD_MOSI_PIN 37
-  // #define TFCARD_SCLK_PIN 36
+  #define TFCARD_MISO_PIN 35
+  #define TFCARD_MOSI_PIN 37
+  #define TFCARD_SCLK_PIN 36
+  //#define TFCARD_USE_WIRE1
+  //#define TFCARD_SPI_HOST SPI2_HOST
+  #define TFCARD_SPI_FREQ 25000000
 
   #define SD_ENABLE     1
   #define BUTTON_A_PIN -1
@@ -482,21 +485,21 @@
   #define USE_SCREENSHOTS
 
   //       I2C
-  //  Chip     Addr
-  // ========|======
-  // GC0308  | 0X21
-  // LTR553  | 0x23
-  // AXP2101 | 0x34
-  // AW88298 | 0x36
-  // FT6336  | 0x38
-  // ES7210  | 0x40
-  // BM8563  | 0x51
-  // AW9523  | 0x58
-  // BMI270  | 0x69
-  // BMM150  | 0x10
+  //  Chip     Addr   Role
+  // ========|======|======
+  // GC0308  | 0X21 | Camera
+  // LTR553  | 0x23 | Proximity
+  // AXP2101 | 0x34 | Power
+  // AW88298 | 0x36 | Speaker
+  // FT6336  | 0x38 | Touch
+  // ES7210  | 0x40 | Audio
+  // BM8563  | 0x51 | RTC
+  // AW9523  | 0x58 | GPIO Expander
+  // BMI270  | 0x69 | Accel/Gyro
+  // BMM150  | 0x10 | Magnet
 
-  //#define HAS_BM8563
-  //#define HAS_RTC
+  #define HAS_BM8563
+  #define HAS_RTC
 
   #define HAS_AXP2101
 
