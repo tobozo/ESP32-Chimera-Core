@@ -37,6 +37,10 @@
   using M5Display = LGFX;
 #endif
 
+// lame legacy support for TFT_eSPI
+#define TFT_eSprite LGFX_Sprite
+#define TFT_eSPI LGFX
+
 
 // ChimeraCore utilities
 #if defined HAS_SDCARD && (defined USE_SCREENSHOTS || !defined ECC_NO_SCREENSHOT)
