@@ -114,7 +114,7 @@ jobs:
           path: CustomLGFX # must contain string "Custom"
 
       - name: ${{ matrix.board }}
-        uses: ArminJo/arduino-test-compile@v3
+        uses: ArminJo/arduino-test-compile@master
         with:
           # platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
           platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
