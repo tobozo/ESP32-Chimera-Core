@@ -116,7 +116,8 @@ jobs:
       - name: ${{ matrix.board }}
         uses: ArminJo/arduino-test-compile@v3
         with:
-          platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+          # platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+          platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
           arduino-board-fqbn: esp32:esp32:${{ matrix.board }}
           arduino-platform: esp32:esp32@${{ matrix.platform-version }}
           #required-libraries: LovyanGFX
