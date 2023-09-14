@@ -61,7 +61,7 @@ jobs:
           - odroid_esp32
 
         exclude:
-          - { board: m5stack-cores3, ... }
+          - { board: m5stack-cores3 }
           - { board: esp32wroverkit, platform-version: 1.0.6 } # No ESP32-Wrover-Kit board profile before 2.0.0
           - { board: esp32s3box, platform-version: 1.0.6 } # No esp32s3box support before 2.0.3
           #- { board: esp32s3box, platform-version: 2.0.0 } # No esp32s3box support before 2.0.3
