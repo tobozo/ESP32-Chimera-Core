@@ -29,8 +29,8 @@
 #define LGFX_USE_V1
 #define TouchButton LGFX_Button
 
-#if defined ARDUINO_ESP32_S3_BOX
-  #include "ext_confs/ESP32-S3-Box.hpp"
+#if defined ECC_LGFX_EXT_CONF
+  #include ECC_LGFX_EXT_CONF
 #else
   #define LGFX_AUTODETECT
   #include <LovyanGFX.hpp>

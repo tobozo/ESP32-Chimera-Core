@@ -597,6 +597,8 @@
     ECC_PRAGMA_MESSAGE("ESP32-S3-BOX SELECTED")
   #endif
 
+  #define ECC_LGFX_EXT_CONF "ext_confs/ESP32-S3-Box.hpp"
+
   //#undef HAS_SDCARD
   //#define SD_ENABLE 0
 
@@ -642,6 +644,53 @@
 
   //#undef USE_SCREENSHOTS
   #undef USE_NVSUTILS
+
+
+#elif defined ARDUINO_LILYGO_T_DECK
+
+  #define ECC_LGFX_EXT_CONF "ext_confs/Lilygo-S3-T-Deck.hpp"
+
+  #define HAS_TOUCH
+  #define TOUCH_INT 16
+  #define TOUCH_SDA 18
+  #define TOUCH_SCL 8
+  #define TOUCH_ADDR 0x5D
+  #define TOUCH_WATERLINE 200 // any Y touch coord higher is in buttons zone
+
+  #define TFCARD_CS_PIN 39
+  #define SD_ENABLE 1
+  #define BUTTON_A_PIN -1
+  #define BUTTON_B_PIN -1
+  #define BUTTON_C_PIN -1
+  #define SPEAKER_PIN  -1
+
+  // #define TDECK_PERI_POWERON 10
+  //
+  // #define TDECK_RADIO_CS 9
+  // #define TDECK_RADIO_BUSY 13
+  // #define TDECK_RADIO_RST 17
+  // #define TDECK_RADIO_DIO1 45
+  //
+  // #define TDECK_KEYBOARD_INT 46
+  // #define TDECK_KEYBOARD_ADDR 0x55
+  //
+  // #define TDECK_TRACKBALL_UP 3
+  // #define TDECK_TRACKBALL_DOWN 15
+  // #define TDECK_TRACKBALL_LEFT 1
+  // #define TDECK_TRACKBALL_RIGHT 2
+  // #define TDECK_TRACKBALL_CLICK 0
+  //
+  // #define TDECK_ES7210_MCLK 48
+  // #define TDECK_ES7210_LRCK 21
+  // #define TDECK_ES7210_SCK 47
+  // #define TDECK_ES7210_DIN 14
+  //
+  // #define TDECK_I2S_WS 5
+  // #define TDECK_I2S_BCK 7
+  // #define TDECK_I2S_DOUT 6
+  //
+  // #define TDECK_BAT_ADC 4
+
 
 #else
 
