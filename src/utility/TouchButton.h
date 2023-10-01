@@ -20,7 +20,7 @@
   #warning Older version of LovyanGFX detected, please update !! Using legacy TouchButton instead.
 
   /***************************************************************************************
-  // Inspired by TFT_eSPI TouchButton
+  // Inspired by LGFX TouchButton
   // Templated to allow drawing buttons to a sprite (not the best way though)
   ***************************************************************************************/
 
@@ -30,12 +30,12 @@
     TouchButton(void);
     // "Classic" initButton() uses center & size
     void initButton(void *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize);
-    void initButton(TFT_eSPI *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize);
-    void initButton(TFT_eSprite *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize);
+    void initButton(LGFX *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize);
+    void initButton(LGFX_Sprite *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize);
     // New/alt initButton() uses upper-left corner & size
     void initButtonUL(void *gfx, int16_t x1, int16_t y1, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize);
-    void initButtonUL(TFT_eSPI *gfx, int16_t x1, int16_t y1, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize);
-    void initButtonUL(TFT_eSprite *gfx, int16_t x1, int16_t y1, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize);
+    void initButtonUL(LGFX *gfx, int16_t x1, int16_t y1, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize);
+    void initButtonUL(LGFX_Sprite *gfx, int16_t x1, int16_t y1, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize);
     // Adjust text datum and x, y deltas
     void setLabelDatum(int16_t x_delta, int16_t y_delta, textdatum_t datum = MC_DATUM);
     void drawButton(bool inverted = false, String long_name = "");

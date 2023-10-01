@@ -10,26 +10,26 @@ TouchButton::TouchButton(void) {
   _textdatum = MC_DATUM;
 }
 
-void TouchButton::initButton( TFT_eSPI *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize)
+void TouchButton::initButton( LGFX *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize)
 {
   isSprite = false;
   initButton( (void*)gfx, x, y, w, h, outline, fill, textcolor, label, textsize);
 }
 
-void TouchButton::initButton( TFT_eSprite *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize)
+void TouchButton::initButton( LGFX_Sprite *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize)
 {
   isSprite = true;
   initButton( (void*)gfx, x, y, w, h, outline, fill, textcolor, label, textsize);
 }
 
 
-void TouchButton::initButtonUL( TFT_eSPI *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize)
+void TouchButton::initButtonUL( LGFX *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize)
 {
   isSprite = false;
   initButton( (void*)gfx, x, y, w, h, outline, fill, textcolor, label, textsize);
 }
 
-void TouchButton::initButtonUL( TFT_eSprite *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize)
+void TouchButton::initButtonUL( LGFX_Sprite *gfx, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t outline, uint16_t fill, uint16_t textcolor, char *label, uint8_t textsize)
 {
   isSprite = true;
   initButton( (void*)gfx, x, y, w, h, outline, fill, textcolor, label, textsize);
@@ -71,10 +71,10 @@ void TouchButton::setLabelDatum(int16_t x_delta, int16_t y_delta, textdatum_t da
 
 void TouchButton::drawButton(bool inverted, String long_name) {
   if( isSprite ) {
-    auto gfx = reinterpret_cast<TFT_eSprite*>(_gfx);
+    auto gfx = reinterpret_cast<LGFX_Sprite*>(_gfx);
     drawButton( gfx, inverted, long_name );
   } else {
-    auto gfx = reinterpret_cast<TFT_eSPI*>(_gfx);
+    auto gfx = reinterpret_cast<LGFX*>(_gfx);
     drawButton( gfx, inverted, long_name );
   }
 }
