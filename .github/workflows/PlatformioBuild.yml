@@ -75,8 +75,8 @@ jobs:
           #- { board: esp32s3box, platform-version: 2.0.1 }
           #- { board: esp32s3box, platform-version: 2.0.2 }
           #- { board: esp32s3box, platform-version: 2.0.4 }
-#          - board: esp-wrover-kit
-#            platform-version: 1.0.6
+          - { board: TDeck, platform-version: 1.0.6 }
+          #- { board: esp-wrover-kit, platform-version: 1.0.6}
           - { board: m5stack-core2, platform-version: 1.0.6 } # M5Core2.h broken I2S support with 1.0.6
           - { board: CoreS3, platform-version: 1.0.6 } # M5Core2.h broken I2S support with 1.0.6
           #- { board: m5stack-core2, platform-version: 2.0.0 } # M5Core2.h broken I2S support with 2.0.0
@@ -93,7 +93,7 @@ jobs:
           # - platform-version: 2.0.6
           # - platform-version: 2.0.7
           # - platform-version: 2.0.8
-          - platform-version: 2.0.9
+          # - platform-version: 2.0.9
           - platform-version: 2.0.10
           - platform-version: 2.0.11
           - platform-version: 2.0.12
@@ -110,6 +110,7 @@ jobs:
           - board: ttgo-t-watch
           - board: ttgo-t1
           - board: CoreS3
+          - board: TDeck
 
       fail-fast: false
     steps:

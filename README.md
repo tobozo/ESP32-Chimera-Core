@@ -13,7 +13,9 @@ This library is a *substitute* of the original [M5Stack](https://github.com/m5st
   - [M5Stack Classic](https://m5stack.com/products/basic-core-iot-development-kit)
   - [M5Stack Fire](https://m5stack.com/collections/m5-core/products/fire-iot-development-kit)
   - [M5Stack Core2](https://m5stack.com/products/m5stack-core2-esp32-iot-development-kit)
+  - [M5Stack CoreS3](https://m5stack.com/products/m5stack-cores3-esp32s3-lotdevelopment-kit)
   - [M5StickC](https://m5stack.com/collections/m5-core/products/stick-c)
+  - [LilyGo T-Deck](https://www.lilygo.cc/products/t-deck)
   - [Odroid-Go](https://www.hardkernel.com/shop/odroid-go/)
   - [ESP32-S3-Box](https://github.com/espressif/esp-box)
   - [D-Duino-32-XS](https://www.tindie.com/products/lspoplove/dstike-d-duino-32-xs/)
@@ -21,7 +23,7 @@ This library is a *substitute* of the original [M5Stack](https://github.com/m5st
   - [ESP32-Wrover-Kit (v4.1, v4.2, v4.3)](https://www.sparkfun.com/products/14917)
   - [Lilygo TTGO-TS](https://www.banggood.com/LILYGO-TTGO-TS-ESP32-1_44-Inch-TFT-MicroSD-Card-Slot-Speakers-bluetooth-Wifi-Module-p-1273383.html)
   - [Lilygo TTGO-Twatch](http://www.lilygo.cn/prod_view.aspx?TypeId=50053&Id=1290)
-  - [Soon] Lilygo TTGO-LoRa32 (v1, v2, v2.1)
+  - [Lilygo TTGO-LoRa32 v2](https://www.lilygo.cc/products/lora3)
 
 
 
@@ -114,3 +116,4 @@ Sketch compilation can eventually be tuned-up to a specific device by using macr
   - [Nochi](https://github.com/shikarunochi)
   - [こばさん](https://github.com/wakwak-koba)
   - [Illustration By Jacopo Ligozzi](https://commons.wikimedia.org/w/index.php?curid=53514521)
+  - [M5Widgets By @Kongduino](https://github.com/Kongduino)
