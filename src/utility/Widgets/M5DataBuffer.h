@@ -2,7 +2,7 @@
 
 #include <functional>
 #include <string.h> // bring up memcpy()
-
+#include <cstdlib>
 
 class DataBuffer {
 public:
