@@ -470,9 +470,12 @@
   //#define SPEAKER_PIN  -1
   #define HAS_TOUCH
   #define TFCARD_CS_PIN    4
-  // #define TFCARD_MISO_PIN 35
-  // #define TFCARD_MOSI_PIN 37
-  // #define TFCARD_SCLK_PIN 36
+  #define TFCARD_MISO_PIN 35
+  #define TFCARD_MOSI_PIN 37
+  #define TFCARD_SCLK_PIN 36
+  //#define TFCARD_USE_WIRE1
+  //#define TFCARD_SPI_HOST SPI2_HOST
+  #define TFCARD_SPI_FREQ 25000000
 
   #define SD_ENABLE     1
   #define BUTTON_A_PIN -1
@@ -482,21 +485,21 @@
   #define USE_SCREENSHOTS
 
   //       I2C
-  //  Chip     Addr
-  // ========|======
-  // GC0308  | 0X21
-  // LTR553  | 0x23
-  // AXP2101 | 0x34
-  // AW88298 | 0x36
-  // FT6336  | 0x38
-  // ES7210  | 0x40
-  // BM8563  | 0x51
-  // AW9523  | 0x58
-  // BMI270  | 0x69
-  // BMM150  | 0x10
+  //  Chip     Addr   Role
+  // ========|======|======
+  // GC0308  | 0X21 | Camera
+  // LTR553  | 0x23 | Proximity
+  // AXP2101 | 0x34 | Power
+  // AW88298 | 0x36 | Speaker
+  // FT6336  | 0x38 | Touch
+  // ES7210  | 0x40 | Audio
+  // BM8563  | 0x51 | RTC
+  // AW9523  | 0x58 | GPIO Expander
+  // BMI270  | 0x69 | Accel/Gyro
+  // BMM150  | 0x10 | Magnet
 
-  //#define HAS_BM8563
-  //#define HAS_RTC
+  #define HAS_BM8563
+  #define HAS_RTC
 
   #define HAS_AXP2101
 
@@ -594,6 +597,8 @@
     ECC_PRAGMA_MESSAGE("ESP32-S3-BOX SELECTED")
   #endif
 
+  #define ECC_LGFX_EXT_CONF "ext_confs/ESP32-S3-Box.hpp"
+
   //#undef HAS_SDCARD
   //#define SD_ENABLE 0
 
@@ -639,6 +644,55 @@
 
   //#undef USE_SCREENSHOTS
   #undef USE_NVSUTILS
+
+
+#elif defined ARDUINO_LILYGO_T_DECK
+
+  #define ECC_LGFX_EXT_CONF "ext_confs/Lilygo-S3-T-Deck.hpp"
+
+  #define HAS_TOUCH
+  #define TOUCH_INT 16
+  #define TOUCH_SDA 18
+  #define TOUCH_SCL 8
+  #define TOUCH_ADDR 0x5D
+  #define TOUCH_WATERLINE 200 // any Y touch coord higher is in buttons zone
+
+  #define TFCARD_CS_PIN 39
+  #define SD_ENABLE 1
+  #define BUTTON_A_PIN -1
+  #define BUTTON_B_PIN -1
+  #define BUTTON_C_PIN -1
+  #define SPEAKER_PIN  -1
+
+  // LoRa mapped pins
+  #define LORA_CS_PIN   9
+  #define LORA_BUSY_PIN 13
+  #define LORA_RST_PIN  17
+  #define LORA_DIO1_PIN 45
+
+  // #define TDECK_PERI_POWERON 10
+  // #define TDECK_BAT_ADC 4
+  //
+  // #define TDECK_KEYBOARD_INT 46
+  // #define TDECK_KEYBOARD_ADDR 0x55
+  //
+  // #define TDECK_TRACKBALL_UP 3
+  // #define TDECK_TRACKBALL_DOWN 15
+  // #define TDECK_TRACKBALL_LEFT 1
+  // #define TDECK_TRACKBALL_RIGHT 2
+  // #define TDECK_TRACKBALL_CLICK 0
+  //
+  // #define TDECK_ES7210_MCLK 48
+  // #define TDECK_ES7210_LRCK 21
+  // #define TDECK_ES7210_SCK 47
+  // #define TDECK_ES7210_DIN 14
+  //
+  // #define TDECK_I2S_WS 5
+  // #define TDECK_I2S_BCK 7
+  // #define TDECK_I2S_DOUT 6
+  //
+
+
 
 #else
 

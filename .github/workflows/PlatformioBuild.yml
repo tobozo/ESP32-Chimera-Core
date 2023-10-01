@@ -44,11 +44,15 @@ jobs:
           #- 2.0.2
           #- 2.0.3
           #- 2.0.4
-          - 2.0.5
-          - 2.0.6
-          - 2.0.7
-          - 2.0.8
+          # - 2.0.5
+          # - 2.0.6
+          # - 2.0.7
+          # - 2.0.8
           - 2.0.9
+          - 2.0.10
+          - 2.0.11
+          - 2.0.12
+          - 2.0.13
 
         board:
           - esp32
@@ -64,6 +68,7 @@ jobs:
           - ttgo-t1
           - CoreS3
           #- ttgo-lora32-v2
+          - TDeck
 
         exclude:
           - { board: esp32s3box, platform-version: 1.0.6 }
@@ -71,8 +76,8 @@ jobs:
           #- { board: esp32s3box, platform-version: 2.0.1 }
           #- { board: esp32s3box, platform-version: 2.0.2 }
           #- { board: esp32s3box, platform-version: 2.0.4 }
-#          - board: esp-wrover-kit
-#            platform-version: 1.0.6
+          - { board: TDeck, platform-version: 1.0.6 }
+          #- { board: esp-wrover-kit, platform-version: 1.0.6}
           - { board: m5stack-core2, platform-version: 1.0.6 } # M5Core2.h broken I2S support with 1.0.6
           - { board: CoreS3, platform-version: 1.0.6 } # M5Core2.h broken I2S support with 1.0.6
           #- { board: m5stack-core2, platform-version: 2.0.0 } # M5Core2.h broken I2S support with 2.0.0
@@ -85,11 +90,15 @@ jobs:
           #- platform-version: 2.0.2
           #- platform-version: 2.0.3
           #- platform-version: 2.0.4
-          - platform-version: 2.0.5
-          - platform-version: 2.0.6
-          - platform-version: 2.0.7
-          - platform-version: 2.0.8
-          - platform-version: 2.0.9
+          # - platform-version: 2.0.5
+          # - platform-version: 2.0.6
+          # - platform-version: 2.0.7
+          # - platform-version: 2.0.8
+          # - platform-version: 2.0.9
+          - platform-version: 2.0.10
+          - platform-version: 2.0.11
+          - platform-version: 2.0.12
+          - platform-version: 2.0.13
           - board: esp32
           - board: m5stick-c
           - board: m5stack-core-esp32
@@ -102,6 +111,7 @@ jobs:
           - board: ttgo-t-watch
           - board: ttgo-t1
           - board: CoreS3
+          - board: TDeck
 
       fail-fast: false
     steps:

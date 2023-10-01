@@ -1,3 +1,152 @@
+### Lilygo T-Deck (ESP32-S3 based)
+
+lilygo_t_deck.name=LilyGo T-Deck
+lilygo_t_deck.vid.0=0x303a
+lilygo_t_deck.pid.0=0x1001
+
+lilygo_t_deck.bootloader.tool=esptool_py
+lilygo_t_deck.bootloader.tool.default=esptool_py
+
+lilygo_t_deck.upload.tool=esptool_py
+lilygo_t_deck.upload.tool.default=esptool_py
+lilygo_t_deck.upload.tool.network=esp_ota
+
+lilygo_t_deck.upload.maximum_size=3145728
+lilygo_t_deck.upload.maximum_data_size=327680
+lilygo_t_deck.upload.speed=921600
+lilygo_t_deck.upload.flags=
+lilygo_t_deck.upload.extra_flags=
+lilygo_t_deck.upload.use_1200bps_touch=false
+lilygo_t_deck.upload.wait_for_upload_port=false
+
+lilygo_t_deck.serial.disableDTR=false
+lilygo_t_deck.serial.disableRTS=false
+
+lilygo_t_deck.build.tarch=xtensa
+lilygo_t_deck.build.bootloader_addr=0x0
+lilygo_t_deck.build.target=esp32s3
+lilygo_t_deck.build.mcu=esp32s3
+lilygo_t_deck.build.core=esp32
+lilygo_t_deck.build.variant=lilygo_t_deck
+lilygo_t_deck.build.board=LILYGO_T_DECK
+
+lilygo_t_deck.build.usb_mode=1
+lilygo_t_deck.build.cdc_on_boot=1
+lilygo_t_deck.build.msc_on_boot=0
+lilygo_t_deck.build.dfu_on_boot=0
+lilygo_t_deck.build.f_cpu=240000000L
+lilygo_t_deck.build.flash_size=16MB
+lilygo_t_deck.build.flash_freq=80m
+lilygo_t_deck.build.flash_mode=dio
+lilygo_t_deck.build.boot=qio
+lilygo_t_deck.build.boot_freq=80m
+lilygo_t_deck.build.partitions=default_16MB
+lilygo_t_deck.build.defines=-DBOARD_HAS_PSRAM
+lilygo_t_deck.build.loop_core=
+lilygo_t_deck.build.event_core=
+lilygo_t_deck.build.psram_type=opi
+lilygo_t_deck.build.memory_type={build.boot}_{build.psram_type}
+
+## IDE 2.0 Seems to not update the value
+lilygo_t_deck.menu.JTAGAdapter.default=Disabled
+lilygo_t_deck.menu.JTAGAdapter.default.build.copy_jtag_files=0
+lilygo_t_deck.menu.JTAGAdapter.builtin=Integrated USB JTAG
+lilygo_t_deck.menu.JTAGAdapter.builtin.build.openocdscript=esp32s3-builtin.cfg
+lilygo_t_deck.menu.JTAGAdapter.builtin.build.copy_jtag_files=1
+
+lilygo_t_deck.menu.LoopCore.1=Core 1
+lilygo_t_deck.menu.LoopCore.1.build.loop_core=-DARDUINO_RUNNING_CORE=1
+lilygo_t_deck.menu.LoopCore.0=Core 0
+lilygo_t_deck.menu.LoopCore.0.build.loop_core=-DARDUINO_RUNNING_CORE=0
+
+lilygo_t_deck.menu.EventsCore.1=Core 1
+lilygo_t_deck.menu.EventsCore.1.build.event_core=-DARDUINO_EVENT_RUNNING_CORE=1
+lilygo_t_deck.menu.EventsCore.0=Core 0
+lilygo_t_deck.menu.EventsCore.0.build.event_core=-DARDUINO_EVENT_RUNNING_CORE=0
+
+# lilygo_t_deck.menu.USBMode.hwcdc=Hardware CDC and JTAG
+# lilygo_t_deck.menu.USBMode.hwcdc.build.usb_mode=1
+# lilygo_t_deck.menu.USBMode.default=USB-OTG (TinyUSB)
+# lilygo_t_deck.menu.USBMode.default.build.usb_mode=0
+
+lilygo_t_deck.menu.USBMode.hwcdc=Hardware CDC and JTAG
+lilygo_t_deck.menu.USBMode.hwcdc.build.usb_mode=1
+lilygo_t_deck.menu.USBMode.hwcdc.upload.use_1200bps_touch=false
+lilygo_t_deck.menu.USBMode.hwcdc.upload.wait_for_upload_port=false
+lilygo_t_deck.menu.USBMode.default=USB-OTG
+lilygo_t_deck.menu.USBMode.default.build.usb_mode=0
+lilygo_t_deck.menu.USBMode.default.upload.use_1200bps_touch=true
+lilygo_t_deck.menu.USBMode.default.upload.wait_for_upload_port=true
+
+lilygo_t_deck.menu.CDCOnBoot.cdc=Enabled
+lilygo_t_deck.menu.CDCOnBoot.cdc.build.cdc_on_boot=1
+lilygo_t_deck.menu.CDCOnBoot.default=Disabled
+lilygo_t_deck.menu.CDCOnBoot.default.build.cdc_on_boot=0
+
+lilygo_t_deck.menu.MSCOnBoot.default=Disabled
+lilygo_t_deck.menu.MSCOnBoot.default.build.msc_on_boot=0
+lilygo_t_deck.menu.MSCOnBoot.msc=Enabled (Requires USB-OTG Mode)
+lilygo_t_deck.menu.MSCOnBoot.msc.build.msc_on_boot=1
+
+lilygo_t_deck.menu.DFUOnBoot.default=Disabled
+lilygo_t_deck.menu.DFUOnBoot.default.build.dfu_on_boot=0
+lilygo_t_deck.menu.DFUOnBoot.dfu=Enabled (Requires USB-OTG Mode)
+lilygo_t_deck.menu.DFUOnBoot.dfu.build.dfu_on_boot=1
+
+lilygo_t_deck.menu.UploadMode.default=UART0 / Hardware CDC
+lilygo_t_deck.menu.UploadMode.default.upload.use_1200bps_touch=false
+lilygo_t_deck.menu.UploadMode.default.upload.wait_for_upload_port=false
+lilygo_t_deck.menu.UploadMode.cdc=USB-OTG CDC (TinyUSB)
+lilygo_t_deck.menu.UploadMode.cdc.upload.use_1200bps_touch=true
+lilygo_t_deck.menu.UploadMode.cdc.upload.wait_for_upload_port=true
+
+lilygo_t_deck.menu.PartitionScheme.default_16MB=Default 16MB with spiffs (2x 6.5 MB APP/3.6MB SPIFFS)
+lilygo_t_deck.menu.PartitionScheme.default_16MB.build.partitions=default_16MB
+lilygo_t_deck.menu.PartitionScheme.default_16MB.upload.maximum_size=6553600
+lilygo_t_deck.menu.PartitionScheme.app3M_fat9M_16MB=16M Flash (3MB APP/9.9MB FATFS)
+lilygo_t_deck.menu.PartitionScheme.app3M_fat9M_16MB.build.partitions=app3M_fat9M_16MB
+lilygo_t_deck.menu.PartitionScheme.app3M_fat9M_16MB.upload.maximum_size=3145728
+lilygo_t_deck.menu.PartitionScheme.rainmaker=RainMaker
+lilygo_t_deck.menu.PartitionScheme.rainmaker.build.partitions=rainmaker
+lilygo_t_deck.menu.PartitionScheme.rainmaker.upload.maximum_size=3145728
+lilygo_t_deck.menu.PartitionScheme.default=4MB with spiffs (2x 1.2MB APP/1.5MB SPIFFS)
+lilygo_t_deck.menu.PartitionScheme.default.build.partitions=default
+lilygo_t_deck.menu.PartitionScheme.defaultffat=4MB with ffat (2x 1.2MB APP/1.5MB FATFS)
+lilygo_t_deck.menu.PartitionScheme.defaultffat.build.partitions=default_ffat
+lilygo_t_deck.menu.PartitionScheme.default_8MB=8M with spiffs (2x 3MB APP/1.5MB SPIFFS)
+lilygo_t_deck.menu.PartitionScheme.default_8MB.build.partitions=default_8MB
+lilygo_t_deck.menu.PartitionScheme.default_8MB.upload.maximum_size=3342336
+lilygo_t_deck.menu.PartitionScheme.large_spiffs=16MB with Large SPIFFS (2x 4MB APP/7MB SPIFFS)
+lilygo_t_deck.menu.PartitionScheme.large_spiffs.build.partitions=large_spiffs_16MB
+lilygo_t_deck.menu.PartitionScheme.large_spiffs.upload.maximum_size=4685824
+lilygo_t_deck.menu.PartitionScheme.factory_4apps=16MB+Factory (4x 3MB APP/2MB SPIFFS)
+lilygo_t_deck.menu.PartitionScheme.factory_4apps.build.custom_partitions=partitions_16MB_factory_4_apps
+# lilygo_t_deck.menu.PartitionScheme.factory_4apps.upload.extra_flags=0xc10000 "{runtime.platform.path}/variants/{build.variant}/firmware.bin"
+lilygo_t_deck.menu.PartitionScheme.factory_4apps.upload.maximum_size=3145728
+lilygo_t_deck.menu.PartitionScheme.factory_6apps=16MB+Factory (6x 2MB APP/2MB SPIFFS)
+lilygo_t_deck.menu.PartitionScheme.factory_6apps.build.custom_partitions=partitions_16MB_factory_6_apps
+# lilygo_t_deck.menu.PartitionScheme.factory_6apps.upload.extra_flags=0xc10000 "{runtime.platform.path}/variants/{build.variant}/firmware.bin"
+lilygo_t_deck.menu.PartitionScheme.factory_6apps.upload.maximum_size=2097152
+
+lilygo_t_deck.menu.DebugLevel.none=None
+lilygo_t_deck.menu.DebugLevel.none.build.code_debug=0
+lilygo_t_deck.menu.DebugLevel.error=Error
+lilygo_t_deck.menu.DebugLevel.error.build.code_debug=1
+lilygo_t_deck.menu.DebugLevel.warn=Warn
+lilygo_t_deck.menu.DebugLevel.warn.build.code_debug=2
+lilygo_t_deck.menu.DebugLevel.info=Info
+lilygo_t_deck.menu.DebugLevel.info.build.code_debug=3
+lilygo_t_deck.menu.DebugLevel.debug=Debug
+lilygo_t_deck.menu.DebugLevel.debug.build.code_debug=4
+lilygo_t_deck.menu.DebugLevel.verbose=Verbose
+lilygo_t_deck.menu.DebugLevel.verbose.build.code_debug=5
+
+lilygo_t_deck.menu.EraseFlash.none=Disabled
+lilygo_t_deck.menu.EraseFlash.none.upload.erase_cmd=
+lilygo_t_deck.menu.EraseFlash.all=Enabled
+lilygo_t_deck.menu.EraseFlash.all.upload.erase_cmd=-e
+
+
 ########## Odroid-Go fix for wroom/wrover mismatch with upload and partition size) ###########
 
 odroid_esp32.upload.maximum_size=6553600

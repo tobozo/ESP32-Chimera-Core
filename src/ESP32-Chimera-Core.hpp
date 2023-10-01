@@ -29,13 +29,17 @@
 #define LGFX_USE_V1
 #define TouchButton LGFX_Button
 
-#if defined ARDUINO_ESP32_S3_BOX
-  #include "ext_confs/ESP32-S3-Box.hpp"
+#if defined ECC_LGFX_EXT_CONF
+  #include ECC_LGFX_EXT_CONF
 #else
   #define LGFX_AUTODETECT
   #include <LovyanGFX.hpp>
   using M5Display = LGFX;
 #endif
+
+// lame legacy support for TFT_eSPI
+#define TFT_eSprite LGFX_Sprite
+#define TFT_eSPI LGFX
 
 
 // ChimeraCore utilities
@@ -302,3 +306,5 @@ using M5Stack  = ChimeraCore::ECCKernel;
 //using TWatch   = ChimeraCore::ECCKernel;
 
 extern M5Stack M5;
+
+

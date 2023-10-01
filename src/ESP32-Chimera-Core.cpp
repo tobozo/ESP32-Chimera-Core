@@ -306,7 +306,7 @@ namespace ChimeraCore
         #if defined HAS_SDCARD
           log_d("Enabling SD from TFCARD_CS_PIN #%d at %d Hz from core #%d", TFCARD_CS_PIN, TFCARD_SPI_FREQ, SD_CORE_ID );
           M5STACK_SD.end();
-          ret = M5STACK_SD.begin(TFCARD_CS_PIN/*, SPI, TFCARD_SPI_FREQ*/);
+          ret = M5STACK_SD.begin(TFCARD_CS_PIN, SPI, TFCARD_SPI_FREQ);
         #endif
 
       #endif

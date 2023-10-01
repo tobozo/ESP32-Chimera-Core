@@ -38,11 +38,15 @@ jobs:
           #- 2.0.2
           #- 2.0.3
           #- 2.0.4
-          - 2.0.5
-          - 2.0.6
-          - 2.0.7
-          - 2.0.8
-          - 2.0.9
+          #- 2.0.5
+          #- 2.0.6
+          # - 2.0.7
+          # - 2.0.8
+          # - 2.0.9
+          - 2.0.11
+          - 2.0.12
+          - 2.0.13
+          - latest
 
         board:
           # Supported boards fancy names
@@ -50,6 +54,7 @@ jobs:
           - esp32wroverkit
           - m5stack-core2
           - m5stack-core-esp32
+          - m5stack-cores3
           - m5stick-c
           - m5stack-fire
           - twatch
@@ -59,6 +64,7 @@ jobs:
           - odroid_esp32
 
         exclude:
+          - { board: m5stack-cores3 }
           - { board: esp32wroverkit, platform-version: 1.0.6 } # No ESP32-Wrover-Kit board profile before 2.0.0
           - { board: esp32s3box, platform-version: 1.0.6 } # No esp32s3box support before 2.0.3
           #- { board: esp32s3box, platform-version: 2.0.0 } # No esp32s3box support before 2.0.3
@@ -68,6 +74,7 @@ jobs:
 
         include:
           # testable boards
+          - { board: m5stack-cores3, platform-version: latest }
           - board: esp32
           - board: esp32wroverkit
           - board: m5stack-core2
@@ -87,11 +94,15 @@ jobs:
           #- platform-version: 2.0.2
           #- platform-version: 2.0.3
           #- platform-version: 2.0.4
-          - platform-version: 2.0.5
-          - platform-version: 2.0.6
-          - platform-version: 2.0.7
-          - platform-version: 2.0.8
-          - platform-version: 2.0.9
+          #- platform-version: 2.0.5
+          #- platform-version: 2.0.6
+          # - platform-version: 2.0.7
+          # - platform-version: 2.0.8
+          # - platform-version: 2.0.9
+          - platform-version: 2.0.11
+          - platform-version: 2.0.12
+          - platform-version: 2.0.13
+          - platform-version: latest
 
       fail-fast: false
 
@@ -109,9 +120,10 @@ jobs:
           path: CustomLGFX # must contain string "Custom"
 
       - name: ${{ matrix.board }}
-        uses: ArminJo/arduino-test-compile@v3
+        uses: ArminJo/arduino-test-compile@master
         with:
-          platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+          # platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+          platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
           arduino-board-fqbn: esp32:esp32:${{ matrix.board }}
           arduino-platform: esp32:esp32@${{ matrix.platform-version }}
           #required-libraries: LovyanGFX

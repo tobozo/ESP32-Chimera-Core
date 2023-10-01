@@ -1,8 +1,8 @@
 #pragma once
 
 #define ECC_VERSION_MAJOR 1
-#define ECC_VERSION_MINOR 4
-#define ECC_VERSION_PATCH 9
+#define ECC_VERSION_MINOR 5
+#define ECC_VERSION_PATCH 0
 #if !defined _ECC_STR
   #define _ECC_STR(x) #x
 #endif
