@@ -79,19 +79,19 @@ class M5Widget {
     /// Destructor for a widget, clearing any child widgets and freeing memory
     virtual ~M5Widget();
     /// Gets the x-coordinate of the widget
-    const int getX(void) {
+    int getX(void) {
       return x;
     }
     /// Gets the y-coordinate of the widget
-    const int getY(void) {
+    int getY(void) {
       return y;
     }
     /// Gets the width of the widget
-    const int getWidth(void) {
+    int getWidth(void) {
       return width;
     }
     /// Gets the height of the widget
-    const int getHeight(void) {
+    int getHeight(void) {
       return height;
     }
     /// Sets the new bounds (x, y, width, height) of the widget
@@ -111,7 +111,7 @@ class M5Widget {
        Standard indices for all widgets are defined as the constants
        BACKGROUND, FRAME, FOREGROUND, CONTENT, HIGHLIGHT and ACTIVATED.
     */
-    const uint16_t color(int colorId) {
+    uint16_t color(int colorId) {
       return myColors[colorId];
     }
 

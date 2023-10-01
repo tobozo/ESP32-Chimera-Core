@@ -32,12 +32,12 @@
 
 class M5LineGraph : public M5Widget {
  public:
-  M5LineGraph( lgfx::LGFX_Device* _gfx ) : _pos(0), autoClearDisabled(false), M5Widget(_gfx) {}
+  M5LineGraph( lgfx::LGFX_Device* _gfx ) : M5Widget(_gfx), _pos(0), autoClearDisabled(false) {}
   void setLineCount(int nrLines);
-  const void setLineColor(unsigned char lineIdx, uint16_t color) { _lineColors[lineIdx]=color; }
+  void setLineColor(unsigned char lineIdx, uint16_t color) { _lineColors[lineIdx]=color; }
   void setRange(float minimum, float maximum);
-  const uint16_t lineColor(unsigned char lineIdx) { return _lineColors[lineIdx]; }
-  const unsigned int position(void) { return _pos; }
+  uint16_t lineColor(unsigned char lineIdx) { return _lineColors[lineIdx]; }
+  unsigned int position(void) { return _pos; }
   void addValues(const float* values);
   void addValue(float value);
   void setAutoClear(bool autoClear) { autoClearDisabled = !autoClear; }
