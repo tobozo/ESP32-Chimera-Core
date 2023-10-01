@@ -20,20 +20,26 @@
       LGFX_S3TDeck(void)
       {
 
-        // Power on display
-        pinMode(GPIO_NUM_10 /* TDECK_PERI_POWERON */, OUTPUT);
-        digitalWrite(GPIO_NUM_10 /* TDECK_PERI_POWERON */, HIGH);
+        // Power on display (pin=TDECK_PERI_POWERON)
+        lgfx::pinMode(GPIO_NUM_10, lgfx::pin_mode_t::output);
+        lgfx::gpio_hi(GPIO_NUM_10 );
 
-        // Wakeup touch chip
-        pinMode(GPIO_NUM_16 /* TDECK_TOUCH_INT */, OUTPUT);
-        digitalWrite(GPIO_NUM_16 /* TDECK_TOUCH_INT */, HIGH); delay(20);
+        // Wakeup touch chip (pin=TDECK_TOUCH_INT)
+        lgfx::pinMode(GPIO_NUM_16, lgfx::pin_mode_t::output);
+        lgfx::gpio_hi(GPIO_NUM_16 );
+        delay(20);
 
-        // Set touch int input
-        pinMode(GPIO_NUM_16 /* TDECK_TOUCH_INT */, INPUT); delay(20);
+        // Set touch int input (pin=TDECK_TOUCH_INT)
+        lgfx::pinMode(GPIO_NUM_16, lgfx::pin_mode_t::input);
+        delay(20);
 
-        // tf card
-        // pinMode(GPIO_NUM_39 /* TFCARD_CS_PIN */, OUTPUT);
-        // digitalWrite(GPIO_NUM_39 /* TFCARD_CS_PIN */, HIGH);
+        // tf card (pin=TFCARD_CS_PIN)
+        lgfx::pinMode(GPIO_NUM_39, lgfx::pin_mode_t::output);
+        lgfx::gpio_hi(GPIO_NUM_39 );
+
+        // Wakeup LoRa (pin=TDECK_RADIO_CS)
+        lgfx::pinMode(GPIO_NUM_9,  lgfx::pin_mode_t::output);
+        lgfx::gpio_hi(GPIO_NUM_9 );
 
         {
           auto cfg = _bus_instance.config();

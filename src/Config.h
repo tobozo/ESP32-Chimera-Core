@@ -664,12 +664,14 @@
   #define BUTTON_C_PIN -1
   #define SPEAKER_PIN  -1
 
+  // LoRa mapped pins
+  #define LORA_CS_PIN   9
+  #define LORA_BUSY_PIN 13
+  #define LORA_RST_PIN  17
+  #define LORA_DIO1_PIN 45
+
   // #define TDECK_PERI_POWERON 10
-  //
-  // #define TDECK_RADIO_CS 9
-  // #define TDECK_RADIO_BUSY 13
-  // #define TDECK_RADIO_RST 17
-  // #define TDECK_RADIO_DIO1 45
+  // #define TDECK_BAT_ADC 4
   //
   // #define TDECK_KEYBOARD_INT 46
   // #define TDECK_KEYBOARD_ADDR 0x55
@@ -689,7 +691,7 @@
   // #define TDECK_I2S_BCK 7
   // #define TDECK_I2S_DOUT 6
   //
-  // #define TDECK_BAT_ADC 4
+
 
 
 #else
