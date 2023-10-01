@@ -68,6 +68,7 @@ jobs:
           - ttgo-t1
           - CoreS3
           #- ttgo-lora32-v2
+          - TDeck
 
         exclude:
           - { board: esp32s3box, platform-version: 1.0.6 }
