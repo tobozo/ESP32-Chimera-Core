@@ -13,7 +13,7 @@
 #endif
 
 #if defined ESP_ARDUINO_VERSION_VAL
-  #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+  #if ESP_ARDUINO_VERSION > ESP_ARDUINO_VERSION_VAL(2,0,14)
     #include <driver/adc.h>
     #include <esp_adc_cal.h>
     // adc1_config_width
@@ -29,9 +29,8 @@
   #endif
 
 #else
-  #include <esp_adc/adc_continuous.h>
-  #include <esp_adc/adc_oneshot.h>
-  #include <esp_adc/adc_cali_scheme.h>
+  #include <driver/adc.h>
+  #include <esp_adc_cal.h>
 #endif
 
 
