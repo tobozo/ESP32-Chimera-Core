@@ -14,7 +14,8 @@ void SPEAKER::begin()
       ledcAttach( _pin, 0, 13 ); // Note: auto channel ?
     #endif
   #else
-    ledcAttach( _pin, 0, 13 ); // Note: auto channel ?
+    ledcSetup(_channel, 0, 13);
+    ledcAttachPin(_pin, _channel);
   #endif
 
   #ifdef ARDUINO_ODROID_ESP32
@@ -33,7 +34,7 @@ void SPEAKER::end() {
       ledcDetach(_pin);
     #endif
   #else
-    ledcDetach(_pin);
+    ledcDetachPin(_pin);
   #endif
   _begun = false;
 }
@@ -114,6 +115,6 @@ void SPEAKER::playMusic(const uint8_t* music_data, uint16_t sample_rate)
       ledcAttach(_pin, 0, 13);
     #endif
   #else
-    ledcAttach(_pin, 0, 13);
+    ledcAttachPin(_pin, _channel);
   #endif
 }
