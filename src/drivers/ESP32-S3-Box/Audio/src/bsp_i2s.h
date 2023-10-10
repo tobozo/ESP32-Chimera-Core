@@ -19,7 +19,7 @@
     #include "driver/i2s_std.h"
   #endif
 #else
-  #include "driver/i2s_std.h"
+  #include "driver/i2s.h"
 #endif
 
 #ifdef __cplusplus
