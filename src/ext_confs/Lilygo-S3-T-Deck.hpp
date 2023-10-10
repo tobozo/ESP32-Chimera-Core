@@ -86,7 +86,7 @@
           cfg.y_min = 0;
           cfg.x_max = 240;
           cfg.y_max = 320;
-          //cfg.bus_shared = true;
+          cfg.bus_shared = true;
           // I2C
           cfg.i2c_port = I2C_NUM_1;
           cfg.i2c_addr = 0x5D;

@@ -68,9 +68,10 @@ uint8_t Button::read(void)
     #else
       pinVal = digitalRead(_pin);
     #endif
+    if (_invert != 0) pinVal = !pinVal;
+    return setState(pinVal);
   }
-  if (_invert != 0) pinVal = !pinVal;
-  return setState(pinVal);
+  return 0;
 }
 
 uint8_t Button::setState(uint8_t pinVal)

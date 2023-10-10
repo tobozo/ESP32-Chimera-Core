@@ -2,7 +2,18 @@
 #define _SPEAKER_H_
 
 #include <stdint.h>
-#include <esp32-hal-dac.h>
+
+
+#if __has_include(<esp_arduino_version.h>) // platformio has optional esp_arduino_version
+  #include <esp_arduino_version.h>
+#endif
+
+#if defined ESP_ARDUINO_VERSION_VAL && ESP_ARDUINO_VERSION > ESP_ARDUINO_VERSION_VAL(2,0,14)
+  #define SOC_DAC_SUPPORTED 1
+  #include <esp32-hal.h>
+#else
+  #include <esp32-hal-dac.h>
+#endif
 
 class SPEAKER
 {

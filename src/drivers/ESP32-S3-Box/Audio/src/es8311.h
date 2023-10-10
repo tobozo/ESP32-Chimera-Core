@@ -25,6 +25,7 @@
 #ifndef _ES8311_H
 #define _ES8311_H
 
+#include "rom/ets_sys.h"
 #include "audio_hal.h"
 #include "esp_types.h"
 #include "esxxx_common.h"

@@ -13,6 +13,7 @@
 #include <esp_sleep.h>
 #include <math.h>
 
+
 Battery::Battery()
 {
     this->_enable_protection = false;

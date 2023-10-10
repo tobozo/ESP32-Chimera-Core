@@ -4,6 +4,13 @@
 #ifndef __M5_Speaker_Class_H__
 #define __M5_Speaker_Class_H__
 
+#if __has_include(<esp_arduino_version.h>) // platformio has optional esp_arduino_version
+  #include <esp_arduino_version.h>
+#endif
+
+#if defined ESP_ARDUINO_VERSION_VAL && ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+
+
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <driver/i2s.h>
@@ -232,4 +239,5 @@ namespace ChimeraCore
   };
 }
 
+#endif
 #endif

@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "rom/ets_sys.h"
 #include "esp_err.h"
 #include "bsp_board.h"
 #include "es8311.h"
