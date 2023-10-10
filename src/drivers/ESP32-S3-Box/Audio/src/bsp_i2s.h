@@ -12,8 +12,12 @@
   #include <esp_arduino_version.h>
 #endif
 
-#if defined ESP_ARDUINO_VERSION_VAL && ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
-  #include "driver/i2s.h"
+#if defined ESP_ARDUINO_VERSION_VAL
+  #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+    #include "driver/i2s.h"
+  #else
+    #include "driver/i2s_std.h"
+  #endif
 #else
   #include "driver/i2s_std.h"
 #endif

@@ -6,25 +6,32 @@ void SPEAKER::begin()
 {
   _begun = true;
 
-  #if defined ESP_ARDUINO_VERSION_VAL && ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
-    ledcSetup(_channel, 0, 13);
-    ledcAttachPin(_pin, _channel);
+  #if defined ESP_ARDUINO_VERSION_VAL
+    #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+      ledcSetup(_channel, 0, 13);
+      ledcAttachPin(_pin, _channel);
+    #else
+      ledcAttach( _pin, 0, 13 ); // Note: auto channel ?
+    #endif
   #else
     ledcAttach( _pin, 0, 13 ); // Note: auto channel ?
   #endif
 
-
-#ifdef ARDUINO_ODROID_ESP32
-  pinMode(25, OUTPUT);
-  digitalWrite(25, HIGH);
-#endif
+  #ifdef ARDUINO_ODROID_ESP32
+    pinMode(25, OUTPUT);
+    digitalWrite(25, HIGH);
+  #endif
   setBeep(1000, 100);
 }
 
 void SPEAKER::end() {
   mute();
-  #if defined ESP_ARDUINO_VERSION_VAL && ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
-    ledcDetachPin(_pin);
+  #if defined ESP_ARDUINO_VERSION_VAL
+    #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+      ledcDetachPin(_pin);
+    #else
+      ledcDetach(_pin);
+    #endif
   #else
     ledcDetach(_pin);
   #endif
@@ -100,8 +107,12 @@ void SPEAKER::playMusic(const uint8_t* music_data, uint16_t sample_rate)
     }
   }
   // ledcSetup(_channel, 0, 13);
-  #if defined ESP_ARDUINO_VERSION_VAL && ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
-    ledcAttachPin(_pin, _channel);
+  #if defined ESP_ARDUINO_VERSION_VAL
+    #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+      ledcAttachPin(_pin, _channel);
+    #else
+      ledcAttach(_pin, 0, 13);
+    #endif
   #else
     ledcAttach(_pin, 0, 13);
   #endif

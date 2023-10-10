@@ -8,12 +8,17 @@
   #include <esp_arduino_version.h>
 #endif
 
-#if defined ESP_ARDUINO_VERSION_VAL && ESP_ARDUINO_VERSION > ESP_ARDUINO_VERSION_VAL(2,0,14)
-  #define SOC_DAC_SUPPORTED 1
-  #include <esp32-hal.h>
+
+#if defined ESP_ARDUINO_VERSION_VAL
+  #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+    #include <esp32-hal.h>
+  #else
+    #include <esp32-hal-dac.h>
+  #endif
 #else
   #include <esp32-hal-dac.h>
 #endif
+
 
 class SPEAKER
 {

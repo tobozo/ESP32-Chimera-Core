@@ -12,16 +12,21 @@
   #include <esp_arduino_version.h>
 #endif
 
-#if defined ESP_ARDUINO_VERSION_VAL && ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
-  #include <driver/adc.h>
-  #include <esp_adc_cal.h>
-
-  // adc1_config_width
-  // adc1_config_channel_atten
-  // esp_adc_cal_characterize
-  // adc1_get_raw
-  // esp_adc_cal_raw_to_voltage
-  // esp_adc_cal_characteristics_t
+#if defined ESP_ARDUINO_VERSION_VAL
+  #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+    #include <driver/adc.h>
+    #include <esp_adc_cal.h>
+    // adc1_config_width
+    // adc1_config_channel_atten
+    // esp_adc_cal_characterize
+    // adc1_get_raw
+    // esp_adc_cal_raw_to_voltage
+    // esp_adc_cal_characteristics_t
+  #else
+    #include <esp_adc/adc_continuous.h>
+    #include <esp_adc/adc_oneshot.h>
+    #include <esp_adc/adc_cali_scheme.h>
+  #endif
 
 #else
   #include <esp_adc/adc_continuous.h>

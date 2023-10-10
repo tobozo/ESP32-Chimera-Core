@@ -5,7 +5,8 @@
   #include <esp_arduino_version.h>
 #endif
 
-#if defined ESP_ARDUINO_VERSION_VAL && ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+#if defined ESP_ARDUINO_VERSION_VAL
+  #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
 
 
 #include "Speaker_Class.hpp"
@@ -465,4 +466,5 @@ namespace ChimeraCore
 }
 
 
+#endif
 #endif
