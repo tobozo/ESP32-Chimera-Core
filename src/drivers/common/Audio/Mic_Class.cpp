@@ -3,6 +3,15 @@
 
 #include "Mic_Class.hpp"
 
+
+#if __has_include(<esp_arduino_version.h>) // platformio has optional esp_arduino_version
+  #include <esp_arduino_version.h>
+#endif
+
+#if defined ESP_ARDUINO_VERSION_VAL
+  #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+
+
 #include "../../../ESP32-Chimera-Core.h"
 
 #if __has_include (<esp_idf_version.h>)
@@ -313,3 +322,6 @@ namespace ChimeraCore
     return true;
   }
 }
+
+#endif
+#endif

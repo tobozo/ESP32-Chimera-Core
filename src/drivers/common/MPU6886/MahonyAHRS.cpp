@@ -29,10 +29,10 @@
 //---------------------------------------------------------------------------------------------------
 // Variable definitions
 
-volatile float twoKp = twoKpDef;											// 2 * proportional gain (Kp)
-volatile float twoKi = twoKiDef;											// 2 * integral gain (Ki)
-volatile float q0 = 1.0, q1 = 0.0, q2 = 0.0, q3 = 0.0;					// quaternion of sensor frame relative to auxiliary frame
-volatile float integralFBx = 0.0f,  integralFBy = 0.0f, integralFBz = 0.0f;	// integral error terms scaled by Ki
+float twoKp = twoKpDef;											// 2 * proportional gain (Kp)
+float twoKi = twoKiDef;											// 2 * integral gain (Ki)
+float q0 = 1.0, q1 = 0.0, q2 = 0.0, q3 = 0.0;					// quaternion of sensor frame relative to auxiliary frame
+float integralFBx = 0.0f,  integralFBy = 0.0f, integralFBz = 0.0f;	// integral error terms scaled by Ki
 
 //---------------------------------------------------------------------------------------------------
 // Function declarations
@@ -241,6 +241,7 @@ void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#pragma GCC diagnostic ignored "-Wuninitialized" // false positive with "error: 'y' is used uninitialized"
 float invSqrt(float x)
 {
   float halfx = 0.5f * x;

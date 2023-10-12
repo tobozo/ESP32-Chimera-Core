@@ -152,11 +152,10 @@ namespace ChimeraCore
       const uint32_t _width;
       const uint32_t _height;
 
-      int16_t _x;
-      int16_t _y;
-
       fire_event_t _fire_event;
 
+      int16_t _x;
+      int16_t _y;
 
       void init()
       {

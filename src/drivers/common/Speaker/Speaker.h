@@ -12,7 +12,10 @@
 #if defined ESP_ARDUINO_VERSION_VAL
   #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
     #include <esp32-hal.h>
-  #else
+  #else // ESP_ARDUINO_VERSION_VAL >= 3.0.0
+    #define SOC_DAC_SUPPORTED 1 // why ???
+    #include <esp32-hal.h>
+    #include <esp32-hal-ledc.h>
     #include <esp32-hal-dac.h>
   #endif
 #else

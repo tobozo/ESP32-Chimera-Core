@@ -25,7 +25,7 @@ namespace ChimeraCore
       TDeck_Keyboard_Class( TwoWire* bus, uint8_t dev_addr, fire_event_t fire_event )
         : _bus(bus), _dev_addr(dev_addr), _fire_event(fire_event) { init(); }
       TDeck_Keyboard_Class( TwoWire* bus, uint8_t dev_addr, gpio_num_t pin_int, fire_event_t fire_event )
-        : _bus(bus), _dev_addr(dev_addr), _pin_int(pin_int), _fire_event(fire_event) { _has_interrupt = true; init(); }
+        : _bus(bus), _pin_int(pin_int), _dev_addr(dev_addr), _fire_event(fire_event) { _has_interrupt = true; init(); }
       TDeck_Keyboard_Class( gpio_num_t pin_sda, gpio_num_t pin_scl, uint8_t dev_addr, fire_event_t fire_event )
         : _pin_sda(pin_sda), _pin_scl(pin_scl), _dev_addr(dev_addr), _fire_event(fire_event) { _bus=&Wire1; _has_pins=true; init();  }
       TDeck_Keyboard_Class( gpio_num_t pin_sda, gpio_num_t pin_scl, gpio_num_t pin_int, uint8_t dev_addr, fire_event_t fire_event )
@@ -121,13 +121,13 @@ namespace ChimeraCore
 
       TwoWire* _bus;
 
-      fire_event_t _fire_event;
-
       gpio_num_t _pin_sda;
       gpio_num_t _pin_scl;
       gpio_num_t _pin_int;
 
       uint8_t _dev_addr = -1;
+
+      fire_event_t _fire_event;
 
       uint32_t _i2c_freq = 800000UL;
 
