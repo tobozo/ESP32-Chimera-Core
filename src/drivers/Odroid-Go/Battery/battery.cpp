@@ -8,10 +8,11 @@
 
 #include "battery.h"
 
-#if defined ARDUINO_ODROID_ESP32
+#if defined ARDUINO_ODROID_ESP32 && defined HAS_ADC_CAL_SUPPORT
 
 #include <esp_sleep.h>
 #include <math.h>
+
 
 Battery::Battery()
 {

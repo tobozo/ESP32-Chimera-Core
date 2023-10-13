@@ -115,6 +115,24 @@ namespace ChimeraCore
       }
     #endif
 
+    #if defined HAS_TRACKBALL
+      log_d("Enabling Trackball");
+      TrackBall = new TrackBall_Class(
+        TRACKBALL_UP_PIN, TRACKBALL_DOWN_PIN, TRACKBALL_LEFT_PIN, TRACKBALL_RIGHT_PIN, TRACKBALL_CLICK_PIN,
+        Lcd.width(), Lcd.height(),
+        [](int16_t x, int16_t y, bool click) { log_d("Trackball Interrupt: x=%d, y=%d, clic=%s", x, y, click?"true":"false"); }
+      );
+    #endif
+
+    #if defined HAS_KEYBOARD
+      log_d("Enabling Keyboard");
+      Keyboard = new Keyboard_Class(
+        &Wire1, KEYBOARD_I2C_ADDR, KEYBOARD_INT_PIN,
+        [](uint8_t key) { [[maybe_unused]]char c[2]={key,0}; log_d("Keyboard Interrupt: char=%s (0x%02x)", c, key); }
+      );
+    #endif
+
+
     #if defined HAS_AXP2101
       log_d("Enabling AXP2101");
       Axp.begin(&Wire1);
@@ -223,14 +241,23 @@ namespace ChimeraCore
       }
     #endif
 
-    #if defined HAS_BUTTONS && !defined ARDUINO_M5STACK_Core2
+    #if defined HAS_BUTTONS
       BtnA.read();
       BtnB.read();
       BtnC.read();
     #endif
+
     //Speaker update
     #ifdef HAS_SPEAKER
       Speaker.update();
+    #endif
+
+    #if defined HAS_TRACKBALL
+      TrackBall->update();
+    #endif
+
+    #if defined HAS_KEYBOARD
+      Keyboard->update();
     #endif
 
     #ifdef ARDUINO_ODROID_ESP32

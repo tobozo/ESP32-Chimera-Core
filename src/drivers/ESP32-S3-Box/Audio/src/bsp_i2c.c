@@ -11,6 +11,8 @@
 #include "i2c_bus.h"
 
 static const char *TAG = "bsp_i2c";
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
 
 #define ACK_CHECK_EN   0x1     /*!< I2C master will check ack from slave*/
 
@@ -134,3 +136,6 @@ i2c_bus_handle_t bsp_i2c_bus_get_handle(void)
 {
     return i2c_bus_handle;
 }
+
+
+#pragma GCC diagnostic pop

@@ -410,8 +410,8 @@ void GIF_Encoder::DitherImage( const uint8_t* lastFrame, const uint8_t* nextFram
         continue;
       }
 
-      int32_t bestDiff = 1000000;
-      int32_t bestInd = kGifTransIndex;
+      int bestDiff = 1000000;
+      int bestInd = kGifTransIndex;
 
       // Search the palete
       GetClosestPaletteColor(pPal, rr, gg, bb, bestInd, bestDiff);
@@ -489,8 +489,8 @@ void GIF_Encoder::ThresholdImage( const uint8_t* lastFrame, const uint8_t* nextF
       outFrame[3] = kGifTransIndex;
     } else {
       // palettize the pixel
-      int32_t bestDiff = 1000000;
-      int32_t bestInd = 1;
+      int bestDiff = 1000000;
+      int bestInd = 1;
       GetClosestPaletteColor(pPal, nextFrame[0], nextFrame[1], nextFrame[2], bestInd, bestDiff);
 
       // write the resulting color to the output buffer

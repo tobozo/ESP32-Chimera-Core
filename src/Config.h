@@ -3,17 +3,6 @@
 #define ECC_XSTR(x) ECC_STR(x)
 #define ECC_STR(x) #x
 
-#if !defined ECC_NO_PRAGMAS
-  #define ECC_PRAGMA_XMESSAGE(msg) ECC_PRAGMA_MESSAGE(msg)
-  #define ECC_PRAGMA_MESSAGE(msg) \
-    _Pragma( ECC_STR( message msg ) )
-  #define ECC_NO_PRAGMAS // stop flag propagation
-#else
-  #define ECC_PRAGMA_XMESSAGE(msg)
-  #define ECC_PRAGMA_MESSAGE(msg)
-#endif
-
-
 #define HAS_SDCARD
 //#define USE_SCREENSHOTS
 //#define USE_NVSUTILS
@@ -25,6 +14,20 @@
 #include "pins_arduino.h"
 #include "esp32-hal-log.h"
 #include <sdkconfig.h>
+#if __has_include(<esp_arduino_version.h>) // platformio has optional esp_arduino_version
+  #include <esp_arduino_version.h>
+#endif
+
+#if !defined ECC_NO_PRAGMAS && CORE_DEBUG_LEVEL>=ARDUHAL_LOG_LEVEL_ERROR
+  #define ECC_PRAGMA_XMESSAGE(msg) ECC_PRAGMA_MESSAGE(msg)
+  #define ECC_PRAGMA_MESSAGE(msg) \
+    _Pragma( ECC_STR( message msg ) )
+  #define ECC_NO_PRAGMAS // stop flag propagation
+#else
+  #define ECC_PRAGMA_XMESSAGE(msg)
+  #define ECC_PRAGMA_MESSAGE(msg)
+#endif
+
 
 #if defined ESP_ARDUINO_VERSION_VAL
   #if __has_include(<core_version.h>) // platformio has optional core_version.h
@@ -650,6 +653,9 @@
 
   #define ECC_LGFX_EXT_CONF "ext_confs/Lilygo-S3-T-Deck.hpp"
 
+
+
+
   #define HAS_TOUCH
   #define TOUCH_INT 16
   #define TOUCH_SDA 18
@@ -659,9 +665,20 @@
 
   #define TFCARD_CS_PIN 39
   #define SD_ENABLE 1
+
+  //#define HAS_BUTTONS
   #define BUTTON_A_PIN -1
   #define BUTTON_B_PIN -1
   #define BUTTON_C_PIN -1
+
+  #define HAS_TRACKBALL "drivers/T-Deck/trackball.h"
+  #define TRACKBALL_UP_PIN    GPIO_NUM_3
+  #define TRACKBALL_DOWN_PIN  GPIO_NUM_15
+  #define TRACKBALL_LEFT_PIN  GPIO_NUM_1
+  #define TRACKBALL_RIGHT_PIN GPIO_NUM_2
+  #define TRACKBALL_CLICK_PIN GPIO_NUM_0
+  #define TrackBall_Class TDeck_TrackBall_Class
+
   #define SPEAKER_PIN  -1
 
   // LoRa mapped pins
@@ -670,18 +687,19 @@
   #define LORA_RST_PIN  17
   #define LORA_DIO1_PIN 45
 
+  #define HAS_KEYBOARD "drivers/T-Deck/keyboard.h"
+  #define Keyboard_Class TDeck_Keyboard_Class
+
+  #define KEYBOARD_SDA_PIN GPIO_NUM_18
+  #define KEYBOARD_SCL_PIN GPIO_NUM_8
+  #define KEYBOARD_INT_PIN GPIO_NUM_46
+  #define KEYBOARD_I2C_ADDR 0x55
+
+  // Keyboard_Class( SDA, SCL, KEYBOARD_INT_PIN, KEYBOARD_ADDR, nullptr )
+
   // #define TDECK_PERI_POWERON 10
   // #define TDECK_BAT_ADC 4
-  //
-  // #define TDECK_KEYBOARD_INT 46
-  // #define TDECK_KEYBOARD_ADDR 0x55
-  //
-  // #define TDECK_TRACKBALL_UP 3
-  // #define TDECK_TRACKBALL_DOWN 15
-  // #define TDECK_TRACKBALL_LEFT 1
-  // #define TDECK_TRACKBALL_RIGHT 2
-  // #define TDECK_TRACKBALL_CLICK 0
-  //
+
   // #define TDECK_ES7210_MCLK 48
   // #define TDECK_ES7210_LRCK 21
   // #define TDECK_ES7210_SCK 47

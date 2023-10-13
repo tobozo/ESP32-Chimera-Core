@@ -5,14 +5,11 @@
  */
 
 // attempt to detect esp-idf version
-#if __has_include(<esp_arduino_version.h>)
-  #include <esp_arduino_version.h>
-#endif
 
 // esp32-2.0.2 and previous don't have the guts to handle this
 // which is fine since esp32-s3-box wasn't supported before
 #if defined ESP_ARDUINO_VERSION_VAL
-  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2, 0, 3)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2, 0, 3) && ESP_ARDUINO_VERSION < ESP_ARDUINO_VERSION_VAL(3, 0, 0)
 
     #include "bsp_board.h"
     #include "bsp_i2s.h"

@@ -7,7 +7,20 @@
 #pragma once
 
 #include "esp_err.h"
-#include "driver/i2s.h"
+
+#if __has_include(<esp_arduino_version.h>)
+  #include <esp_arduino_version.h>
+#endif
+
+#if defined ESP_ARDUINO_VERSION_VAL
+  #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+    #include "driver/i2s.h"
+  #else
+    #include "driver/i2s_std.h"
+  #endif
+#else
+  #include "driver/i2s.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {

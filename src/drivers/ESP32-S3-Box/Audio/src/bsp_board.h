@@ -10,7 +10,7 @@
 #include "esp_err.h"
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
-#include "driver/adc.h"
+//#include "driver/adc.h"
 #include "audio_hal.h"
 
 #ifdef __cplusplus

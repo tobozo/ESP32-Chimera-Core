@@ -4,9 +4,19 @@
 #ifndef __M5_Mic_Class_H__
 #define __M5_Mic_Class_H__
 
+
+#if __has_include(<esp_arduino_version.h>) // platformio has optional esp_arduino_version
+  #include <esp_arduino_version.h>
+#endif
+
+#if defined ESP_ARDUINO_VERSION_VAL
+  #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+  // version>=3.0.0 => 'driver/i2s_std.h', 'driver/i2s_pdm.h' or 'driver/i2s_tdm.h'
+
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <driver/i2s.h>
+
 
 namespace ChimeraCore
 {
@@ -144,4 +154,6 @@ namespace ChimeraCore
   };
 }
 
+#endif
+#endif
 #endif

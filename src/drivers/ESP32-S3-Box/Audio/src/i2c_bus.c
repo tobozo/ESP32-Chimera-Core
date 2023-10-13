@@ -22,6 +22,9 @@
 #define I2C_BUS_MUTEX_TICKS_TO_WAIT (I2C_BUS_MS_TO_WAIT/portTICK_RATE_MS)
 
 static const char *TAG = "i2c_bus";
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
+
 static i2c_bus_t s_i2c_bus[I2C_NUM_MAX];
 
 #define I2C_BUS_CHECK(a, str, ret) if(!(a)) { \
@@ -466,3 +469,5 @@ inline static bool i2c_config_compare(i2c_port_t port, const i2c_config_t *conf)
 
     return false;
 }
+
+#pragma GCC diagnostic pop

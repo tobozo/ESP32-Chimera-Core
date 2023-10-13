@@ -4,7 +4,7 @@
 #define _CHIMERA_CORE_
 
 #if ! defined ESP32
-  #error “This library only supports boards with ESP32 family processors”
+  #error "This library only supports boards with ESP32 family processors"
 #endif
 
 // #define MPU9250_INSDE // M5Core2 : enable this only if plugging a secondary MPU !
@@ -64,6 +64,18 @@
 
 #if defined ECC_NO_RTC
   #undef HAS_RTC
+#endif
+
+#if defined HAS_KEYBOARD && (!defined ECC_NO_KEYBOARD)
+  #include HAS_KEYBOARD // "drivers/T-Deck/keyboard.h"
+#else
+  #undef HAS_KEYBOARD
+#endif
+
+#if defined HAS_TRACKBALL && (!defined ECC_NO_TRACKBALL)
+  #include HAS_TRACKBALL // "drivers/T-Deck/trackball.h"
+#else
+  #undef HAS_TRACKBALL
 #endif
 
 #if defined HAS_SPEAKER && (!defined ECC_NO_SPEAKER)
@@ -242,6 +254,14 @@ namespace ChimeraCore
 
       #if defined HAS_AXP2101
         AXP2101 Axp;// = new AXP2101();
+      #endif
+
+      #if defined HAS_TRACKBALL
+        TrackBall_Class* TrackBall = nullptr;
+      #endif
+
+      #if defined HAS_KEYBOARD
+        Keyboard_Class* Keyboard = nullptr;
       #endif
 
       #if defined HAS_RTC

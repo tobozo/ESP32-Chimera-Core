@@ -1,6 +1,14 @@
 // Copyright (c) M5Stack. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+#if __has_include(<esp_arduino_version.h>) // platformio has optional esp_arduino_version
+  #include <esp_arduino_version.h>
+#endif
+
+#if defined ESP_ARDUINO_VERSION_VAL
+  #if ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(2,0,14)
+
+
 #include "Speaker_Class.hpp"
 
 #include "../../../ESP32-Chimera-Core.h"
@@ -456,3 +464,7 @@ namespace ChimeraCore
     return true;
   }
 }
+
+
+#endif
+#endif
