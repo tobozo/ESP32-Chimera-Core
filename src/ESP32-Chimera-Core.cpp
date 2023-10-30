@@ -127,7 +127,7 @@ namespace ChimeraCore
     #if defined HAS_KEYBOARD
       log_d("Enabling Keyboard");
       Keyboard = new Keyboard_Class(
-        &Wire1, KEYBOARD_I2C_ADDR, KEYBOARD_INT_PIN,
+        &Wire1, KEYBOARD_SDA_PIN, KEYBOARD_SCL_PIN, KEYBOARD_INT_PIN, KEYBOARD_I2C_ADDR,
         [](uint8_t key) { [[maybe_unused]]char c[2]={key,0}; log_d("Keyboard Interrupt: char=%s (0x%02x)", c, key); }
       );
     #endif

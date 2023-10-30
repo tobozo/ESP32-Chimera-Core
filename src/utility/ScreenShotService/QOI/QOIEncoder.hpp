@@ -31,20 +31,36 @@
 
 #include "../ScreenShot.hpp"
 
+struct qoienc_t
+{
+  void* device; // display or sprite
+  int32_t x, y;
+  uint32_t w, h;
+};
+
 class QOI_Encoder
 {
 
   public:
-    QOI_Encoder( LGFX *tft, fs::FS *fileSystem  ) : _tft(tft), _fileSystem(fileSystem) { };
-    void init();
-    bool encodeToFile( const char* filename, const int imageW, const int imageH );
-    bool encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH );
-    static uint8_t* get_row( uint8_t *lineBuffer, int flip, int w, int h, int y, void *qoienc );
+
+    QOI_Encoder( void* src, bool is_sprite ) : _src(src), is_sprite(is_sprite) { };
+    QOI_Encoder( LGFX *tft, fs::FS *fileSystem  ) : _src(tft), _fileSystem(fileSystem) { };
+    QOI_Encoder( LGFX_Sprite *sprite, fs::FS *fileSystem  ) : _src(sprite), _fileSystem(fileSystem) { is_sprite = true; };
+    void setFileSystem( fs::FS* fs ) { _fileSystem=fs; }
+    size_t encode( Stream* stream, qoienc_t *qoi_info );
+    size_t encodeToStream( Stream* stream, const int imageW, const int imageH );
+    size_t encodeToStream( Stream* stream, const int imageX, const int imageY, const int imageW, const int imageH );
+    size_t encodeToFile( const char* filename, const int imageW, const int imageH );
+    size_t encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH );
+    static uint8_t* get_row_tft( uint8_t *lineBuffer, int flip, int w, int h, int y, void *qoienc );
+    static uint8_t* get_row_sprite( uint8_t *lineBuffer, int flip, int w, int h, int y, void *qoienc );
     static int write_bytes(uint8_t* buf, size_t buf_len);
+    static Stream* stream;
 
   private:
 
-    LGFX *_tft;
+    void *_src; // display or sprite
+    bool is_sprite = false;
     fs::FS * _fileSystem;
 
 };
