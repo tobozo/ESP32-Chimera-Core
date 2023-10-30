@@ -77,8 +77,13 @@ namespace fs
       virtual bool seekDir(long position) { return _file.seek(position); }
       virtual bool seek(uint32_t pos, fs::SeekMode mode=SeekSet) { return _file.seek( pos, mode ); }
       virtual const char* name() const { return _file.name(); }
-      virtual const char* path() const { return _file.path();  }
-
+      virtual const char* path() const {
+        #if defined ESP_IDF_VERSION_MAJOR && ESP_IDF_VERSION_MAJOR >= 4
+          return _file->path();
+        #else
+          return _file->name();
+        #endif
+      }
       virtual String getNextFileName(void) { /* not implemented and not needed */ return String("Unimplemented"); }
       virtual String getNextFileName(bool*) { /* not implemented and not needed */ return String("Unimplemented"); }
       virtual time_t getLastWrite() { /* not implemented and not needed */  return 0; }
