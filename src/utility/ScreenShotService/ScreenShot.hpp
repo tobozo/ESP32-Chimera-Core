@@ -39,7 +39,6 @@
 #include "./AVI/AviMjpegEncoder.hpp"
 
 
-
 template <typename GFX> // GFX can be either LGFX_Sprite or LGFX_Device
 static void defaultReadRect( void* src, int32_t x, int32_t y, uint32_t w, uint32_t h, uint8_t* buf )
 {

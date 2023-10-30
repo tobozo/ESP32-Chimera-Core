@@ -118,13 +118,14 @@ void ScreenShotService::snap( const char* name, bool displayAfter )
   struct JPGENC_IMG_Proxy_t
   {
     static fs::FS* fs;
-    static fs::File file;
-    static void* open(const char *filename) { JPGENC_IMG_Proxy_t::file = JPGENC_IMG_Proxy_t::fs->open(filename, FILE_WRITE); return (void *)&JPGENC_IMG_Proxy_t::file; }
+    static void* open(const char *filename) { static auto f = fs->open(filename, FILE_WRITE); return (void *)&f; }
     static void  close(JPEGFILE *p) { File *f = (File *)p->fHandle; if (f) f->close(); }
     static int32_t read(JPEGFILE *p, uint8_t *buffer, int32_t length) { File *f = (File *)p->fHandle; return f->read(buffer, length); }
     static int32_t write(JPEGFILE *p, uint8_t *buffer, int32_t length) { File *f = (File *)p->fHandle; return f->write(buffer, length); }
     static int32_t seek(JPEGFILE *p, int32_t position) { File *f = (File *)p->fHandle; return f->seek(position); }
   };
+
+  fs::FS* JPGENC_IMG_Proxy_t::fs = nullptr;
 
 
   void ScreenShotService::snapJPG( const char* name, bool displayAfter )
@@ -135,6 +136,7 @@ void ScreenShotService::snap( const char* name, bool displayAfter )
 
     JPEG jpg;
     JPEGENCODE jpe;
+    JPGENC_IMG_Proxy_t::fs = _fileSystem;
     JPGENC_IMG_Proxy_t IMG_Proxy = JPGENC_IMG_Proxy_t();
     bool use_buffer = true;
     auto color_depth = _src->getColorDepth();
@@ -191,13 +193,13 @@ void ScreenShotService::snap( const char* name, bool displayAfter )
     iDataSize = jpg.close();
 
     if( use_buffer ) {
-      JPGENC_IMG_Proxy_t::file = _fileSystem->open(fileName, "w" );
-      if( ! JPGENC_IMG_Proxy_t::file ) {
+      auto file = _fileSystem->open(fileName, "w" );
+      if( ! file ) {
         log_e("Can't open %d for writing", fileName );
         goto _end;
       }
-      JPGENC_IMG_Proxy_t::file.write( screenShotBuffer, iDataSize );
-      JPGENC_IMG_Proxy_t::file.close();
+      file.write( screenShotBuffer, iDataSize );
+      file.close();
     }
 
     log_i( "[SUCCESS] Screenshot saved as %s (%d bytes) in %u ms", fileName, iDataSize, millis()-time_start);
