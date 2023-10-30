@@ -653,9 +653,6 @@
 
   #define ECC_LGFX_EXT_CONF "ext_confs/Lilygo-S3-T-Deck.hpp"
 
-
-
-
   #define HAS_TOUCH
   #define TOUCH_INT 16
   #define TOUCH_SDA 18
@@ -710,6 +707,30 @@
   // #define TDECK_I2S_DOUT 6
   //
 
+#elif defined ARDUINO_SUNTON_4827S043
+
+  #define ECC_LGFX_EXT_CONF "ext_confs/Sunton-4827S043.hpp"
+  #define HAS_TOUCH
+
+  #define TFCARD_CS_PIN   GPIO_NUM_10
+  #define TFCARD_MOSI_PIN GPIO_NUM_11
+  #define TFCARD_MISO_PIN GPIO_NUM_13
+  #define TFCARD_CLK_PIN  GPIO_NUM_12
+
+  #define SD_ENABLE 1
+  #define TFCARD_SPI_FREQ 80000000
+
+  //#define MONITOR_SERIAL Serial
+  #define RADAR_SERIAL Serial1
+  #define RADAR_RX_PIN GPIO_NUM_17
+  #define RADAR_TX_PIN GPIO_NUM_18
+
+  //#define HAS_BUTTONS
+  #define BUTTON_A_PIN -1
+  #define BUTTON_B_PIN -1
+  #define BUTTON_C_PIN -1
+
+  #define SPEAKER_PIN  -1
 
 
 #else
