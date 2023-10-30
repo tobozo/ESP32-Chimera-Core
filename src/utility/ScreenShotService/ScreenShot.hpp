@@ -134,13 +134,8 @@ class ScreenShotService
 
 }; // end class
 
-#if !defined HAS_JPEGENC
-  // #include "./JPG/TinyJPEGEncoder.hpp" // this JPG Encoder is slow
-#else
-  //#include "./JPG/
-#endif
 #include "./BMP/TinyBMPEncoder.hpp"
-#include "./PNG/FatPNGEncoder.hpp" // requires miniz.c patched with TDEFL_LESS_MEMORY=1
+#include "./PNG/FatPNGEncoder.hpp"
 #include "./GIF/TinyGIFEncoder.hpp"
 #include "./QOI/QOIEncoder.hpp"
 

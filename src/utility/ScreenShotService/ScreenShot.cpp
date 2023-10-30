@@ -29,12 +29,7 @@
 
 #include "ScreenShot.hpp"
 
-/*
-ScreenShotService::ScreenShotService( M5Display *tft, fs::FS &fileSystem )
-{
-  // wut ?
-}
-*/
+
 ScreenShotService::~ScreenShotService()
 {
   if( _begun ) {
@@ -220,7 +215,6 @@ void ScreenShotService::snap( const char* name, bool displayAfter )
 
 
 
-
   void ScreenShotService::snapAVI( AVI_Params_t *params, bool finalize )
   {
     assert( params );
@@ -348,66 +342,6 @@ void ScreenShotService::snap( const char* name, bool displayAfter )
     }
   }
 
-
-#else // no JPEGENC library found, use the TinyJpegEncoder
-
-  // // this is lame
-  // static uint32_t jpeg_encoder_xoffset = 0;
-  // static uint32_t jpeg_encoder_yoffset = 0;
-  // static uint32_t jpeg_encoder_w       = 0;
-  //
-  // static void readRectRGB(uint32_t y, uint32_t h, unsigned char* rgbBuffer, void* device)
-  // {
-  //   auto tft = (LGFX*)device;
-  //   tft->readRectRGB( jpeg_encoder_xoffset, jpeg_encoder_yoffset+y, jpeg_encoder_w, h, rgbBuffer );
-  // }
-  //
-  // void ScreenShotService::snapJPG( const char* name, bool displayAfter )
-  // {
-  //   if( !jpegCapture ) return;
-  //   jpeg_encoder_xoffset = _x;
-  //   jpeg_encoder_yoffset = _y;
-  //   jpeg_encoder_w = _w;
-  //   genFileName( name, "jpg" );
-  //   [[maybe_unused]] uint32_t time_start = millis();
-  //
-  //   screenShotBufSize = (_w*8*3)+1;
-  //
-  //   if( _psram && psramInit() ) {
-  //     log_v("Will attempt to allocate psram for screenshots");
-  //     screenShotBuffer = (uint8_t*)ps_calloc( screenShotBufSize, sizeof( uint8_t ) );
-  //   } else {
-  //     log_v("Will attempt to allocate ram for screenshots");
-  //     screenShotBuffer = (uint8_t*)calloc( screenShotBufSize, sizeof( uint8_t ) );
-  //     _psram = false;
-  //   }
-  //   if( screenShotBuffer != NULL ) {
-  //     log_v( "ScreenShot Service can use JPG capture" );
-  //   } else {
-  //     log_i( "Not enough ram to use jpeg screenshot" );
-  //     jpegCapture = false;
-  //     return;
-  //   }
-  //
-  //   JPEG_Encoder* JPEGEncoder = new JPEG_Encoder( _fileSystem );
-  //   JPEGEncoder->begin( _psram );
-  //
-  //   if ( !JPEGEncoder->encodeToFile( fileName, _w, _h, 3 /*3=RGB,4=RGBA*/, screenShotBuffer, &readRectRGB, _src ) ) {
-  //     log_i( "[ERROR] Could not write JPG file to: %s", fileName );
-  //   } else {
-  //     fs::File outFile = _fileSystem->open( fileName );
-  //     log_i( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, outFile.size(), millis()-time_start);
-  //     outFile.close();
-  //     if( displayAfter ) {
-  //       snapAnimation();
-  //       _src->drawJpgFile( *_fileSystem, fileName, _x, _y, _w, _h, 0, 0 );
-  //       delay(5000);
-  //     }
-  //   }
-  //   delete JPEGEncoder;
-  //   free( screenShotBuffer );
-  // }
-
 #endif
 
 
@@ -468,11 +402,6 @@ void ScreenShotService::snapGIF( const char* name, bool displayAfter )
     fs::File outFile = _fileSystem->open( fileName );
     log_i( "[SUCCESS] Screenshot saved as %s (%d bytes). Total time %u ms", fileName, outFile.size(), millis()-time_start);
     outFile.close();
-    //if( displayAfter ) {
-    //  snapAnimation();
-    //  _src->drawGifFile( *_fileSystem, fileName, 0, 0 );
-    //  delay(5000);
-    //}
   }
   delete GIFEncoder;
 }
