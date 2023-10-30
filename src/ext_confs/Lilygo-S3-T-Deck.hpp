@@ -88,13 +88,13 @@
           cfg.y_max = 320;
           cfg.bus_shared = true;
           // I2C
-          cfg.i2c_port = I2C_NUM_1;
+          cfg.i2c_port = I2C_NUM_1; // Wire1
           cfg.i2c_addr = 0x5D;
           cfg.pin_sda  = GPIO_NUM_18;
           cfg.pin_scl  = GPIO_NUM_8;
           cfg.pin_int  = GPIO_NUM_16;
           cfg.pin_rst  = -1;
-          cfg.freq     = 400000;
+          cfg.freq     = 800000;
           _touch_instance.config(cfg);
           _panel_instance.setTouch(&_touch_instance);
         }
