@@ -79,9 +79,9 @@ namespace fs
       virtual const char* name() const { return _file.name(); }
       virtual const char* path() const {
         #if defined ESP_IDF_VERSION_MAJOR && ESP_IDF_VERSION_MAJOR >= 4
-          return _file->path();
+          return _file.path();
         #else
-          return _file->name();
+          return _file.name();
         #endif
       }
       virtual String getNextFileName(void) { /* not implemented and not needed */ return String("Unimplemented"); }
