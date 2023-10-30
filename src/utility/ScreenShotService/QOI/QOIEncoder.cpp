@@ -37,22 +37,23 @@
 #endif
 
 
-struct quoienc_t
-{
-  LGFX* display;
-  int x, y, w, h;
-};
+Stream* QOI_Encoder::stream = nullptr;
 
 
-static Stream* _qoi_dest = nullptr;
-
-
-
-uint8_t* QOI_Encoder::get_row( uint8_t *lineBuffer, int flip, int w, int h, int y, void *qoienc )
+uint8_t* QOI_Encoder::get_row_sprite( uint8_t *lineBuffer, int flip, int w, int h, int y, void *qoienc )
 {
   assert( qoienc );
-  auto qoi_info = (quoienc_t*)qoienc;
-  qoi_info->display->readRectRGB( qoi_info->x, qoi_info->y + y, w, h, lineBuffer );
+  auto qoi_info = (qoienc_t*)qoienc;
+  ((LGFX_Sprite*)(qoi_info->device))->readRectRGB( qoi_info->x, qoi_info->y + y, w, h, lineBuffer );
+  return lineBuffer;
+}
+
+
+uint8_t* QOI_Encoder::get_row_tft( uint8_t *lineBuffer, int flip, int w, int h, int y, void *qoienc )
+{
+  assert( qoienc );
+  auto qoi_info = (qoienc_t*)qoienc;
+  ((LGFX*)(qoi_info->device))->readRectRGB( qoi_info->x, qoi_info->y + y, w, h, lineBuffer );
   return lineBuffer;
 }
 
@@ -60,51 +61,65 @@ uint8_t* QOI_Encoder::get_row( uint8_t *lineBuffer, int flip, int w, int h, int 
 
 int QOI_Encoder::write_bytes(uint8_t* buf, size_t buf_len)
 {
-  assert( _qoi_dest );
-  return _qoi_dest->write( buf, buf_len );
+  assert( QOI_Encoder::stream );
+  return QOI_Encoder::stream->write( buf, buf_len );
 }
 
 
-
-
-
-
-void QOI_Encoder::init()
+size_t QOI_Encoder::encode( Stream* stream, qoienc_t *qoi_info )
 {
-  // if( !psramInit() ) {
-  //   log_n("[INFO] No PSRAM found, PNG Encoding won't work");
-  // }
+  assert(stream);
+  assert(qoi_info);
+  QOI_Encoder::stream = stream;
+  RGBColor lineBuffer[qoi_info->w+1];
+  return lgfx_qoi_encoder_write_cb( &lineBuffer, 4096, qoi_info->w, qoi_info->h, 3, 0, is_sprite?get_row_sprite:get_row_tft, write_bytes, qoi_info );
 }
 
 
-bool QOI_Encoder::encodeToFile( const char* filename, const int imageW, const int imageH )
+size_t QOI_Encoder::encodeToStream( Stream* stream, const int w, const int h )
 {
-  return encodeToFile( filename, 0, 0, imageW, imageH );
+  return encodeToStream( stream, 0, 0, w, h );
 }
 
 
-bool QOI_Encoder::encodeToFile( const char* filename, const int imageX, const int imageY, const int imageW, const int imageH )
+size_t QOI_Encoder::encodeToStream( Stream* stream, const int x, const int y, const int w, const int h )
 {
-  quoienc_t qoi_info;
-  qoi_info.display = _tft;
-  qoi_info.x = imageX;
-  qoi_info.y = imageY;
-  qoi_info.w = imageW;
-  qoi_info.h = imageH;
+  assert( stream );
+  qoienc_t qoi_info;
+  qoi_info.device = _src;
+  qoi_info.x = x;
+  qoi_info.y = y;
+  qoi_info.w = w;
+  qoi_info.h = h;
+  return encode( stream, &qoi_info );
+}
 
+
+size_t QOI_Encoder::encodeToFile( const char* filename, const int w, const int h )
+{
+  return encodeToFile( filename, 0, 0, w, h );
+}
+
+
+size_t QOI_Encoder::encodeToFile( const char* filename, const int x, const int y, const int w, const int h )
+{
+  assert( filename );
+  assert( _fileSystem );
+  qoienc_t qoi_info;
+  qoi_info.device = _src;
+  qoi_info.x = x;
+  qoi_info.y = y;
+  qoi_info.w = w;
+  qoi_info.h = h;
   fs::File destFile = _fileSystem->open( filename, "w");
   if( !destFile ) {
     log_e( "Can't write capture file %s, make sure the path exists!", filename );
-    return false;
+    return 0;
   }
-  log_e( "Opened capture file %s for writing...", filename );
-  _qoi_dest = (Stream*)&destFile;
-  RGBColor lineBuffer[imageW+1];
-  //uint8_t* lineBuffer = (uint8_t*)calloc(4096, sizeof(uint8_t));
-  size_t written_bytes = lgfx_qoi_encoder_write_cb( &lineBuffer, 4096, imageW, imageH, 3, 0, get_row, write_bytes, &qoi_info );
-  //free( lineBuffer );
+  log_v( "Opened capture file %s for writing...", filename );
+  size_t written_bytes = encode( &destFile, &qoi_info );
   destFile.close();
-  return written_bytes > 0;
+  return written_bytes;
 }
 
 

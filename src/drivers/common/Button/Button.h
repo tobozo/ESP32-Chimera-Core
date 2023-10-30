@@ -30,6 +30,7 @@ class Button
     uint8_t  pressedFor(uint32_t ms);
     uint8_t  releasedFor(uint32_t ms);
     uint8_t  wasReleasefor(uint32_t ms);
+    uint8_t  wasReleaseFor(uint32_t ms) { return wasReleasefor(ms); } // compliance with M5Unified camel casing
     uint32_t lastChange();
     void     setDebounce( uint32_t dbTime_millis) { _dbTime_millis = dbTime_millis; }
 #ifdef ARDUINO_ODROID_ESP32
